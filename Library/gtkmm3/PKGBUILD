@@ -17,7 +17,7 @@ sha256sums=('9b8d4af5e1bb64e52b53bc8ef471ef43e1b9d11a829f16ef54c3a92985b0dd0c')
 
 build() {
   cd "$_pkgbasename-$pkgver"
-  ./configure --prefix=/usr
+  ./configure --prefix=/usr --enable-static 
   make
 }
 
