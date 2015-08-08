@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Dan McGee <dan@archlinux.org>
+# Contributor: Manolis Tzanidakis <manolis@archlinux.org>
+
+pkgname=geoip
+pkgver=1.6.2
+pkgrel=1
+pkgdesc="Non-DNS IP-to-country resolver C library & utils"
+arch=('i686' 'x86_64')
+url="http://www.maxmind.com/app/c"
+license=('GPL')
+#depends=('zlib' 'geoip-database')
+depends=('zlib')
+makedepends=('autoconf' 'libtool')
+backup=('etc/geoip/GeoIP.conf')
+options=('!emptydirs' 'staticlibs')
+source=(https://github.com/maxmind/${pkgname}-api-c/archive/v${pkgver}.tar.gz)
+sha256sums=('72562fc10792eea6cfa662d93ef40c6541b73619df8057a6e411144e671a9174')
+
+prepare() {
+  cd geoip-api-c-$pkgver
+  autoreconf -vi
+}
+
+build() {
+  cd geoip-api-c-$pkgver
+
+  ./configure \
+    --prefix=/usr \
+    --mandir=/usr/share/man \
+    --sysconfdir=/etc/geoip --enable-static
+  make
+}
+
+package() {
+  cd geoip-api-c-$pkgver
+  make DESTDIR="$pkgdir" install
+}
+
+# vim:set ts=2 sw=2 et:
