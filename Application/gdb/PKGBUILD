@@ -3,9 +3,9 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gdb
-pkgver=7.8.1
+pkgver=7.9.1
 pkgrel=1
-pkgdesc="The GNU Debugger"
+pkgdesc='The GNU Debugger'
 arch=('i686' 'x86_64')
 url="http://www.gnu.org/software/gdb/"
 license=('GPL3')
@@ -15,36 +15,44 @@ makedepends=('texinfo')
 backup=('etc/gdb/gdbinit')
 install=gdb.install
 source=(http://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz)
-md5sums=('8072be87a94be0936bc3b4b6941b0862')
+sha1sums=('04ba2906279b16b5f99c4f6b25942843a3717cdb')
+validpgpkeys=('F40ADB902B24264AA42E50BF92EDB04BFF325CF3') # Joel Brobecker
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=mate64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=mate
+fi
 
 prepare() {
-  cd ${pkgname}-${pkgver}
+  cd gdb-$pkgver
 
   # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure
 }
 
 build() {
-  cd ${pkgname}-${pkgver}
+  cd gdb-$pkgver
   
   # guile support has a severe bug https://sourceware.org/bugzilla/show_bug.cgi?id=17247
-  ./configure --prefix=/usr/local/gdb --disable-nls \
+  ./configure --prefix=/usr/local/${dstdir} --disable-nls \
     --with-system-readline \
     --without-python \
-    --with-system-gdbinit=/usr/local/gdb/etc/gdb/gdbinit \
+    --with-system-gdbinit=/usr/local/${dstdir}/etc/gdb/gdbinit \
     --without-guile
   make
 }
 
 package() {
-  cd ${pkgname}-${pkgver}
-  make DESTDIR=${pkgdir} install
+  cd gdb-$pkgver
+  make DESTDIR=$pkgdir install
 
   # install "custom" system gdbinit
-  install -dm755 $pkgdir/usr/local/gdb/etc/gdb
-  touch $pkgdir/usr/local/gdb/etc/gdb/gdbinit
+  install -dm755 $pkgdir/usr/local/${dstdir}/etc/gdb
+  touch $pkgdir/usr/local/${dstdir}/etc/gdb/gdbinit
 
   # resolve conflicts with binutils
-  rm ${pkgdir}/usr/local/gdb/include/{ansidecl,bfd,bfdlink,dis-asm,symcat}.h
-  rm ${pkgdir}/usr/local/gdb/share/info/{bfd,configure,standards}.info
+  rm ${pkgdir}/usr/local/${dstdir}/include/{ansidecl,bfd,bfdlink,dis-asm,symcat}.h
+  rm ${pkgdir}/usr/local/${dstdir}/share/info/bfd.info
+  rm $pkgdir/usr/local/${dstdir}/lib/{libbfd,libopcodes}.a
 }
