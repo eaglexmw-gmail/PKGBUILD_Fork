@@ -1,23 +1,19 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
 _ver=1.10
-_pkgbase=mate-terminal
-pkgname=(${_pkgbase})
-pkgver=${_ver}.1
+_pkgbase=python-caja
+pkgname=python2-caja
+pkgver=${_ver}.0
 pkgrel=1
-pkgdesc="The MATE Terminal Emulator (GTK2 version)"
+pkgdesc="Python binding for Caja, to allow Caja property page and menu item extensions to be written in Python (GTK2 version)"
 url="http://mate-desktop.org"
 arch=('i686' 'x86_64')
 license=('GPL')
-#depends=('dbus' 'dconf' 'libsm' 'mate-desktop>=1.10' 'vte')
-depends=('dbus' 'dconf' 'libsm')
-makedepends=('docbook2x' 'mate-common' 'yelp-tools')
-optdepends=('yelp: for reading MATE help documents')
-groups=('mate-extra')
-conflicts=("${_pkgbase}-gtk3")
+# depends=('caja>=1.10' 'python2-gobject')
+makedepends=('mate-common')
+conflicts=('python2-caja-gtk3')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
-sha1sums=('72794300b9815de0e861e535e3c5601c19441c54')
-install=${_pkgbase}.install
+sha1sums=('6e9fa98bd3ee82106534dad3a464aebe436fa0a0')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64
@@ -25,16 +21,19 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=mate
 fi
 
+prepare() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    sed -i 's/python-config/python2-config/' configure
+}
+
 build() {
     cd "${srcdir}/${_pkgbase}-${pkgver}"
 
     export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/mate_gtk+2.0/lib/pkgconfig/
 
-    ./configure \
+    PYTHON=/usr/bin/python2 ./configure \
         --prefix=/usr/local/${dstdir}/mate_gtk+2.0 \
-        --with-gtk=2.0 \
         --disable-static
-
     make
 }
 
