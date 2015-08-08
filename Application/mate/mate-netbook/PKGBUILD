@@ -1,0 +1,43 @@
+# Maintainer : Martin Wimpress <code@flexion.org>
+
+_ver=1.10
+_pkgbase=mate-netbook
+pkgname=${_pkgbase}
+pkgver=${_ver}.0
+pkgrel=1
+pkgdesc="A simple window management tool (GTK2 version)"
+url="http://mate-desktop.org"
+arch=('i686' 'x86_64')
+license=('GPL')
+# depends=('gtk2' 'libfakekey' 'libwnck' 'libunique' 'mate-panel>=1.10')
+depends=('gtk2' 'libwnck')
+makedepends=('mate-common')
+source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
+conflicts=("${_pkgbase}-gtk3")
+sha1sums=('d4067ba7357f8a6f0e6874660c9850ae600ff1a8')
+install=${_pkgbase}.install
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=mate64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=mate
+fi
+
+build() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+
+    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/mate_gtk+2.0/lib/pkgconfig/
+
+    ./configure \
+        --prefix=/usr/local/${dstdir}/mate_gtk+2.0 \
+        --libexec=/usr/local/${dstdir}/mate_gtk+2.0/lib/${_pkgbase} \
+        --sysconfdir=/usr/local/${dstdir}/mate_gtk+2.0/etc \
+        --with-gtk=2.0 \
+        --disable-static
+    make
+}
+
+package() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}

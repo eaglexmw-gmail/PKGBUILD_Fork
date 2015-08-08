@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd "/usr/local/warsow/share/warsow"
+./wsw_server $*
+exit $?

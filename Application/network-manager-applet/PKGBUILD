@@ -1,0 +1,66 @@
+# $Id$
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+# Contributor: Arjan Timmerman <arjan@archlinux.org>
+# Contributor: Wael Nasreddine <gandalf@siemens-mobiles.org>
+# Contributor: Tor Krill <tor@krill.nu>
+# Contributor: Will Rea <sillywilly@gmail.com>
+
+pkgname=network-manager-applet
+pkgver=0.9.8.8
+pkgrel=1
+pkgdesc="GNOME frontends to NetWorkmanager"
+arch=(i686 x86_64)
+license=(GPL)
+url="http://www.gnome.org/projects/NetworkManager/"
+#depends=("networkmanager>=${pkgver%.*}" libsecret gtk3 libnotify
+#         gnome-icon-theme mobile-broadband-provider-info iso-codes)
+depends=('libnotify' 'gnome-icon-theme' 'mobile-broadband-provider-info' 'iso-codes')
+#makedepends=(intltool gnome-bluetooth gobject-introspection modemmanager)
+makedepends=(intltool gobject-introspection gobject-introspection modemmanager)
+optdepends=('gnome-bluetooth: for PAN/DUN support')
+options=('!emptydirs')
+install=network-manager-applet.install
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/0.9/$pkgname-$pkgver.tar.xz)
+sha256sums=('581ebf9ead919e33d7e910322c2f64919f98716d8636f1a640b72c9b2e3ba9eb')
+
+if [ "$CARCH" = "x86_64" ]; then
+  libsname=lib64
+elif [ "$CARCH" = "i686" ]; then
+  libsname=lib
+fi
+
+build() {
+  cd ${pkgname}-${pkgver}
+
+  if [ "$CARCH" = "x86_64" ]; then
+    sed -i 's|nm-connection-editor|nm-connection-editor_64|g' src/applet.c
+  fi
+
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/networkmanager/share
+
+  ./configure --prefix=/usr/local/networkmanager --sysconfdir=/usr/local/networkmanager/etc \
+      --localstatedir=/var \
+      --libdir=/usr/local/networkmanager/$libsname \
+      --libexecdir=/usr/local/networkmanager/$libsname/networkmanager \
+      --disable-static \
+      --disable-maintainer-mode \
+      --disable-migration \
+      --with-modem-manager-1 --enable-introspection=yes --with-gtkver=2
+
+  # https://bugzilla.gnome.org/show_bug.cgi?id=655517
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+
+  if [ "$CARCH" = "x86_64" ]; then
+    cd $pkgdir/usr/local/networkmanager/bin
+    mv nm-applet nm-applet_64
+    mv nm-connection-editor     nm-connection-editor_64
+  fi
+
+}

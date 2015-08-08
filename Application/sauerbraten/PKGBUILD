@@ -1,0 +1,68 @@
+# $Id$
+# Maintainer: Laurent Carlier <lordheavym@gmail.com>
+# Contributor: Jaroslaw Swierczynski <swiergot@aur.archlinux.org>
+# Contributor: Roman Kyrylych <Roman.Kyrylych@gmail.com>
+# Contributor: Christoph Siegenthaler <csi@gmx.ch>
+# Contributor: Jesse Young <jesse@eon.jlyo.org>
+
+pkgname=sauerbraten
+pkgver=2013_02_03_collect_edition
+pkgrel=2
+pkgdesc="FPS that uses an improved version of the Cube engine"
+arch=('i686' 'x86_64')
+url="http://www.sauerbraten.org/"
+license=('ZLIB')
+# makedepends=('sdl_mixer' 'sdl_image' 'mesa-libgl' 'glu') # gendesk
+install=sauerbraten.install
+backup=('etc/conf.d/sauerbraten')
+source=(http://downloads.sourceforge.net/$pkgname/${pkgname}_${pkgver}_linux.tar.bz2
+	sauerbraten-client
+	sauerbraten-server
+	sauerbraten.confd
+	sauerbraten.png
+	sauerbraten.install
+	sauerbraten.service
+	sauerbraten.desktop
+	license.txt)
+md5sums=('2cfbd619981402898f97b93be08d58ac'
+         'cf86705cdcf6dfe70e2ffc024785bb6e'
+         'a066668dcc7837773e79f9689715e19f'
+         'c28be8761ede9ca82b6ab311aa7f6d42'
+         '3e602f421f7342cf8c3ed16314523d6f'
+         '2f7b423f49491359ff776a91414db4d8'
+         'SKIP'
+         '73ac85ac155f6d00f7ea073b2ba0946d'
+         'SKIP')
+#_exec=('sauerbraten-client %u')
+
+build() {
+#  cd "$srcdir"
+#  gendesk ## broken ##
+
+  cd "$pkgname/src"
+
+  sed -i 's|-lSDL_image |& -lpng -ltiff -ljpeg -lwebp |g' Makefile
+  sed -i 's|-lSDL_mixer |& -lmikmod -lsmpeg -lmodplug -lSDL |g' Makefile
+
+  make
+}
+
+package() {
+  depends=('sdl_mixer' 'sdl_image' 'libgl' 'sauerbraten-data')
+
+  cd ${srcdir}/$pkgname/src
+
+  make DESTDIR="${pkgdir}" install
+
+  cd ..
+  install -D bin_unix/native_client ${pkgdir}/usr/local/sauerbraten/bin/linux_client
+  install -D bin_unix/native_server ${pkgdir}/usr/local/sauerbraten/bin/linux_server
+
+  install -Dm755 ${srcdir}/sauerbraten-client ${pkgdir}/usr/local/sauerbraten/bin/sauerbraten-client
+  install -Dm755 ${srcdir}/sauerbraten-server ${pkgdir}/usr/local/sauerbraten/bin/sauerbraten-server
+  install -Dm644 ${srcdir}/sauerbraten.confd ${pkgdir}/usr/local/sauerbraten/etc/conf.d/sauerbraten
+  install -Dm644 ${srcdir}/sauerbraten.service ${pkgdir}/usr/local/sauerbraten/lib/systemd/system/sauerbraten.service
+  install -Dm644 ${srcdir}/sauerbraten.desktop ${pkgdir}/usr/local/sauerbraten/share/applications/sauerbraten.desktop
+  install -Dm644 ${srcdir}/sauerbraten.png ${pkgdir}/usr/local/sauerbraten/share/pixmaps/sauerbraten.png
+  install -Dm644 ${srcdir}/license.txt ${pkgdir}/usr/local/sauerbraten/share/licenses/sauerbraten/license.txt
+}

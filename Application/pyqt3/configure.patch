@@ -1,0 +1,20 @@
+diff -Nur old/configure.py new/configure.py
+--- old/configure.py	2015-02-13 07:35:03.292073000 +0800
++++ new/configure.py	2015-02-13 07:35:55.668456282 +0800
+@@ -1009,7 +1009,7 @@
+ Type 'no' to decline the terms of the license.
+ 
+ """)
+-
++    """
+     while 1:
+         try:
+             resp = raw_input("Do you accept the terms of the license? ")
+@@ -1026,6 +1026,7 @@
+ 
+         if resp == "l":
+             os.system("more LICENSE")
++    """
+ 
+     # If there should be a license file then check it is where it should be.
+     if lfile:

@@ -1,0 +1,57 @@
+diff -Nur old/src/gc-core.h new/src/gc-core.h
+--- old/src/gc-core.h	2012-02-14 11:22:17.670697000 +0800
++++ new/src/gc-core.h	2015-01-02 21:03:52.023652000 +0800
+@@ -57,7 +57,7 @@
+                                            CleanupFunc *old_func,
+                                            void **old_data);
+     int (*general_register_disappearing_link)(void **p_ptr,
+-                                              void *base);
++                                              const void *base);
+     int (*unregister_disappearing_link)(void **p_ptr);
+     std::size_t (*get_heap_size)();
+     std::size_t (*get_free_bytes)();
+diff -Nur old/src/gc.cpp new/src/gc.cpp
+--- old/src/gc.cpp	2012-02-14 11:22:17.670697000 +0800
++++ new/src/gc.cpp	2015-01-02 21:05:50.989674000 +0800
+@@ -70,8 +70,8 @@
+     return base + debug_base_fixup();
+ }
+ 
+-int debug_general_register_disappearing_link(void **p_ptr, void *base) {
+-    char *real_base=reinterpret_cast<char *>(base) - debug_base_fixup();
++int debug_general_register_disappearing_link(void **p_ptr, const void *base) {
++    const char *real_base=reinterpret_cast<const char *>(base) - debug_base_fixup();
+     return GC_general_register_disappearing_link(p_ptr, real_base);
+ }
+ 
+@@ -90,7 +90,7 @@
+     }
+ }
+ 
+-int dummy_general_register_disappearing_link(void **, void *) { return false; }
++int dummy_general_register_disappearing_link(void **, const void *) { return false; }
+ 
+ int dummy_unregister_disappearing_link(void **/*link*/) { return false; }
+ 
+@@ -202,7 +202,7 @@
+     die_because_not_initialized();
+ }
+ 
+-int stub_general_register_disappearing_link(void **, void *) {
++int stub_general_register_disappearing_link(void **, const void *) {
+     die_because_not_initialized();
+     return 0;
+ }
+diff -Nur old/src/libnrtype/FontFactory.h new/src/libnrtype/FontFactory.h
+--- old/src/libnrtype/FontFactory.h	2015-01-02 23:54:07.208312254 +0800
++++ new/src/libnrtype/FontFactory.h	2015-01-02 23:52:10.032280384 +0800
+@@ -31,7 +31,8 @@
+ #include <pango/pangowin32.h>
+ #else
+ #include <pango/pangoft2.h>
+-#include <freetype/freetype.h>
++#include <ft2build.h>
++#include FT_FREETYPE_H
+ #endif
+ 
+ namespace Glib

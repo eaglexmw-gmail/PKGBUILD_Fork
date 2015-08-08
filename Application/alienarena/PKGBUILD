@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Sven-Hendrik Haase <sh@lutzhaase.com>
+# Contributor: yugrotavele <yugrotavele at archlinux dot us>
+# Contributor: Det <nimetonmaili at gmail a-dot com>
+# Contributor: godane <slaxemulator@gmail.com>
+# Contributor: damian01w <damian01w@gmail.com>
+
+pkgname=alienarena
+pkgver=7.66
+pkgrel=1
+_verdate=20130827
+pkgdesc="Multiplayer retro sci-fi deathmatch game"
+arch=('i686' 'x86_64')
+url='http://icculus.org/alienarena/rpa/'
+license=('GPL')
+#depends=('curl' 'freetype2' 'libgl' 'libjpeg' 'libvorbis' 'libxxf86dga' 'libxxf86vm' 'libgl' 'sdl' 'openal' 'alienarena-data')
+depends=('curl' 'freetype2' 'libgl' 'libjpeg' 'libvorbis' 'libxxf86dga' 'libxxf86vm' 'libgl')
+makedepends=('gendesk' 'mesa')
+source=(http://red.planetarena.org/files/alienarena-${pkgver}-linux${_verdate}.tar.gz)
+md5sums=('50928622f614ccd9938943de5fd37c1a')
+_name=('Alien Arena')
+
+build() {
+  gendesk -n $startdir/PKGBUILD
+  cd "$pkgname-$pkgver"
+  ./configure --prefix=/usr/local/alienarena 
+
+  sed -i 's|-lstdc++ |-lopenal -lstdc++ |g' source/Makefile
+  cp -f ../../qal_unix.c source/unix/qal_unix.c
+
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  make DESTDIR="$pkgdir" install
+  install -Dm644 "../$pkgname.desktop" "$pkgdir/usr/local/alienarena/share/applications/$pkgname.desktop"
+  install -Dm644 "$pkgname.png" "$pkgdir/usr/local/alienarena/share/pixmaps/$pkgname.png"
+  rm -rf "$pkgdir/usr/local/alienarena/share/$pkgname"
+}
+
+# vim:set ts=2 sw=2 et:

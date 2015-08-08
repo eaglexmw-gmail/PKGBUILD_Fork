@@ -1,0 +1,54 @@
+# Maintainer : Martin Wimpress <code@flexion.org>
+
+_ver=1.10
+_pkgbase=mate-applets
+pkgname=(${_pkgbase})
+pkgver=${_ver}.3
+pkgrel=1
+pkgdesc="Applets for MATE panel (GTK2 version)"
+arch=('i686' 'x86_64')
+url="http://mate-desktop.org"
+license=('GPL')
+#depends=('gtksourceview2' 'libgtop' 'mate-icon-theme>=1.10' 'mate-panel>=1.10'
+#         'polkit' 'python2-dbus' 'python2-gobject' 'upower')
+depends=('upower')
+makedepends=('docbook2x' 'docbook-xsl' 'mate-common' 'yelp-tools')
+optdepends=('fortune-mod: for displaying fortune cookies in the Wanda the Fish applet'
+            'yelp: for reading MATE help documents')
+groups=('mate-extra')
+conflicts=("${_pkgbase}-gtk3")
+source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
+sha1sums=('6c566fc1aa682bdae71c3775a87d15637b166419')
+install=${_pkgbase}.install
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=mate64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=mate
+fi
+
+prepare() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    sed -i 's/env python/env python2/' invest-applet/invest/{chart.py,invest-applet.py,mate-invest-chart}
+}
+
+build() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+
+    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/mate_gtk+2.0/lib/pkgconfig/
+
+    ./configure \
+        --prefix=/usr/local/${dstdir}/mate_gtk+2.0 \
+        --sysconfdir=/usr/local/${dstdir}/mate_gtk+2.0/etc \
+        --libexecdir=/usr/local/${dstdir}/mate_gtk+2.0/lib/${_pkgbase} \
+        --enable-polkit \
+        --enable-ipv6 \
+        --with-gtk=2.0 \
+        --disable-static
+    make
+}
+
+package() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,56 @@
+# $Id$
+# Maintainer: Sven-Hendrik Haase <sh@lutzhaase.com>
+# Contributor: Jaroslaw Swierczynski <swiergot@aur.archlinux.org>
+# Contributor: Roman Kyrylych <Roman.Kyrylych@gmail.com>
+# Contributor: Rabyte <rabyte [at] gmail (dot) com>
+
+pkgname=assaultcube
+pkgver=1.2.0.2
+pkgrel=1
+pkgdesc='A realistic team oriented multiplayer FPS based on the Cube engine'
+arch=('i686' 'x86_64')
+url='http://assault.cubers.net/'
+license=('ZLIB' 'custom')
+#depends=('sdl' 'sdl_mixer' 'sdl_image' 'openal' 'zlib' 'gcc-libs' 'libgl' 'desktop-file-utils' 'glu')
+depends=('zlib' 'gcc-libs' 'libgl' 'desktop-file-utils' 'glu')
+#makedepends=('mesa' 'clang')
+makedepends=('mesa')
+source=("http://downloads.sourceforge.net/actiongame/AssaultCube_v${pkgver}.tar.bz2"
+        "http://downloads.sourceforge.net/actiongame/AssaultCube_v${pkgver}.source.tar.bz2"
+        'assaultcube'
+        'assaultcube-server'
+        'assaultcube.desktop'
+        'assaultcube.png')
+md5sums=('a052fc79dca4ecae0f15d9a953f1e2ad'
+         '7ec6c6a5f8fc0c2e3bec886c08f3b8c8'
+         '29dc2ae578f5c00c832d4bca430b013a'
+         'f8b7b8bc36f0d3445e2a5e42522a1999'
+         '6f37eb750dda6057bc877e89de49b8da'
+         'f688c59ecee2ebc5c589720aa1480765')
+install=assaultcube.install
+
+build() {
+  cd AssaultCube_v${pkgver}.source/source/src
+
+  sed -i 's|clang++|g++|g' Makefile
+  sed -i 's| -lSDL_image | -lSDL_image -ljpeg -lpng -ltiff -lwebp |g' Makefile
+
+  make
+}
+
+package() {
+  cd AssaultCube_v${pkgver}.source/source/src
+  install -Dm755 ac_client ${pkgdir}/usr/local/assaultcube/bin/ac_client
+  install -Dm755 ac_server ${pkgdir}/usr/local/assaultcube/bin/ac_server
+
+  cd ${srcdir}/AssaultCube_v${pkgver}
+  mkdir -p ${pkgdir}/usr/local/assaultcube/share/assaultcube
+  cp -rf config packages docs mods ${pkgdir}/usr/local/assaultcube/share/assaultcube
+  install -Dm644 ${srcdir}/assaultcube.png ${pkgdir}/usr/local/assaultcube/share/pixmaps/assaultcube.png
+  install -Dm644 ${srcdir}/assaultcube.desktop ${pkgdir}/usr/local/assaultcube/share/applications/assaultcube.desktop
+  install -Dm644 docs/package_copyrights.txt ${pkgdir}/usr/local/assaultcube/share/licenses/${pkgname}/LICENSE
+  install -Dm755 ${srcdir}/assaultcube ${pkgdir}/usr/local/assaultcube/bin/assaultcube
+  install -Dm755 ${srcdir}/assaultcube-server ${pkgdir}/usr/local/assaultcube/bin/assaultcube-server
+}
+
+# vim: sw=2:ts=2 et:

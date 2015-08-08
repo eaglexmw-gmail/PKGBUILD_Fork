@@ -1,0 +1,82 @@
+# Maintainer: Raziel23 <venom23 at runbox dot com>
+
+pkgname=vcmi
+pkgver=0.98
+pkgrel=1
+pkgdesc="Heroes of Might and Magic 3 game engine"
+arch=('i686' 'x86_64')
+url="http://forum.vcmi.eu/portal.php"
+license=('GPL2')
+#depends=('boost-libs' 'ffmpeg' 'sdl2_image' 'sdl2_mixer' 'sdl2_ttf' 'qt5-base' 'libxkbcommon-x11'
+depends=('boost-libs'
+        'desktop-file-utils' 'gtk-update-icon-cache' 'hicolor-icon-theme')
+makedepends=('boost' 'cmake')
+optdepends=('innoextract: required by vcmibuilder'
+            'unshield: required by vcmibuilder'
+            'unzip: required by vcmibuilder')
+options=('!makeflags')
+install="$pkgname.install"
+source=("$pkgname-$pkgver.tar.gz::https://github.com/vcmi/$pkgname/archive/$pkgver.tar.gz"
+        boost_1_58.patch)
+md5sums=('6a69e52a3380358220eba67332b097c6' '6632288c0fc7258911568997f2afcbf3')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  patch -p1 -i ../boost_1_58.patch
+
+  sed -i '4 a #include <QtPlugin>'                     launcher/main.cpp
+  sed -i '5 a Q_IMPORT_PLUGIN(QXcbIntegrationPlugin)'  launcher/main.cpp
+
+  cd ../
+
+  # Remove the last build.
+  [[ -d "$pkgname-$pkgver-build" ]] && rm -rf "$pkgname-$pkgver-build"
+  mkdir "$pkgname-$pkgver-build"
+}
+
+build() {
+  cd "$pkgname-$pkgver-build"
+  cmake "../$pkgname-$pkgver" \
+    -DCMAKE_INSTALL_PREFIX='/usr/local/vcmi' \
+    -DCMAKE_INSTALL_LIBDIR='lib' \
+    -DCMAKE_SKIP_RPATH='FALSE' \
+    -DCMAKE_BUILD_TYPE='Release'
+
+  make cmake_check_build_system
+
+  sed -i 's| -lboost_filesystem | -Wl,--no-undefined -Wl,-Bstatic & -Wl,-Bdynamic |g' lib/CMakeFiles/vcmi.dir/link.txt
+  sed -i 's| -lboost_locale | -Wl,-Bstatic & -Wl,-Bdynamic -licuuc -licui18n |g' lib/CMakeFiles/vcmi.dir/link.txt
+  sed -i 's| -lboost_program_options | -Wl,-Bstatic & -Wl,-Bdynamic |g' lib/CMakeFiles/vcmi.dir/link.txt
+  sed -i 's| -lboost_system | -Wl,-Bstatic & -Wl,-Bdynamic |g' lib/CMakeFiles/vcmi.dir/link.txt
+  sed -i 's| -lboost_thread | -Wl,-Bstatic & -Wl,-Bdynamic |g' lib/CMakeFiles/vcmi.dir/link.txt
+
+  sed -i 's|libSDL2_image.a |& -lpng -ljpeg -ltiff -lwebp |g' client/CMakeFiles/vcmiclient.dir/link.txt
+  sed -i 's|libSDL2_mixer.a |& -lmikmod -lsmpeg2 -lSDL2 |g' client/CMakeFiles/vcmiclient.dir/link.txt
+  sed -i 's|libSDL2_ttf.a |& -lfreetype -lbz2 |g' client/CMakeFiles/vcmiclient.dir/link.txt
+  sed -i 's|libavformat.a |& -L/usr/local/lib -lavformat -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavcodec -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavutil -lm -lorc-0.4 -lxml2 |g' client/CMakeFiles/vcmiclient.dir/link.txt
+
+  sed -i 's| -lboost_filesystem | -Wl,--no-undefined -Wl,-Bstatic & -Wl,-Bdynamic |g' client/CMakeFiles/vcmiclient.dir/link.txt
+  sed -i 's| -lboost_locale | -Wl,-Bstatic & -Wl,-Bdynamic -licuuc -licui18n |g' client/CMakeFiles/vcmiclient.dir/link.txt
+  sed -i 's| -lboost_program_options | -Wl,-Bstatic & -Wl,-Bdynamic |g' client/CMakeFiles/vcmiclient.dir/link.txt
+  sed -i 's| -lboost_system | -Wl,-Bstatic & -Wl,-Bdynamic |g' client/CMakeFiles/vcmiclient.dir/link.txt
+  sed -i 's| -lboost_thread | -Wl,-Bstatic & -Wl,-Bdynamic |g' client/CMakeFiles/vcmiclient.dir/link.txt
+
+  sed -i 's| -lboost_filesystem | -Wl,--no-undefined -Wl,-Bstatic & -Wl,-Bdynamic |g' server/CMakeFiles/vcmiserver.dir/link.txt
+  sed -i 's| -lboost_locale | -Wl,-Bstatic & -Wl,-Bdynamic -licuuc -licui18n |g' server/CMakeFiles/vcmiserver.dir/link.txt
+  sed -i 's| -lboost_program_options | -Wl,-Bstatic & -Wl,-Bdynamic |g' server/CMakeFiles/vcmiserver.dir/link.txt
+  sed -i 's| -lboost_system | -Wl,-Bstatic & -Wl,-Bdynamic |g' server/CMakeFiles/vcmiserver.dir/link.txt
+  sed -i 's| -lboost_thread | -Wl,-Bstatic & -Wl,-Bdynamic |g' server/CMakeFiles/vcmiserver.dir/link.txt
+
+  sed -i 's| -licui18n -licuuc -licudata | /usr/local/lib/libicui18n.so.54 /usr/local/lib/libicuuc.so.54 /usr/local/lib/libicudata.so.54 |g' launcher/CMakeFiles/vcmilauncher.dir/link.txt
+
+  sed -i 's|-lsystemd -lpthread |& -L/usr/local/qt/qt5.4.0/lib/qt/plugins/platforms/ -lqxcb -lX11-xcb -lXi -lSM -lICE -lxcb -lfontconfig -lfreetype -lglib-2.0 -lXrender -lX11 -lGL -L/usr/local/qt/qt5.4.0/lib -lQt5PlatformSupport -lfontconfig -lfreetype -lQt5Gui -ljpeg -lpng -lqtharfbuzzng -lGL -lQt5DBus -ldbus-1 -lQt5Core -lz -licui18n -licuuc -licudata -lpcre16 -lm -ldl -lgthread-2.0 -pthread -lglib-2.0 -lrt -lsystemd -lpthread -lgthread-2.0 -pthread -lglib-2.0 -lXrender -lXext -lX11 -lm -ludev -lmtdev -lEGL -lGL -lQt5Gui -ljpeg -lQt5Core -lz -licui18n -licuuc -licudata -lpcre16 -lm -ldl -lgthread-2.0 -pthread -lglib-2.0 -lrt -lsystemd -lpthread -lpng -lqtharfbuzzng -lz -lGL -lQt5Core -lpthread -lz -licui18n -licuuc -licudata -lpcre16 -lm -ldl -lgthread-2.0 -pthread -lglib-2.0 -lrt -lsystemd -lxcb-static  |g' launcher/CMakeFiles/vcmilauncher.dir/link.txt
+
+  make
+}
+
+package() {
+  cd "$pkgname-$pkgver-build"
+  make DESTDIR="$pkgdir" install
+}
+
+# vim:set ts=2 sw=2 et:

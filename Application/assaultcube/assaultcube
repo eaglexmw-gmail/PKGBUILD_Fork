@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd /usr/local/assaultcube/share/assaultcube
+/usr/local/assaultcube/bin/ac_client "--home=${HOME}/.assaultcube" "--init=${HOME}/.assaultcube/config/init.cfg" "$@" &

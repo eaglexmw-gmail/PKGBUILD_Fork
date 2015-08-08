@@ -1,0 +1,49 @@
+# Maintainer: carstene1ns <arch carsten-teibes de> - http://git.io/ctPKG
+# Contributor: Jkkyll Wu <adaptee at gmail [dot] com>
+# Contributor: Thomas Dziedzic < gostrc at gmail >
+# Contributor: Daniel J Griffiths <ghost1227@archlinux.us>
+# Contributor: Geoffroy Carrier <geoffroy.carrier@koon.fr>
+
+pkgname=qbittorrent
+pkgver=3.1.11
+pkgrel=2
+pkgdesc="A bittorrent client written in C++ / Qt4 using the good libtorrent library"
+arch=('i686' 'x86_64')
+url="http://www.qbittorrent.org"
+license=('custom GPL2')
+#depends=('qt4' 'libtorrent-rasterbar')
+makedepends=('boost')
+optdepends=('python: needed for torrent search tab')
+install=$pkgname.install
+source=("http://downloads.sourceforge.net/sourceforge/qbittorrent/$pkgname-$pkgver.tar.xz")
+sha256sums=('71105ed99e58b9dd96da6f7f2340f4a56b5d675903fad213d76905305d447f63')
+
+build() {
+  cd $pkgname-$pkgver
+
+  #sed -i 's|BOOST_FILESYSTEM_VERSION=2|BOOST_FILESYSTEM_VERSION=3|g' src/src.pro
+  #sed -i 's|DEFINES += BOOST_FILESYSTEM_VERSION=2| |g' src/src.pro
+
+  sed -i 's|CONFIG += qt thread|& static|g' src/src.pro
+
+  ./configure --prefix=/usr/local/qbittorrent
+
+  make src/Makefile
+
+  # boost has_binary_operator.hpp issue
+  # has_binary_operator.hpp file, 48 line, add #ifndef QT_MOC, 217 line, add #endif
+  sed -i 's|moc $(DEFINES)|moc -DQT_MOC $(DEFINES)|g' src/Makefile
+
+  sed -i 's|-ltorrent-rasterbar| -ltorrent-rasterbar -lGeoIP |g' src/Makefile
+  sed -i 's|-lboost_system| /usr/lib/libboost_system.a |g' src/Makefile
+
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  make INSTALL_ROOT="$pkgdir/" install
+
+  install -Dm644 COPYING "$pkgdir"/usr/local/qbittorrent/share/licenses/$pkgname/COPYING
+}

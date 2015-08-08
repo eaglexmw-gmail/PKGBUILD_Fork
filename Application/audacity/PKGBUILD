@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Eric Bélanger <eric@archlinux.org>
+
+pkgname=audacity
+pkgver=2.1.0
+pkgrel=1
+pkgdesc="A program that lets you manipulate digital audio waveforms"
+arch=('i686' 'x86_64')
+url="http://audacity.sourceforge.net/"
+license=('GPL')
+#depends=('libmad' 'libid3tag' 'wxgtk2.8' 'lame' 'lilv' 'soundtouch'
+#	 'ffmpeg' 'vamp-plugin-sdk' 'sbsms' 'portsmf' 'desktop-file-utils')
+depends=('desktop-file-utils')
+makedepends=('cmake' 'python2')
+options=('!makeflags')
+install=audacity.install
+source=(http://downloads.sourceforge.net/project/audacity/audacity/${pkgver}/${pkgname}-minsrc-${pkgver}.tar.xz
+        audacity-ffmpeg.patch)
+sha1sums=('a53bce0276240bb56f2e3fd1bf235a4ef688caa3'
+          '5f1733a3802bcec7d9b54cb3ec8d7d81fc38fc61')
+
+prepare() {
+  cd ${pkgname}-minsrc-${pkgver}
+  # patch -p1 -i "${srcdir}/audacity-ffmpeg.patch"
+}
+
+build() {
+  cd ${pkgname}-minsrc-${pkgver}
+  WX_CONFIG=/usr/local/bin/wx-config-2.8 ./configure --prefix=/usr/local/audacity --with-libsamplerate
+
+  sed -i 's|-lFLAC++|& -lFLAC|g' src/Makefile
+
+  make
+}
+
+package() {
+  cd ${pkgname}-minsrc-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

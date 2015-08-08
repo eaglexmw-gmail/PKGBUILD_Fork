@@ -1,0 +1,57 @@
+# $Id$
+# Maintainer: Felix Yan <felixonmars@gmail.com>
+# Contributor: Albert.Zhou <albert.zhou@wiz.cn>
+
+pkgname=wiznote
+pkgver=2.1.14
+pkgrel=1
+pkgdesc="Opensource cross-platform cloud based note-taking client"
+arch=('i686' 'x86_64')
+url="http://www.wiznote.com"
+license=('GPL3' 'custom')
+#depends=('desktop-file-utils' 'hicolor-icon-theme' 'xdg-utils' 'qt5-base' 'qt5-webkit') # indirect: qt5-declarative qt5-sensors zlib glic gcc-libs
+depends=('desktop-file-utils' 'hicolor-icon-theme' 'xdg-utils') # indirect: qt5-declarative qt5-sensors zlib glic gcc-libs
+#makedepends=('cmake' 'qt5-tools' 'git' 'boost')
+makedepends=('cmake' 'git' 'boost')
+install=wiznote.install
+_wiznote_project_name="WizQTClient"
+source=("git+https://github.com/WizTeam/${_wiznote_project_name}.git#branch=v$pkgver")
+md5sums=('SKIP')
+
+prepare() {
+  rm $_wiznote_project_name/share/skins/default/Thumbs.db
+
+  rm -rf build; mkdir build
+}
+
+build() {
+  cd build
+
+  sed -i 's| SHARED | STATIC |g' ../WizQTClient/lib/aggregation/CMakeLists.txt
+  sed -i 's| SHARED | STATIC |g' ../WizQTClient/lib/extensionsystem/CMakeLists.txt
+  sed -i 's| SHARED | STATIC |g' ../WizQTClient/src/plugins/coreplugin/CMakeLists.txt
+  sed -i 's| SHARED | STATIC |g' ../WizQTClient/src/plugins/markdown/CMakeLists.txt
+
+  cmake \
+    -DCMAKE_INSTALL_PREFIX=/usr/local/wiznote \
+    -DCMAKE_BUILD_TYPE=Release \
+    ../$_wiznote_project_name
+
+  #sed -i '3 a #include <algorithm>' ../WizQTClient/src/share/wizIndexBase.cpp
+  make cmake_check_build_system
+
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtWebKit.a |-L/home/eaglexmw/qt4.8_static/lib -L/usr/X11R6/lib -L/home/eaglexmw/qt4.8_static/lib -L/usr/local/lib -L/home/eaglexmw/qt4.8_static/lib -L/usr/X11R6/lib -L/home/eaglexmw/qt4.8_static/lib -L/usr/X11R6/lib -L/home/eaglexmw/qt4.8_static/lib -lQtWebKit -lpng16 -lxslt -lxml2 -ludev -lgio-2.0 -lgstapp-1.0 -lgstpbutils-1.0 -lgstvideo-1.0 -lgstaudio-1.0 -lgstbase-1.0 -lgstreamer-1.0 -lgmodule-2.0 -lorc-0.4 -lsqlite3 -lQtOpenGL -lQtGui -ljpeg -ltiff -lpng16 -lgobject-2.0 -lEGL -lSM -lICE -lXrender -lfontconfig -lfreetype -lXext -lX11 -lQtNetwork -lssl -lcrypto -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lGLU -lGL -lXext -lX11 -lm -lQtGui -ljpeg -ltiff -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpng16 -lz -lfreetype -lgobject-2.0 -lglib-2.0 -lEGL -lSM -lICE -lXrender -lfontconfig -lfreetype -lXext -lX11 -lm -lQtNetwork -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lz -lssl -lcrypto -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./src/CMakeFiles/WizNote.dir/link.txt
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtGui.a |-L/home/eaglexmw/qt4.8_static/lib -L/usr/X11R6/lib -L/home/eaglexmw/qt4.8_static/lib -lQtGui -ljpeg -ltiff -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpng16 -lz -lfreetype -lgobject-2.0 -lglib-2.0 -lEGL -lSM -lICE -lXrender -lfontconfig -lfreetype -lXext -lX11 -lm -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./src/CMakeFiles/WizNote.dir/link.txt
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtCore.a |-L/home/eaglexmw/qt4.8_static/lib -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./src/CMakeFiles/WizNote.dir/link.txt
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtNetwork.a |-L/home/eaglexmw/qt4.8_static/lib -lQtNetwork -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lz -lssl -lcrypto -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./src/CMakeFiles/WizNote.dir/link.txt
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtXmlPatterns.a |-L/home/eaglexmw/qt4.8_static/lib -lQtXmlPatterns -lQtNetwork -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lz -lssl -lcrypto -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./src/CMakeFiles/WizNote.dir/link.txt
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtXml.a |-L/home/eaglexmw/qt4.8_static/lib -lQtXml -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./src/CMakeFiles/WizNote.dir/link.txt
+
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+  rm -f "$pkgdir//usr/local/wiznote/lib/wiznote/plugins/*.{a,so}"
+}

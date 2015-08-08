@@ -1,0 +1,73 @@
+# $Id$
+# Maintainer: Sven-Hendrik Haase <sh@lutzhaase.com>
+# Contributor: t3ddy  <t3ddy1988 "at" gmail {dot} com>
+# Contributor: AdriÃ¡n Chaves FernÃ¡ndez (Gallaecio) <adriyetichaves@gmail.com>
+pkgname=0ad
+pkgver=a15
+_pkgver=0.0.15-alpha
+pkgrel=4
+pkgdesc="Cross-platform, 3D and historically-based real-time strategy game"
+arch=('i686' 'x86_64')
+url="http://play0ad.com/"
+license=('GPL2' 'CCPL')
+#depends=('binutils' 'boost-libs' 'curl' 'enet' 'libogg' 'libpng' 'libvorbis'
+#         'libxml2' 'openal' 'sdl' 'wxgtk2.8' 'zlib' 'libgl' '0ad-data' 'glu'
+#         'gloox' 'miniupnpc' 'icu' 'nspr')
+depends=('binutils' 'boost-libs' 'curl' 'libogg' 'libpng' 'libvorbis'
+         'libxml2' 'zlib' 'libgl' 'glu'
+         'icu' 'nspr')
+#makedepends=('boost' 'cmake' 'mesa' 'zip' 'python2' 'libsm')
+makedepends=('boost' 'cmake' 'mesa' 'zip' 'libsm')
+source=("http://releases.wildfiregames.com/$pkgname-$_pkgver-unix-build.tar.xz"
+        "miniupnpc-1.9.patch")
+md5sums=('a651d81eb9b31da01e376ddaa597e954'
+         'f3d27da4944d42fcf6b4153e54dc4600')
+
+prepare() {
+  cd "$srcdir/$pkgname-$_pkgver"
+  patch -p1 -i ../miniupnpc-1.9.patch
+}
+
+build() {
+  cd "$srcdir/$pkgname-$_pkgver/build/workspaces"
+
+  sed -i 's|psPort, protocall, externalIPAddress,|psPort, protocall, |g' ../../source/network/NetServer.cpp
+
+  unset CPPFLAGS # for le spidermonkey
+
+  export WX_CONFIG=/usr/local/bin/wx-config-2.8
+  ./update-workspaces.sh \
+      --with-system-enet \
+      --with-system-miniupnpc \
+      --bindir=/usr/local/0ad/bin \
+      --libdir=/usr/local/0ad/lib/0ad \
+      --datadir=/usr/local/0ad/share/${pkgname}/data
+
+  cd "$srcdir/$pkgname-$_pkgver/build/workspaces/gcc"
+
+  sed -i 's|-lgloox |-lgloox -lidn -lresolv -lgnutls |g' pyrogenesis.make
+  sed -i 's|-lengine |-lengine -L/usr/lib/ -licuuc |g' pyrogenesis.make
+  sed -i 's|-lboost_filesystem | -Wl,-Bstatic & -Wl,-Bdynamic |g' pyrogenesis.make
+
+  sed -i 's|/usr/bin/wx-config-2.8 | wx-config-2.8 |g' AtlasObject.make
+  sed -i 's|/usr/bin/wx-config-2.8 | wx-config-2.8 |g' AtlasUI.make
+
+  sed -i 's| Collada test| Collada|g' Makefile
+
+  make CONFIG=Release
+}
+
+package() {
+  install -d "${pkgdir}"/usr/local/0ad/{bin,lib/0ad}
+  cd "$srcdir/$pkgname-$_pkgver"
+
+  install -Dm755 binaries/system/ActorEditor "${pkgdir}/usr/local/0ad/bin"
+  install -Dm755 binaries/system/pyrogenesis "${pkgdir}/usr/local/0ad/bin"
+  install -Dm755 binaries/system/*.so{,.1.0} "${pkgdir}/usr/local/0ad/lib/0ad"
+
+  install -Dm755 build/resources/${pkgname}.sh "${pkgdir}/usr/local/0ad/bin/${pkgname}"
+  install -Dm644 build/resources/${pkgname}.desktop \
+    "${pkgdir}/usr/local/0ad/share/applications/${pkgname}.desktop"
+  install -Dm644 build/resources/${pkgname}.png \
+    "${pkgdir}/usr/local/0ad/share/pixmaps/${pkgname}.png"
+}

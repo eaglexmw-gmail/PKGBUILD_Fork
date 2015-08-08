@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd /usr/local/assaultcube/share/assaultcube
+
+/usr/local/assaultcube/bin/ac_server "$@" &
+

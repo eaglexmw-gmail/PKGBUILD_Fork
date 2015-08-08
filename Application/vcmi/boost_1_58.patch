@@ -1,0 +1,36 @@
+diff -Nur old/CCallback.cpp new/CCallback.cpp
+--- old/CCallback.cpp	2015-04-01 15:34:22.000000000 +0800
++++ new/CCallback.cpp	2015-07-05 05:18:36.186143000 +0800
+@@ -80,7 +80,7 @@
+ 
+ bool CCallback::dismissCreature(const CArmedInstance *obj, SlotID stackPos)
+ {
+-	if(((player>=0)  &&  obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
++	if((player && obj->tempOwner != player) || (obj->stacksCount()<2 && obj->needsLastStack()))
+ 		return false;
+ 
+ 	DisbandCreature pack(stackPos,obj->id);
+diff -Nur old/lib/CArtHandler.cpp new/lib/CArtHandler.cpp
+--- old/lib/CArtHandler.cpp	2015-04-01 15:34:22.000000000 +0800
++++ new/lib/CArtHandler.cpp	2015-07-05 05:03:04.487857000 +0800
+@@ -671,7 +671,7 @@
+ 	case CArtifact::ART_RELIC:
+ 		return relics;
+ 	default: //special artifacts should not be erased
+-		return nullptr;
++		return boost::optional<std::vector<CArtifact*>&>();;
+ 	}
+ }
+ 
+diff -Nur old/lib/CGameInfoCallback.cpp new/lib/CGameInfoCallback.cpp
+--- old/lib/CGameInfoCallback.cpp	2015-04-01 15:34:22.000000000 +0800
++++ new/lib/CGameInfoCallback.cpp	2015-07-05 05:02:06.901503000 +0800
+@@ -403,7 +403,7 @@
+ 
+ 	for(const CGObjectInstance * obj : t->visitableObjects)
+ 	{
+-		if(player < nullptr || obj->ID != Obj::EVENT) //hide events from players
++		if(player || obj->ID != Obj::EVENT) //hide events from players
+ 			ret.push_back(obj);
+ 	}
+ 

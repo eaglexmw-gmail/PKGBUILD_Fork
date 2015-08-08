@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Jaroslav Lichtblau <svetlemodry@archlinux.org>
+# Contributor: William Rea <sillywilly@gmail.com>
+
+pkgname=homebank
+pkgver=5.0.2
+pkgrel=1
+pkgdesc="Free, easy, personal accounting for everyone"
+arch=('i686' 'x86_64')
+url="http://homebank.free.fr/"
+license=('GPL')
+#depends=('desktop-file-utils' 'gtk3' 'hicolor-icon-theme' 'libofx' 'librsvg' 'perl-xml-parser' 'shared-mime-info')
+depends=('desktop-file-utils' 'gtk3' 'hicolor-icon-theme' 'librsvg' 'perl-xml-parser' 'shared-mime-info')
+makedepends=('intltool')
+install=$pkgname.install
+changelog=$pkgname.changelog
+source=(http://homebank.free.fr/public/$pkgname-$pkgver.tar.gz)
+sha256sums=('f2c3f9da0aa9af76cfed63a19104d99d33b1766cac89dd1586c378b9cf54a2ca')
+
+build() {
+  cd "${srcdir}"/$pkgname-$pkgver
+
+  sed -i 's/-lofx ${DEPS_LIBS}/-lofx -lstdc++ -lm -lc  -losp -lpthread -lnsl -lstdc++ -lm -lc ${DEPS_LIBS}/g' configure
+
+  ./configure --prefix=/usr/local/homebank
+
+  make
+}
+
+package() {
+  cd "${srcdir}"/$pkgname-$pkgver
+
+  make DESTDIR="${pkgdir}" install
+}

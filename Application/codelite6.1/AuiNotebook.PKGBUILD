@@ -1,0 +1,72 @@
+# Maintainer: Miguel Revilla <yo@miguelrevilla.com>
+# Contributor: nem <nem@ikitten.co.uk>
+# Contributor: agvares <agvares13@gmail.com>
+# Contributor: p2k <Patrick.Schneider@uni-ulm.de>
+
+pkgname=codelite
+pkgver=6.1
+pkgrel=1
+pkgdesc="Open-source, cross platform IDE for the C/C++ programming languages"
+arch=('i686' 'x86_64')
+url="http://www.codelite.org/"
+license=('GPL')
+#depends=('wxgtk' 'curl' 'webkitgtk2' 'libssh' 'xterm' 'python2' 'libedit' 'ncurses' 'valgrind')
+depends=('curl' 'xterm' 'ncurses' )
+makedepends=('pkgconfig' 'cmake')
+optdepends=('graphviz: callgraph visualization'
+            'lldb-svn: debugger used by the lldb plugin')
+#source=(http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}-gtk.src.tar.gz
+source=(https://github.com/eranif/${pkgname}/archive/${pkgver}.tar.gz
+	http://repos.codelite.org/wxCrafterLibs/wxgui.zip)
+md5sums=('2df6e66368cb925c6032ee57583e2f4f'
+         'c63e06d851db09300767856644dc4f63')
+#if [[ "$CARCH" == 'i686' ]]; then
+#  source+=(http://repos.codelite.org/wxCrafterLibs/ArchLinux/32/wxCrafter.so)
+#  md5sums+=('cd3e71e8187ce586031df070caed6c85')
+#elif [[ "$CARCH" == 'x86_64' ]]; then
+#  source+=(http://repos.codelite.org/wxCrafterLibs/ArchLinux/64/wxCrafter.so)
+#  md5sums+=('6fcd2f0fada5fc401d0bcd62cd5452bb')
+#fi
+noextract=('wxgui.zip')
+
+prepare() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+
+    sed -i 's| libssh.so | libssh.a |g' ./CMakeLists.txt
+    sed -i '27 a set( LIBHUNSPELL "/usr/local/lib/libhunspell-1.3.a")' ./SpellChecker/CMakeLists.txt
+    sed -i 's| libedit.so | libedit.a |g' ./LLDBDebugger/CMakeLists.txt
+    sed -i 's|return Hunspell_spell(m_pSpell, word);|return Hunspell_spell(m_pSpell, word.c_str());|g' ./SpellChecker/IHunSpell.cpp
+    sed -i 's|XRCID(s_doCheckID)|XRCID(s_doCheckID.c_str())|g' ./SpellChecker/spellcheck.cpp
+    sed -i 's|XRCID(s_contCheckID)|XRCID(s_contCheckID.c_str())|g' ./SpellChecker/spellcheck.cpp
+}
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+
+    CXXFLAGS="${CXXFLAGS} -fno-devirtualize"
+
+    mkdir -p build
+    cd build
+
+    export CPPFLAGS+=' -std=gnu++11'
+    export CXXFLAGS+=' -std=gnu++11'
+    cmake -G "Unix Makefiles" -DPREFIX="/usr/local/codelite6" -DCMAKE_BUILD_TYPE=Release -DGTK_USE_AUIBOOK=1 -DENABLE_CLANG=1 -DCMAKE_INSTALL_LIBDIR=lib ..
+
+    make cmake_check_build_system
+
+    sed -i 's|libssh.a |libssh.a -lssl -lcrypto |g' ./CodeLite/CMakeFiles/libcodelite.dir/link.txt
+    sed -i 's|libssh.a |libssh.a -lssl -lcrypto |g' ./CodeLite/CMakeFiles/libcodelite.dir/relink.txt
+
+    #sed 's|libLLDBProtocol.a |libLLDBProtocol.a -lwx_baseu-3.0 |g' ./LLDBDebugger/codelite-lldb/CMakeFiles/codelite-lldb.dir/link.txt
+    #sed 's|libLLDBProtocol.a |libLLDBProtocol.a -lwx_baseu-3.0 |g' ./LLDBDebugger/codelite-lldb/CMakeFiles/codelite-lldb.dir/relink.txt
+
+    make
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}/build"
+    make -j1 DESTDIR="${pkgdir}" install
+#    install -m 755 -D "${srcdir}/wxCrafter.so" "${pkgdir}/usr/local/codelite6/lib/codelite/wxCrafter.so"
+    install -m 644 -D "${srcdir}/wxgui.zip" "${pkgdir}/usr/local/codelite6/share/codelite/wxgui.zip"
+    install -m 644 -D "${srcdir}/${pkgname}-${pkgver}/LICENSE" "${pkgdir}/usr/local/codelite6/share/licenses/${pkgname}/LICENSE"
+}

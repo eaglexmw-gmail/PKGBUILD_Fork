@@ -1,0 +1,43 @@
+# Contributer: giacomogiorgianni@gmail.com 
+
+pkgname=quiterss
+_pkgname=QuiteRSS
+pkgver=0.17.5
+pkgrel=1
+pkgdesc='Fast and light RSS/Atom feed reader written on Qt/С++'
+arch=('i686' 'x86_64')
+url='http://quiterss.org/'
+license=('GPL3')
+#depends=('qtwebkit' 'phonon-qt4')
+#makedepends=('cmake' 'gettext' 'automoc4')
+makedepends=('cmake' 'gettext')
+source=("http://quiterss.org/files/$pkgver/$_pkgname-$pkgver-src.tar.bz2")
+sha512sums=(830a3906de06ce028c472ea68c788a3fdea8186b00fb44a426280d353cb27ae9a2f06b791ab7f238fb0f20959e0432343fb8d2c85b18dbe5009796342bbd574c)
+install=$pkgname.install
+
+build() {
+  cd "$srcdir/$_pkgname-$pkgver-src"
+
+  sed -i '225 a QTPLUGIN += qsqlite' $_pkgname.pro
+
+  sed -i '20  a #include <QtPlugin>' ./src/main/main.cpp
+  sed -i '21  a Q_IMPORT_PLUGIN(qsqlite)' ./src/main/main.cpp
+
+  qmake "$srcdir/$_pkgname-$pkgver-src/$_pkgname.pro" \
+    PREFIX=/usr/local/quiterss \
+    CONFIG+=LINUX_INTEGRATED \
+    INSTALL_ROOT_PATH="$pkgdir"
+
+  make release-mocclean
+
+  sed -i 's| -lpng15 | -lpng16 |g' Makefile.Release
+  sed -i 's|/plugins/sqldrivers|/lib/qt&|g' Makefile.Release
+
+  make
+}
+
+package() {
+  cd "$srcdir/$_pkgname-$pkgver-src"
+  make INSTALL_ROOT="$pkgdir" install
+}
+

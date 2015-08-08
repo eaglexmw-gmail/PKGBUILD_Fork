@@ -1,0 +1,329 @@
+# Chinese (Mainland) translation of xfce4-whiskermenu-plugin.
+# Copyright (C) 2014 Graeme Gott
+# This file is distributed under the same license as the xfce4-whiskermenu-plugin package.
+#
+# Translators:
+# eaglexmw < eaglexmw@gmail.com>, 2014
+msgid ""
+msgstr ""
+"Project-Id-Version: Whisker Menu\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-12-29 12:13+0000\n"
+"PO-Revision-Date: 2014-02-26 11:13+0000\n"
+"Last-Translator: eaglexmw <eaglexmw@gmail.com>\n"
+"Language-Team: Chinese (Mainland) (http://www.transifex.com/projects/p/xfce4-"
+"whiskermenu-plugin/language/zh_CN/)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../panel-plugin/configuration-dialog.cpp:680
+msgid "Add action"
+msgstr "加入动作"
+
+#: ../panel-plugin/page.cpp:212
+msgid "Add to Desktop"
+msgstr "新增到桌面"
+
+#: ../panel-plugin/page.cpp:197
+msgid "Add to Favorites"
+msgstr "新增到最爱"
+
+#: ../panel-plugin/page.cpp:216
+msgid "Add to Panel"
+msgstr "新增到面板上"
+
+#: ../panel-plugin/category.cpp:59
+msgid "All"
+msgstr "全部"
+
+#: ../panel-plugin/settings.cpp:111
+msgid "All _Settings"
+msgstr "所有设置(_S)"
+
+#: ../panel-plugin/plugin.cpp:163
+msgid "Applications Menu"
+msgstr "应用程序菜单"
+
+#: ../panel-plugin/command-edit.cpp:46
+msgid "Browse the file system to choose a custom command."
+msgstr "浏览文件系统选择自定义命令。"
+
+#: ../panel-plugin/configuration-dialog.cpp:738
+msgid "C_ommand:"
+msgstr "指令(_O)："
+
+#: ../panel-plugin/configuration-dialog.cpp:563
+msgid "Categ_ory icon size:"
+msgstr "分页图示大小(_O)："
+
+#: ../panel-plugin/recent-page.cpp:88
+msgid "Clear Recently Used"
+msgstr "清除最近使用"
+
+#: ../panel-plugin/configuration-dialog.cpp:612
+msgid "Commands"
+msgstr "指令"
+
+#: ../panel-plugin/configuration-dialog.cpp:709
+msgid "Details"
+msgstr "详情"
+
+#: ../panel-plugin/configuration-dialog.cpp:454
+msgid "Di_splay:"
+msgstr "显示(_S)："
+
+#: ../panel-plugin/configuration-dialog.cpp:604
+msgid "Display recently _used by default"
+msgstr "预设显示最近使用(_U)"
+
+#: ../panel-plugin/launcher.cpp:252 ../panel-plugin/run-action.cpp:41
+#: ../panel-plugin/search-action.cpp:188
+#, c-format
+msgid "Failed to execute command \"%s\"."
+msgstr "执行 \"%s\" 指令时失败。"
+
+#: ../panel-plugin/settings.cpp:115
+msgid "Failed to launch menu editor."
+msgstr "启动菜单编辑器失败。"
+
+#: ../panel-plugin/settings.cpp:112
+msgid "Failed to lock screen."
+msgstr "无法锁定屏幕。"
+
+#: ../panel-plugin/settings.cpp:114
+msgid "Failed to log out."
+msgstr "无法登出。"
+
+#: ../panel-plugin/settings.cpp:111
+msgid "Failed to open settings manager."
+msgstr "无法开启设定管理器。"
+
+#: ../panel-plugin/settings.cpp:113
+msgid "Failed to switch users."
+msgstr "未能切换使用者。"
+
+#: ../panel-plugin/window.cpp:126
+msgid "Favorites"
+msgstr "收藏"
+
+#: ../panel-plugin/configuration-dialog.cpp:460
+msgid "Icon"
+msgstr "图标"
+
+#: ../panel-plugin/configuration-dialog.cpp:462
+msgid "Icon and title"
+msgstr "图标与标题"
+
+#: ../panel-plugin/configuration-dialog.cpp:598
+msgid "Include _favorites in recently used"
+msgstr "在最近使用中包含最爱(_F)"
+
+#: ../panel-plugin/configuration-dialog.cpp:543
+msgid "Ite_m icon size:"
+msgstr "项目图标大小(_M)："
+
+#: ../panel-plugin/icon-size.cpp:54
+msgid "Large"
+msgstr "大"
+
+#: ../panel-plugin/icon-size.cpp:55
+msgid "Larger"
+msgstr "很大"
+
+#: ../panel-plugin/settings.cpp:114
+msgid "Log _Out"
+msgstr "登出(_O)"
+
+#: ../panel-plugin/settings.cpp:117
+msgid "Man Pages"
+msgstr "手册页"
+
+#: ../panel-plugin/configuration-dialog.cpp:504
+msgid "Menu"
+msgstr "菜单"
+
+#: ../panel-plugin/configuration-dialog.cpp:714
+msgid "Nam_e:"
+msgstr "名称(_E)："
+
+#: ../panel-plugin/configuration-dialog.cpp:660
+msgid "Name"
+msgstr "名称"
+
+#: ../panel-plugin/icon-size.cpp:49
+msgid "None"
+msgstr "无"
+
+#: ../panel-plugin/icon-size.cpp:53
+msgid "Normal"
+msgstr "正常"
+
+#: ../panel-plugin/settings.cpp:120
+msgid "Open URI"
+msgstr "开启 URI"
+
+#: ../panel-plugin/configuration-dialog.cpp:446
+msgid "Panel Button"
+msgstr "面板按钮"
+
+#: ../panel-plugin/configuration-dialog.cpp:665
+msgid "Pattern"
+msgstr "图案"
+
+#: ../panel-plugin/configuration-dialog.cpp:527
+msgid "Position _search entry next to panel button"
+msgstr "下一个面板按钮的搜索结果(_S)"
+
+#: ../panel-plugin/configuration-dialog.cpp:533
+msgid "Position commands next to search _entry"
+msgstr "下一个指令的搜索结果(_E)"
+
+#: ../panel-plugin/window.cpp:132
+msgid "Recently Used"
+msgstr "最近使用"
+
+#: ../panel-plugin/page.cpp:205
+msgid "Remove From Favorites"
+msgstr "从收藏中删除"
+
+#: ../panel-plugin/configuration-dialog.cpp:364
+#, c-format
+msgid "Remove action \"%s\"?"
+msgstr "是否删除「%s」动作？"
+
+#: ../panel-plugin/configuration-dialog.cpp:689
+msgid "Remove selected action"
+msgstr "删除所选动作"
+
+#: ../panel-plugin/run-action.cpp:71
+#, c-format
+msgid "Run %s"
+msgstr "执行 %s"
+
+#: ../panel-plugin/settings.cpp:119
+msgid "Run in Terminal"
+msgstr "在终端上运行"
+
+#: ../panel-plugin/configuration-dialog.cpp:81
+msgid "Search Actio_ns"
+msgstr "搜索动作(_N)"
+
+#: ../panel-plugin/search-action.cpp:261
+msgid "Search Action"
+msgstr "搜索动作"
+
+#: ../panel-plugin/configuration-dialog.cpp:114
+msgid "Select An Icon"
+msgstr "选择图标"
+
+#: ../panel-plugin/command-edit.cpp:60
+msgid "Select Command"
+msgstr "选择指令"
+
+#: ../panel-plugin/whiskermenu.desktop.in.h:2
+msgid "Show a menu to easily access installed applications"
+msgstr "显示菜单以方便开启已安装的应用程序"
+
+#: ../panel-plugin/configuration-dialog.cpp:515
+msgid "Show application _descriptions"
+msgstr "显示程序描述(_D)"
+
+#: ../panel-plugin/configuration-dialog.cpp:509
+msgid "Show generic application _names"
+msgstr "显示通用应用程序名称(_N)"
+
+#: ../panel-plugin/configuration-dialog.cpp:521
+msgid "Show menu hie_rarchy"
+msgstr "显示卡菜单分类(_R)"
+
+#: ../panel-plugin/icon-size.cpp:52
+msgid "Small"
+msgstr "小"
+
+#: ../panel-plugin/icon-size.cpp:51
+msgid "Smaller"
+msgstr "更小"
+
+#: ../panel-plugin/favorites-page.cpp:67
+msgid "Sort Alphabetically A-Z"
+msgstr "依字母表递增顺序排列"
+
+#: ../panel-plugin/favorites-page.cpp:73
+msgid "Sort Alphabetically Z-A"
+msgstr "依字母递减顺序排列"
+
+#: ../panel-plugin/settings.cpp:113
+msgid "Switch _Users"
+msgstr "切换使用者(_U)"
+
+#: ../panel-plugin/configuration-dialog.cpp:592
+msgid "Switch categories by _hovering"
+msgstr "鼠标置于其上以切换到该分类(_H)"
+
+#: ../panel-plugin/configuration-dialog.cpp:363
+msgid "The action will be deleted permanently."
+msgstr "会永久删除该动作。"
+
+#: ../panel-plugin/configuration-dialog.cpp:461
+msgid "Title"
+msgstr "标题"
+
+#: ../panel-plugin/page.cpp:306
+msgid "Unable to add launcher to desktop."
+msgstr "无法在桌面上新增启动器。"
+
+#: ../panel-plugin/page.cpp:345 ../panel-plugin/page.cpp:354
+msgid "Unable to add launcher to panel."
+msgstr "无法在面板上新增启动器。"
+
+#: ../panel-plugin/icon-size.cpp:56
+msgid "Very Large"
+msgstr "非常大"
+
+#: ../panel-plugin/icon-size.cpp:50
+msgid "Very Small"
+msgstr "非常小"
+
+#: ../panel-plugin/configuration-dialog.cpp:71
+#: ../panel-plugin/whiskermenu.desktop.in.h:1
+msgid "Whisker Menu"
+msgstr "Whisker菜单"
+
+#: ../panel-plugin/settings.cpp:118
+msgid "Wikipedia"
+msgstr "维基百科"
+
+#: ../panel-plugin/configuration-dialog.cpp:79
+msgid "_Appearance"
+msgstr "外观(_A)"
+
+#: ../panel-plugin/configuration-dialog.cpp:80
+msgid "_Behavior"
+msgstr "行为(_B)"
+
+#: ../panel-plugin/settings.cpp:115
+msgid "_Edit Applications"
+msgstr "编辑应用程序(_E)"
+
+#: ../panel-plugin/configuration-dialog.cpp:487
+msgid "_Icon:"
+msgstr "图标(_I)："
+
+#: ../panel-plugin/settings.cpp:112
+msgid "_Lock Screen"
+msgstr "锁定屏幕(_L)"
+
+#: ../panel-plugin/configuration-dialog.cpp:726
+msgid "_Pattern:"
+msgstr "图案(_P)："
+
+#: ../panel-plugin/configuration-dialog.cpp:750
+msgid "_Regular expression"
+msgstr "正则表达式(_R)"
+
+#: ../panel-plugin/configuration-dialog.cpp:472
+msgid "_Title:"
+msgstr "标题(_T)："

@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer : Martin Wimpress <code@flexion.org>
+
+pkgname=mate-accountsdialog
+pkgver=1.8.1
+pkgrel=1
+pkgdesc="An application to view and modify user accounts information for MATE."
+url="https://github.com/NiceandGently/mate-accountsdialog"
+arch=('i686' 'x86_64')
+license=('GPL')
+#depends=('accountsservice' 'apg' 'dbus-glib' 'gtk2' 'iso-codes' 'mate-desktop'
+#         'mate-polkit' 'libunique')
+depends=('accountsservice' 'dbus-glib' 'gtk2' 'iso-codes')
+makedepends=('mate-common' 'perl-xml-parser' 'yelp-tools')
+options=('!emptydirs')
+source=("https://github.com/NiceandGently/${pkgname}/archive/v${pkgver}.tar.gz")
+sha1sums=('acd991e284a28a0732cb8e37e5ffda01caf37155')
+install=${pkgname}.install
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=mate64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=mate
+fi
+
+prepare() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+
+    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/mate_gtk+2.0/lib/pkgconfig/
+
+    ./configure \
+        --prefix=/usr/local/${dstdir}/mate_gtk+2.0 \
+        --enable-systemd
+    make
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}

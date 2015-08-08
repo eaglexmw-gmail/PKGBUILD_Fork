@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=Sauerbraten
+Comment=FPS that uses an improved version of the Cube engine
+Exec=/usr/local/sauerbraten/bin/sauerbraten-client %u
+Icon=/usr/local/sauerbraten/share/pixmaps/sauerbraten.png
+Terminal=false
+StartupNotify=false
+Categories=Application;Game;ActionGame;FPS;

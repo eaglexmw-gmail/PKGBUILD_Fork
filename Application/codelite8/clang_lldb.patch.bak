@@ -1,0 +1,62 @@
+diff -Nur old/CMakeLists.txt new/CMakeLists.txt
+--- old/CMakeLists.txt	2015-06-19 05:47:47.873774000 +0800
++++ new/CMakeLists.txt	2015-06-20 18:05:56.387770992 +0800
+@@ -389,14 +389,9 @@
+     endif ()
+   endif ()
+ elseif (UNIX)
+-    FIND_LIBCLANG_OFFICIAL()
+-    if ( LIBCLANG STREQUAL "LIBCLANG-NOTFOUND" )
+-        set(USE_CLANG 0)
+-    else()
+-        set(CLANG_LIBRARY ${LIBCLANG})
+-        set(CLANG_INCLUDE ${LIBCLANG_INCLUDE})
+-        set( CLANG_BINARY ${CLANG_LIBRARY})
+-    endif()
++  set( CLANG_INCLUDE "${CL_SRC_ROOT}/sdk/clang/Linux/${ARCH_NAME}/include" )
++  set( CLANG_LIBRARY "-L${CL_SRC_ROOT}/sdk/clang/Linux/${ARCH_NAME}/lib -lclang" )
++  set( CLANG_BINARY "${CL_SRC_ROOT}/sdk/clang/Linux/${ARCH_NAME}/lib/libclang.so")
+ endif()
+ 
+ if (USE_CLANG)
+diff -Nur old/LLDBDebugger/CMakeLists.txt new/LLDBDebugger/CMakeLists.txt
+--- old/LLDBDebugger/CMakeLists.txt	2015-06-19 05:47:47.863774000 +0800
++++ new/LLDBDebugger/CMakeLists.txt	2015-06-20 18:06:44.227511822 +0800
+@@ -1,10 +1,36 @@
++macro( FIND_LLDB_OFFICIAL )
++
++    ## Locate the official packages
++    find_library(LIBLLDB_T
++                 NAMES liblldb.so
++                 HINTS  /usr/lib /usr/local/lib ${CMAKE_INSTALL_LIBDIR})
++
++    find_path(LIBLLDB_INCLUDE_T NAMES lldb/API/SBDebugger.h
++              HINTS 
++              /usr/lib/llvm-3.5/include 
++              /usr/include/llvm-3.5 
++              /usr/include/llvm
++              /usr/local/include
++              )
++
++    if ( LIBLLDB_T STREQUAL "LIBLLDB_T-NOTFOUND" OR LIBLLDB_INCLUDE_T STREQUAL "LIBLLDB_INCLUDE_T-NOTFOUND" )
++        set(LIBLLDB "LIBLLDB-NOTFOUND")
++        set(LIBLLDB_INCLUDE "LIBLLDB_INCLUDE-NOTFOUND")
++    else()
++        set( LLDB_OFFICIAL_FOUND 1 )
++        set(LIBLLDB ${LIBLLDB_T})
++        set(LIBLLDB_INCLUDE ${LIBLLDB_INCLUDE_T})
++        set(LIBLLDB_INSTALL_NEEDED 0)
++    endif()
++endmacro()
++
+ set( BUILD_LLDB 0 )
+ set( LIBLLDB "" )
+ set( LIBLLDB_INCLUDE "" )
+ set( LIBLLDB_INSTALL_NEEDED 0)
+ set( LLDB_OFFICIAL_FOUND 0)
+ 
+-include(FindLibLLDB)
++# include(FindLibLLDB)
+ 
+ if (UNIX AND NOT APPLE)
+     set ( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC" )

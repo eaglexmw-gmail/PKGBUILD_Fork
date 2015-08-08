@@ -1,0 +1,123 @@
+# Maintainer: Gaetan Bisson <bisson@archlinux.org>
+
+pkgname=corsix-th
+pkgver=0.40
+pkgrel=1
+pkgdesc='Reimplementation of the game engine of Theme Hospital'
+url='https://github.com/CorsixTH/CorsixTH/'
+arch=('i686' 'x86_64' 'armv7h')
+license=('MIT')
+makedepends=('cmake')
+#depends=('lua51' 'sdl_mixer' 'ffmpeg' 'timidity-freepats')
+source=("${url}archive/v${pkgver}.tar.gz"
+         config.txt
+         CorsixTH_opengl.sh
+         CorsixTH_sdl.sh
+         timidity-freepats-20060219-7-any.pkg.tar.xz
+         timidity.cfg
+         arialuni.tar.xz
+         CorsixTH.png)
+sha1sums=('2e88e319f8c73e83068c8db08f1598cc097b2b27'
+          'd9b495caa704a2fffc56c205a20dc15c3d69aba2'
+          '016735e1822190ef89051a56b8b8a924ce8924c7'
+          '98f86243fa44af57af76882877b224c753e3b304'
+          '2e7a1874f5cc87b82e4fd10225c1f4556ed708ee'
+          '660b3afbb720d26e8f008034cee66dd8da082d6e'
+          'de486963ef206f93d5b2adba174c0c44a5e8a809'
+          '81f34719c2cc24734584e11735acb5835eafdbdf')
+
+# If you do not have a copy of Theme Hospital,
+# you can download the data files of the demo:
+#   http://th.corsix.org/Demo.zip
+
+build() {
+	cd "${srcdir}/CorsixTH-${pkgver}"
+
+        sed -i 's| wxTheApp->argv\[i\]|&.c_str()|g' ./MapEdit/Src/embedded_game.cpp
+
+        [ -d build_opengl ] || mkdir build_opengl
+
+        cd build_opengl
+	cmake \
+		-D LUA_INCLUDE_DIR=/usr/local/lua/include \
+		-D LUA_LIBRARY=/usr/local/lib/liblua.so \
+		-D CMAKE_INSTALL_PREFIX=/usr/local/CorsixTH/share/ \
+		-D CMAKE_BUILD_TYPE=Release \
+		-Wno-dev -D WITH_OPENGL=ON -D BUILD_MAPEDITOR=ON -D WITH_SDL=OFF ..
+        make cmake_check_build_system
+
+        sed -i 's|libSDL.a |& -ldl |g' CorsixTH/CMakeFiles/CorsixTH.dir/link.txt
+        sed -i 's|libSDL_mixer.a |& -lsmpeg -lmikmod -lSDL |g' CorsixTH/CMakeFiles/CorsixTH.dir/link.txt
+        sed -i 's|/usr/local/lib/libavformat.a | -L/usr/local/lib -lavformat -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavcodec -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavutil -lm -lorc-0.4 -lxml2 -lbz2  |g' CorsixTH/CMakeFiles/CorsixTH.dir/link.txt
+
+        sed -i 's|libSDL.a |& -ldl |g' MapEdit/CMakeFiles/MapEdit.dir/link.txt
+        sed -i 's|libSDL_mixer.a |& -lsmpeg -lmikmod -lSDL |g' MapEdit/CMakeFiles/MapEdit.dir/link.txt
+        sed -i 's|/usr/local/lib/libavformat.a | -L/usr/local/lib -lavformat -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavcodec -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavutil -lm -lorc-0.4 -lxml2 -lbz2  |g' MapEdit/CMakeFiles/MapEdit.dir/link.txt
+
+	make
+
+	cd "${srcdir}/CorsixTH-${pkgver}"
+        [ -d build_sdl ] || mkdir build_sdl
+        cd build_sdl
+	cmake \
+		-D LUA_INCLUDE_DIR=/usr/local/lua/include \
+		-D LUA_LIBRARY=/usr/local/lib/liblua.so \
+		-D CMAKE_INSTALL_PREFIX=/usr/local/CorsixTH/share/ \
+		-D CMAKE_BUILD_TYPE=Release \
+		-Wno-dev -D WITH_OPENGL=OFF -D BUILD_ANIMVIEWER=ON ..
+
+        make cmake_check_build_system
+
+        sed -i 's|libSDL.a |& -ldl |g' CorsixTH/CMakeFiles/CorsixTH.dir/link.txt
+        sed -i 's|libSDL_mixer.a |& -lsmpeg -lmikmod -lSDL |g' CorsixTH/CMakeFiles/CorsixTH.dir/link.txt
+        sed -i 's|/usr/local/lib/libavformat.a | -L/usr/local/lib -lavformat -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavcodec -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavutil -lm -lorc-0.4 -lxml2 -lbz2  |g' CorsixTH/CMakeFiles/CorsixTH.dir/link.txt
+
+	make
+}
+
+package() {
+	cd "${srcdir}/CorsixTH-${pkgver}/build_opengl"
+	make DESTDIR="${pkgdir}" install
+        mkdir -p ${pkgdir}/usr/local/CorsixTH/bin
+        mv ${pkgdir}/usr/local/CorsixTH/share/CorsixTH/CorsixTH ${pkgdir}/usr/local/CorsixTH/bin/CorsixTH_opengl
+        mv ${pkgdir}/usr/local/CorsixTH/share/CorsixTH/MapEdit ${pkgdir}/usr/local/CorsixTH/bin/MapEdit
+
+	cd "${srcdir}/CorsixTH-${pkgver}/build_sdl"
+        cp -f ../LICENSE.txt ../AnimView/
+	make DESTDIR="${pkgdir}" install
+        mv ${pkgdir}/usr/local/CorsixTH/share/CorsixTH/CorsixTH ${pkgdir}/usr/local/CorsixTH/bin/CorsixTH_sdl
+        mv ${pkgdir}/usr/local/CorsixTH/share/AnimView/AnimView ${pkgdir}/usr/local/CorsixTH/bin/AnimView
+
+        mkdir -p ${pkgdir}/usr/local/CorsixTH/share/timidity/freepats/
+        cp -Rf ${srcdir}/usr/share/timidity/* ${pkgdir}/usr/local/CorsixTH/share/timidity/
+        cp -Rf ${srcdir}/etc/timidity++/*     ${pkgdir}/usr/local/CorsixTH/share/timidity/
+
+        mkdir -p ${pkgdir}/usr/local/CorsixTH/share/CorsixTH/Fonts/
+        install -Dm644 ../../arialuni.ttf ${pkgdir}/usr/local/CorsixTH/share/CorsixTH/Fonts/
+
+        mkdir -p ${pkgdir}/usr/local/CorsixTH/share/pixmaps/
+        install -Dm644 ../../CorsixTH.png ${pkgdir}/usr/local/CorsixTH/share/pixmaps/
+
+        sed -i 's|/usr/share/timidity/freepats|/usr/local/CorsixTH/share/timidity/freepats|g' ${pkgdir}/usr/local/CorsixTH/share/timidity/timidity-freepats.cfg
+        sed -i 's|/etc/timidity++/freepats/|/usr/local/CorsixTH/share/timidity/freepats|g'    ${pkgdir}/usr/local/CorsixTH/share/timidity/timidity-freepats.cfg
+	install -Dm644 ../../timidity.cfg "${pkgdir}/usr/local/CorsixTH/share/timidity/"
+
+	install -Dm644 ../../config.txt "${pkgdir}/usr/local/CorsixTH/share/CorsixTH/"
+	install -Dm755 ../../CorsixTH_opengl.sh "${pkgdir}/usr/local/CorsixTH/bin/"
+	install -Dm755 ../../CorsixTH_sdl.sh "${pkgdir}/usr/local/CorsixTH/bin/"
+
+	install -Dm644 ../LICENSE.txt "${pkgdir}/usr/local/CorsixTH/share/licenses/${pkgname}/LICENSE"
+	install -Dm644 ../DebianPackage/usr/share/applications/CorsixTH.desktop "${pkgdir}/usr/local/CorsixTH/share/applications/CorsixTH_opengl.desktop"
+	install -Dm644 ../DebianPackage/usr/share/applications/CorsixTH.desktop "${pkgdir}/usr/local/CorsixTH/share/applications/CorsixTH_sdl.desktop"
+	install -Dm644 ../DebianPackage/usr/share/applications/MapEdit.desktop "${pkgdir}/usr/local/CorsixTH/share/applications/MapEdit.desktop"
+
+	sed -e 's|Name=CorsixTH|& opengl|g' -i "${pkgdir}/usr/local/CorsixTH/share/applications/CorsixTH_opengl.desktop"
+	sed -e 's|Exec=/usr/games/CorsixTH/CorsixTH|Exec=/usr/local/CorsixTH/bin/CorsixTH_opengl.sh|g' -i "${pkgdir}/usr/local/CorsixTH/share/applications/CorsixTH_opengl.desktop"
+	sed -e 's|/usr/games/CorsixTH/CorsixTH.ico|/usr/local/CorsixTH/share/pixmaps/CorsixTH.png|g' -i "${pkgdir}/usr/local/CorsixTH/share/applications/CorsixTH_opengl.desktop"
+
+	sed -e 's|Name=CorsixTH|& sdl|g' -i "${pkgdir}/usr/local/CorsixTH/share/applications/CorsixTH_sdl.desktop"
+	sed -e 's|Exec=/usr/games/CorsixTH/CorsixTH|Exec=/usr/local/CorsixTH/bin/CorsixTH_sdl.sh|g' -i "${pkgdir}/usr/local/CorsixTH/share/applications/CorsixTH_sdl.desktop"
+	sed -e 's|/usr/games/CorsixTH/CorsixTH.ico|/usr/local/CorsixTH/share/pixmaps/CorsixTH.png|g' -i "${pkgdir}/usr/local/CorsixTH/share/applications/CorsixTH_sdl.desktop"
+
+	sed -e 's|/usr/games/CorsixTH/MapEdit|/usr/local/CorsixTH/bin/MapEdit|g' -i "${pkgdir}/usr/local/CorsixTH/share/applications/MapEdit.desktop"
+}

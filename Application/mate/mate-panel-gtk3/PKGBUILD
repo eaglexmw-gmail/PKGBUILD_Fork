@@ -1,0 +1,49 @@
+# Maintainer : Martin Wimpress <code@flexion.org>
+
+_ver=1.10
+_pkgbase=mate-panel
+pkgname=${_pkgbase}-gtk3
+pkgver=${_ver}.1
+pkgrel=1
+pkgdesc="The MATE Panel (GTK3 version [EXPERIMENTAL])"
+url="http://mate-desktop.org"
+arch=('i686' 'x86_64')
+license=('GPL')
+#depends=('dbus-glib' 'dconf' 'gtk3' 'libwnck3' 'libcanberra' 'libice'
+#         'libmateweather-gtk3>=1.10' 'librsvg' 'libsm' 'libsoup' 'libxau'
+#         'mate-menus>=1.10' 'mate-desktop-gtk3>=1.10')
+depends=('dbus-glib' 'dconf' 'gtk3' 'libice' 'librsvg' 'libsm' 'libsoup' 'libxau')
+makedepends=('gobject-introspection' 'mate-common' 'yelp-tools')
+optdepends=('yelp: for reading MATE help documents')
+source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
+groups=('mate-gtk3')
+conflicts=("${_pkgbase}")
+sha1sums=('e82156c5b732c22779ffcb03bbbcd3c01e3ce146')
+install=${_pkgbase}.install
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=mate64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=mate
+fi
+
+build() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+
+    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/mate_gtk+3.0/lib/pkgconfig/
+
+    ./configure \
+        --prefix=/usr/local/${dstdir}/mate_gtk+3.0 \
+        --libexecdir=/usr/local/${dstdir}/mate_gtk+3.0/lib/${_pkgbase} \
+        --sysconfdir=/usr/local/${dstdir}/mate_gtk+3.0/etc \
+        --localstatedir=/var \
+        --with-gtk=3.0 \
+        --enable-introspection \
+        --disable-static
+    make
+}
+
+package() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}

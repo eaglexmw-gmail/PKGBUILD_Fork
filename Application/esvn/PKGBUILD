@@ -1,0 +1,43 @@
+# Contributor: Andreas Schwoll <aktogaj@gmail.com>
+
+pkgname=esvn
+pkgver=0.6.12
+pkgrel=1
+pkgdesc="Esvn Qt based Subversion client"
+url="http://esvn.umputun.com"
+license="GPL"
+arch=('i686' 'x86_64')
+#depends=('subversion' 'qt')
+source=(http://dl.sf.net/sourceforge/esvn/$pkgname-$pkgver-$pkgrel.tar.gz)
+#options=(docs)
+
+md5sums=('c46ffee6188dc28604c7cc9e5dbf082e')
+
+build() {
+    cd $startdir/src/$pkgname
+
+    sed -i 's|/usr|$(DESTDIR)/usr/local/esvn|g' Makefile
+    sed -i 's|/usr|/usr/local/esvn|g' esvn.pro
+    sed -i 's|/usr|/usr/local/esvn|g' esvn-diff-wrapper.pro
+    sed -i 's|qmake|echo &|g' Makefile
+
+    qmake esvn.pro
+    qmake esvn-diff-wrapper.pro
+
+    sed -i 's|-lqt-mt -lXext -lX11 -lm|-lqt-mt -ldl -L/usr/X11R6/lib -L/usr/X11R6/lib -lpng -ljpeg -lz -lGL -lXmu -lXrender -lXrandr -lXcursor -lXinerama -lXext -lX11 -lm -lSM -lICE -ldl -lpthread  |g' esvn.mak
+
+    sed -i 's|-lqt-mt -lXext -lX11 -lm|-lqt-mt -ldl -L/usr/X11R6/lib -L/usr/X11R6/lib -lpng -ljpeg -lz -lGL -lXmu -lXrender -lXrandr -lXcursor -lXinerama -lXext -lX11 -lm -lSM -lICE -ldl -lpthread  |g' esvn-diff-wrapper.mak
+
+    make all || return 1
+}
+
+package() {
+    cd $startdir/src/$pkgname
+
+    make DESTDIR=$pkgdir INSTALL_ROOT=$pkgdir install
+
+    mkdir -p $pkgdir/usr/local/esvn/bin/
+    cp esvn $pkgdir/usr/local/esvn/bin/
+    cp esvn-diff-wrapper $pkgdir/usr/local/esvn/bin/
+}
+

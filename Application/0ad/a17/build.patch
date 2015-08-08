@@ -1,0 +1,14 @@
+diff -Nur old/libraries/source/spidermonkey/build.sh new/libraries/source/spidermonkey/build.sh
+--- old/libraries/source/spidermonkey/build.sh	2015-01-24 22:46:52.000000000 +0800
++++ new/libraries/source/spidermonkey/build.sh	2015-06-23 07:15:38.963687477 +0800
+@@ -70,6 +70,9 @@
+ 
+ # Apply patches if needed
+ cd mozjs31
++
++patch -p1 -i ../../../../../js31_gcc.patch
++
+ # Tracelogger patches (the Tracelogger is a tool for developers and these
+ # patches are only needed if the tracelogger is used). The first patch is
+ # a backport from newer SpiderMonkey versions and the second patch
+Binary files old/libraries/source/spidermonkey/.build.sh.swp and new/libraries/source/spidermonkey/.build.sh.swp differ

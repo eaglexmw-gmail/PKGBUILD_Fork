@@ -1,0 +1,22 @@
+#!/bin/sh
+
+SAUER_USER=nobody
+LOGDIR=/var/log/sauerbraten
+[ -f /usr/local/sauerbraten/etc/conf.d/sauerbraten ] && . usr/local/sauerbraten/etc/conf.d/sauerbraten
+
+cd /usr/local/sauerbraten/
+
+if [ "$(id -u)" == "0" ]; then
+    if [ ! -d "$LOGDIR" ]; then
+        mkdir -p "$LOGDIR"
+        chown "$SAUER_USER:log" "$LOGDIR"
+    fi
+
+    sudo -Hu "$SAUER_USER" \
+    nohup /usr/local/sauerbraten/bin/linux_server \
+            >>  "$LOGDIR/main.log" \
+            2>> "$LOGDIR/error.log" \
+            <   /dev/null  &
+else
+    bin/linux_server &
+fi

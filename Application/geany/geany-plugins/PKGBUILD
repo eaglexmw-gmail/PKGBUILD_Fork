@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Alexander Rødseth <rodseth@gmail.com>
+# Contributor: Angel 'angvp' Velasquez <angvp[at]archlinux.com.ve>  
+# Contributor: djgera
+# Contributor: Patrick Melo <patrick@patrickmelo.eti.br>
+
+pkgname=geany-plugins
+pkgver=1.25
+pkgrel=2
+pkgdesc='Plugins for Geany'
+arch=('x86_64' 'i686')
+url='http://plugins.geany.org/'
+license=('GPL')
+#depends=("geany>=$pkgver" 'gtkspell' 'webkitgtk2' 'ctpl' 'gpgme' 'vte'
+#         'desktop-file-utils' 'gtk-update-icon-cache' 'lua51' 'libgit2')
+# makedepends=('intltool' 'vala' 'gdb' 'cppcheck' 'libgit2')
+optdepends=('hspell: hebrew spell checker')
+install="$pkgname.install"
+source=("http://plugins.geany.org/$pkgname/$pkgname-$pkgver.tar.bz2")
+sha256sums=('5c13ac1e173284462248ed2faae389a72364c5aa1538de628d2aaa7d286e244b')
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  export PATH=$PATH:/usr/local/python2/bin
+  #export PYTHON=python2_spec
+  export PYTHON_VERSION=2_spec
+
+  ./configure \
+    --prefix=/usr/local/geany \
+    --libexecdir=/usr/local/geany/lib  --enable-debugger --enable-scope --disable-devhelp --disable-webhelper --disable-markdown
+
+  sed -i 's|$(GTKSPELL_LIBS)|$(GTKSPELL_LIBS) -lenchant -lgmodule-2.0 |' geanyvc/src/Makefile
+
+  make 
+}
+
+package() {
+  make -C "$pkgname-$pkgver" DESTDIR="$pkgdir" install
+}
+
+# getver: -u=6 https://raw.githubusercontent.com/geany/geany-plugins/master/NEWS
+# vim:set ts=2 sw=2 et:

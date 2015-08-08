@@ -1,0 +1,87 @@
+# $Id$
+# Maintainer: Lukas Fleischer <archlinux at cryptocrack dot de>
+# Contributor: Shinlun Hsieh <yngwiexx@yahoo.com.tw>
+# Contributor: Mateusz Herych <heniekk@gmail.com>
+# Contributor: Storyteller <spiralsorrow@hotmail.com>
+
+pkgname=lmms
+pkgver=1.1.3
+pkgrel=1
+pkgdesc='The Linux MultiMedia Studio.'
+arch=('i686' 'x86_64')
+url='http://lmms.sourceforge.net/'
+license=('GPL')
+#depends=('sdl' 'glib2' 'fluidsynth' 'libpng' 'libvorbis' 'libxft' 'libxinerama' 'qt4' 'sdl_sound'
+#         'libsamplerate' 'shared-mime-info' 'fltk')
+depends=('glib2' 'libpng' 'libvorbis' 'libxft' 'libxinerama' 
+         'libsamplerate' 'shared-mime-info')
+optdepends=('wine: VST support (experimental)'
+            'fftw: SpectrumAnalyzer plugin'
+            'stk: STK instruments plugins'
+            'pulseaudio: PulseAudio output')
+#makedepends=('cmake' 'ladspa' 'libxft' 'freetype2' 'fftw' 'stk' 'wine')
+makedepends=('cmake' 'libxft' 'freetype2'  'wine')
+makedepends_x86_64=('gcc-multilib')
+provides=('lmms-extras')
+conflicts=('lmms-extras')
+options=('!makeflags')
+install=lmms.install
+source=("$pkgname-$pkgver.tar.gz::https://github.com/LMMS/${pkgname}/archive/v${pkgver}.tar.gz"
+        "make-werrror-optional.patch"
+        "lmms.so.undef.c")
+md5sums=('88d9e66d240b711c37315e3c9da644a1'
+         '2c6e51b665c34fa61dc8b23e129404a9'
+         'e226113cf2fe5eaf655879612ac53eb9')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  sed -i 's|lib64|lib|g' cmake/modules/DetectMachine.cmake
+
+  patch -Np1 -i ../make-werrror-optional.patch
+
+  sed -i '19 a TARGET_LINK_LIBRARIES("${_plugin}" m)' plugins/LadspaEffect/tap/CMakeLists.txt
+  sed -i '29 a TARGET_LINK_LIBRARIES("${_plugin}" m)' plugins/LadspaEffect/swh/CMakeLists.txt
+
+  sed -i 's| iir)| iir m)|g'                plugins/LadspaEffect/swh/CMakeLists.txt
+  sed -i 's| gsm)| gsm m)|g'                plugins/LadspaEffect/swh/CMakeLists.txt
+  sed -i 's| gverb)| gverb m)|g'            plugins/LadspaEffect/swh/CMakeLists.txt
+  sed -i 's| blo)| blo m)|g'                plugins/LadspaEffect/swh/CMakeLists.txt
+  sed -i 's| pitchscale)| pitchscale m)|g'  plugins/LadspaEffect/swh/CMakeLists.txt
+  sed -i 's| rms db)| rms db m)|g'          plugins/LadspaEffect/swh/CMakeLists.txt
+
+  cp ../lmms.so.undef.c ./include
+  sed -i -e '69 a #include "lmms.so.undef.c"' \
+         -e '74 a e = (long)__lmms_so_undef_func();' \
+         src/core/drumsynth.cpp
+
+  sed -i -e '96 a extern "C" int __lmms_so_undef_func();' \
+         -e '136 a if (!core_only) printf("undefine function: %08x\\n", __lmms_so_undef_func());' \
+         src/core/main.cpp
+
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  sed -i 's|lib64|lib|g' cmake/modules/DetectMachine.cmake
+
+  export PATH="$PATH:/usr/local/fltk:/usr/local/fltk/bin"
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/fltk/lib
+
+  [ -d build ] || mkdir build
+  cd build
+
+  cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/lmms -USE=vst
+
+  make cmake_check_build_system
+  sed -i 's|/usr/local/lib/libpulse.a|-L/usr/local/lib -lSDL -lpthread -lm -ldl -L/usr/local/lib -L/usr/local/lib/pulseaudio -L/usr/local/lib -L/usr/local/lib/pulseaudio -L/usr/local/lib -lpulse-simple -lpulsecommon-5.99 -lxcb -lsystemd -lpulse -lpulsecommon-5.99 -lxcb -ldbus-1 -lsystemd -ljson-c -lX11 -lXext -lXrandr -lXrender -lpthread |g' ./CMakeFiles/lmms.dir/link.txt
+
+
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver/build"
+  make DESTDIR="${pkgdir}" install
+}

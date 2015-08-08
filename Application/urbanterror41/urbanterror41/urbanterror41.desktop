@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Urban Terror(4.1)
+Type=Application
+Categories=Game;
+Terminal=false
+Exec=usr/local/urbanterror/bin/urbanterror41
+Icon=/usr/local/urbanterror/share/pixmaps/urbanterror41.png

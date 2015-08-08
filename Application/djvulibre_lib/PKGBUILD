@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Gaetan Bisson <bisson@archlinux.org>
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+# Contributor: mgushee
+
+pkgname=djvulibre_lib
+_pkgname=djvulibre
+pkgver=3.5.25.3
+_major=3.5.25
+pkgrel=2
+pkgdesc="Suite to create, manipulate and view DjVu ('déjà vu') documents"
+url='http://djvu.sourceforge.net/'
+arch=('i686' 'x86_64')
+license=('GPL2')
+makedepends=('librsvg')
+options=('staticlibs')
+depends=('libtiff' 'hicolor-icon-theme')
+source=("http://downloads.sourceforge.net/project/djvu/DjVuLibre/${_major}/djvulibre-${pkgver}.tar.gz")
+sha1sums=('ad35056aabb1950f385360ff59520a82a6f779ec')
+
+conflicts=('libdjvu')
+provides=("libdjvu=${pkgver}")
+replaces=('libdjvu')
+
+install=install
+
+build() {
+	cd "${srcdir}/${_pkgname}-${_major}"
+	./configure --prefix=/usr --enable-static
+	make
+}
+
+package() {
+	cd "${srcdir}/${_pkgname}-${_major}"
+	make DESTDIR="${pkgdir}" install
+        rm -rf ${pkgdir}/usr/bin
+        rm -rf ${pkgdir}/usr/share
+}

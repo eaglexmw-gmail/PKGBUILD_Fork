@@ -1,0 +1,55 @@
+# $Id$
+# Maintainer: Sven-Hendrik Haase <sh@lutzhaase.com>
+# Contributor: t3ddy  <t3ddy1988 "at" gmail {dot} com>
+# Contributor: AdriÃ¡n Chaves FernÃ¡ndez (Gallaecio) <adriyetichaves@gmail.com>
+pkgname=0ad
+pkgver=a14
+_pkgver=0.0.14-alpha
+pkgrel=1
+pkgdesc="Cross-platform, 3D and historically-based real-time strategy game"
+arch=('i686' 'x86_64')
+url="http://play0ad.com/"
+license=('GPL2' 'CCPL')
+#depends=('binutils' 'boost-libs' 'curl' 'enet>=1.3' 'libogg' 'libpng' 'libvorbis' 'libxml2' 'openal' 'sdl' 'wxgtk' 'zlib' 'libgl' '0ad-data' 'glu')
+#makedepends=('boost' 'cmake' 'mesa' 'zip' 'python2')
+source=("http://releases.wildfiregames.com/$pkgname-$_pkgver-unix-build.tar.xz")
+md5sums=('5bbaffa02b6e9082cbd5142d43f9b700')
+
+build() {
+  cd "$srcdir/$pkgname-$_pkgver/build/workspaces"
+
+  unset CPPFLAGS # for le spidermonkey
+
+  export WX_CONFIG=/usr/local/bin/wx-config-2.8
+  ./update-workspaces.sh \
+      --with-system-enet \
+      --bindir=/usr/local/0ad/bin \
+      --libdir=/usr/local/0ad/lib/0ad \
+      --datadir=/usr/local/0ad/share/${pkgname}/data
+
+  cd "$srcdir/$pkgname-$_pkgver/build/workspaces/gcc"
+
+  sed -i 's|-lgloox |-lgloox -lidn -lresolv -lgnutls |g' pyrogenesis.make
+  sed -i 's|-lengine |-lengine -L/usr/lib/ -licuuc |g' pyrogenesis.make
+  sed -i 's|-lboost_filesystem | -Wl,-Bstatic & -Wl,-Bdynamic |g' pyrogenesis.make
+
+  sed -i 's|/usr/bin/wx-config-2.8 | wx-config-2.8 |g' AtlasObject.make
+  sed -i 's|/usr/bin/wx-config-2.8 | wx-config-2.8 |g' AtlasUI.make
+
+  sed -i 's| Collada test| Collada|g' Makefile
+
+  make CONFIG=Release
+}
+
+package() {
+
+  install -d "${pkgdir}"/usr/local/0ad/{bin,lib/0ad}
+
+  install -Dm755 "${srcdir}"/${pkgname}-${_pkgver}/binaries/system/ActorEditor "${pkgdir}/usr/local/0ad/bin"
+  install -Dm755 "${srcdir}"/${pkgname}-${_pkgver}/binaries/system/pyrogenesis "${pkgdir}/usr/local/0ad/bin"
+  install -Dm755 "${srcdir}"/${pkgname}-${_pkgver}/binaries/system/*.so{,.1.0} "${pkgdir}/usr/local/0ad/lib/0ad"
+
+  install -Dm755 "${srcdir}/${pkgname}-${_pkgver}/build/resources/${pkgname}.sh" "${pkgdir}/usr/local/0ad/bin/${pkgname}"
+  install -Dm644 "${srcdir}/$pkgname-$_pkgver/build/resources/${pkgname}.desktop" "${pkgdir}/usr/local/0ad/share/applications/${pkgname}.desktop"
+  install -Dm644 "${srcdir}/$pkgname-$_pkgver/build/resources/${pkgname}.png" "${pkgdir}/usr/local/0ad/share/pixmaps/${pkgname}.png"
+}

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Nexuiz (SDL)
+Comment=Fast-paced multiplayer first-person shooter.
+Icon=/usr/local/nexuiz/share/icons/hicolor/512x512/apps/nexuiz.png
+Exec=/usr/local/nexuiz/bin/nexuiz-sdl
+Terminal=false
+StartupNotify=false
+Categories=Game;AudioVideo;

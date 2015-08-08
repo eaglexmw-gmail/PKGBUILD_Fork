@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Path=/usr/local/assaultcube/bin
+Exec=/usr/local/assaultcube/bin/assaultcube
+Icon=/usr/local/assaultcube/share/pixmaps/assaultcube.png
+Type=Application
+Terminal=false
+MultipleArgs=false
+Name=AssaultCube
+GenericName=Realistic Multiplayer FPS
+MimeType=text/html
+StartupNotify=false
+Categories=Game;ActionGame;

@@ -1,0 +1,17 @@
+diff -Nur old/maximus/xutils.c new/maximus/xutils.c
+--- old/maximus/xutils.c	2014-02-26 22:04:25.000000000 +0800
++++ new/maximus/xutils.c	2015-07-19 01:52:22.102148575 +0800
+@@ -34,6 +34,7 @@
+ #define UNUSED_VARIABLE
+ #endif
+ 
++#if 0
+ void
+ _wnck_error_trap_push (void)
+ {
+@@ -116,3 +117,5 @@
+       XFree (ch.res_class);
+     }
+ }
++
++#endif

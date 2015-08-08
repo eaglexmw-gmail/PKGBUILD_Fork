@@ -1,0 +1,11 @@
+diff -Nur old/mscript.py new/mscript.py
+--- old/mscript.py	2015-03-30 23:55:47.000000000 +0800
++++ new/mscript.py	2015-07-18 06:27:56.913712000 +0800
+@@ -96,6 +96,7 @@
+                 "http://docbook.sourceforge.net/release/xsl/" \
+                 "current/manpages/docbook.xsl")
+         ctx.setenv("XMLTOMAN_OUTPUT", "")
++    ctx.setenv("XMLTOMAN", "")
+ 
+     if ctx.env['ENABLE_GIT'] != False:
+         try:

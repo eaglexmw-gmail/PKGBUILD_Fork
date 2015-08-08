@@ -1,0 +1,38 @@
+# $Id: PKGBUILD 177998 2013-02-12 22:00:51Z eric $
+# Maintainer: Eric Bélanger <eric@archlinux.org>
+# Contributor: freetg <freetgm@gmail.com>
+
+pkgname=bluefish-gtk2
+_pkgname=bluefish
+pkgver=2.2.4
+pkgrel=1
+pkgdesc="A powerful HTML editor for experienced web designers and programmers"
+arch=('i686' 'x86_64')
+url="http://bluefish.openoffice.nl/"
+license=('GPL3')
+#depends=('gtk2' 'enchant' 'python2' 'desktop-file-utils' 'hicolor-icon-theme')
+depends=('gtk2' 'desktop-file-utils' 'hicolor-icon-theme')
+#makedepends=('gucharmap' 'intltool')
+makedepends=('intltool')
+optdepends=('gucharmap: for using the charmap plugin')
+options=('!libtool')
+conflicts=('bluefish')
+install=bluefish.install
+source=(http://www.bennewitz.com/bluefish/stable/source/bluefish-${pkgver}.tar.bz2)
+sha1sums=('b65310617b5fd525a8c57f7681e023f6f4496378')
+
+build() {
+  cd "${srcdir}/${_pkgname}-${pkgver}"
+  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2|' \
+    src/plugin_zencoding/zencoding/{,filters/,actions/}*.py \
+    data/{cssmin.py,jsbeautify,jsmin.py,lorem-ipsum-generator}
+    
+  PYTHON=/usr/local/python2/bin/python2 ./configure --prefix=/usr/local/bluefish --sysconfdir=/usr/local/bluefish/etc --localstatedir=/var \
+    --enable-spell-check --disable-update-databases --disable-xml-catalog-update --with-gtk2
+  make
+}
+
+package() {
+  cd "${srcdir}/${_pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

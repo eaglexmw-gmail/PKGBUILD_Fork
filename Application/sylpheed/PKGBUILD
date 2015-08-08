@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: speps <speps at aur dot archlinux dot org>
+# Contributor: Alexander Fehr <pizzapunk gmail com>
+# Contributor: dorphell <dorphell@archlinux.org>
+
+pkgname=sylpheed
+pkgver=3.4.3
+pkgrel=1
+pkgdesc="Lightweight and user-friendly e-mail client"
+arch=('i686' 'x86_64')
+url="http://sylpheed.sraoss.jp/en/"
+license=('GPL')
+#depends=('compface' 'gpgme' 'gtkspell' 'desktop-file-utils')
+depends=('desktop-file-utils')
+makedepends=('openssl')
+install="$pkgname.install"
+source=("http://sylpheed.sraoss.jp/$pkgname/v${pkgver%.*}/$pkgname-$pkgver.tar.bz2")
+md5sums=('3a7d10b68017988b48e5c2a27e559e98')
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr/local/sylpheed \
+              --enable-ldap
+  sed -i 's|-lldap |& -llber -lsasl2 -lldap_r -ldl -lsqlite3 -lgdbm -lpq -lecpg -lgssapi_krb5 |g' src/Makefile
+
+  make
+
+  # Build Attachment-Tool Plug-in
+  cd plugin/attachment_tool && make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir/" install
+
+  # Install Attachment-Tool Plug-in
+  cd plugin/attachment_tool
+  make DESTDIR="$pkgdir/" install-plugin
+}

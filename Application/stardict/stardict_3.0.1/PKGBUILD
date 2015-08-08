@@ -1,0 +1,64 @@
+# $Id$
+# Maintainer: Aaron Griffin <aaron@archlinux.org>
+# Contributor: Neil Lin <neil@vip.url.com.tw>
+
+pkgname=stardict
+pkgver=3.0.1
+pkgrel=1
+pkgdesc='A powerful international dictionary written in Gtk2.'
+arch=('i686' 'x86_64')
+url='http://stardict.sourceforge.net/'
+license=('GPL')
+#depends=('enchant' 'gtk2' 'libsigc++' 'libsm')
+depends=('gtk2')
+#makedepends=('intltool' 'popt' 'gnome-doc-utils')
+makedepends=('intltool' 'popt')
+options=('!libtool' '!emptydirs')
+source=("http://downloads.sourceforge.net/sourceforge/stardict/$pkgname-$pkgver.tar.bz2"
+        'help-in-destdir.patch'
+        'as-needed.patch'
+        'gmodule.patch'
+        'stardict-3.0.1-gcc44.patch'
+        'stardict-3.0.1-gcc46.patch'
+        'stardict-3.0.1-includes.patch'
+        'all_in_one.patch')
+
+sha1sums=('a0357e88105eaf7d6a4aa4803bf8617759bf0315'
+          '0249d769e5cc85e183eb395b824342f8ca320f56'
+          '22fca061d1be23ac79da6c0ec5fc488ae0aca9c1'
+          '86fc4d9aecb18c7047bec5618a954ba3733397e2'
+          'e098fc9d1b5085f0c474edd0f521f6750b1a2420'
+          'c856aef1ef858bde0ea19eaf24e446b99ad78e3d'
+          '416cfc6cfe9a934e243485fae80540b99e3b6d1d'
+          '3cbcb4f71215330228ee9a58df4203f84c3db5fd')
+
+build()
+{
+	cd "$srcdir/$pkgname-$pkgver"
+
+	# patches accepted upstream; will be in stardict>3.0.2
+	# patch -p1 -i ../help-in-destdir.patch
+	#patch -p1 -i ../as-needed.patch
+        #patch -p1 -i ../gmodule.patch
+        #patch -p1 -i ../stardict-3.0.1-includes.patch
+        #patch -p1 -i ../stardict-3.0.1-gcc44.patch
+        #patch -p1 -i ../stardict-3.0.1-gcc46.patch
+        #sed -i '11 a #define NULL 0' stardict-plugins/stardict-wordnet-plugin/scene.hpp
+        #sed -i '11 a #include <cstddef>' stardict-plugins/stardict-wordnet-plugin/scene.hpp
+
+        patch -p1 -i ../all_in_one.patch
+
+        #./autogen.sh
+
+	./autogen.sh PKG_CONFIG=/usr/bin/pkg-config --prefix=/usr/local/stardict \
+		--sysconfdir=/usr/local/stardict/etc --mandir=/usr/local/stardict/share/man \
+		--disable-gnome-support --disable-schemas-install \
+		--disable-espeak --disable-gucharmap \
+		--disable-festival --disable-updateinfo --enable-deprecations
+	make
+}
+
+package() {
+	cd "$srcdir/$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" install
+}

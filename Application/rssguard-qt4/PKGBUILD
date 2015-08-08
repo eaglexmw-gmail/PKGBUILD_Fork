@@ -1,0 +1,52 @@
+# Maintainer: speps <speps dot aur dot archlinux dot org>
+
+pkgname=rssguard-qt4
+pkgver=2.1.0
+pkgrel=1
+pkgdesc="A simple (yet powerful) Qt4 feed reader."
+arch=('i686' 'x86_64')
+url="https://bitbucket.org/skunkos/rssguard"
+license=('GPL3')
+#depends=('qtwebkit')
+makedepends=('cmake')
+provides=('rss-guard' 'rssguard')
+conflicts=('rss-guard' 'rssguard')
+replaces=('rss-guard')
+install="$pkgname.install"
+source=("$url/downloads/rssguard-$pkgver.tar.gz")
+md5sums=('898411170ab814cbbd09d9044b89aac7')
+
+prepare() {
+  cd rssguard-$pkgver
+  [ -d build ] || mkdir build
+}
+
+build() {
+  cd rssguard-$pkgver/build
+
+ sed -i "37 a  #include <QtPlugin>"      ../src/main.cpp
+ sed -i "38 a  Q_IMPORT_PLUGIN(qsqlite)" ../src/main.cpp
+
+ #sed -i " a qsqlite" 
+
+  cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/rssguard
+
+  make cmake_check_build_system
+
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtWebKit.a |-L/home/eaglexmw/qt4.8_static/lib -L/usr/X11R6/lib -L/home/eaglexmw/qt4.8_static/lib -L/usr/local/lib -L/home/eaglexmw/qt4.8_static/lib -L/usr/X11R6/lib -L/home/eaglexmw/qt4.8_static/lib -L/usr/X11R6/lib -L/home/eaglexmw/qt4.8_static/lib -lQtWebKit -lpng16 -lxslt -lxml2 -ludev -lgio-2.0 -lgstapp-1.0 -lgstpbutils-1.0 -lgstvideo-1.0 -lgstaudio-1.0 -lgstbase-1.0 -lgstreamer-1.0 -lgmodule-2.0 -lorc-0.4 -lsqlite3 -lQtOpenGL -lQtGui -ljpeg -ltiff -lpng16 -lgobject-2.0 -lEGL -lSM -lICE -lXrender -lfontconfig -lfreetype -lXext -lX11 -lQtNetwork -lssl -lcrypto -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lGLU -lGL -lXext -lX11 -lm -lQtGui -ljpeg -ltiff -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpng16 -lz -lfreetype -lgobject-2.0 -lglib-2.0 -lEGL -lSM -lICE -lXrender -lfontconfig -lfreetype -lXext -lX11 -lm -lQtNetwork -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lz -lssl -lcrypto -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./CMakeFiles/rssguard.dir/link.txt
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtGui.a |-L/home/eaglexmw/qt4.8_static/lib -L/usr/X11R6/lib -L/home/eaglexmw/qt4.8_static/lib -lQtGui -ljpeg -ltiff -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpng16 -lz -lfreetype -lgobject-2.0 -lglib-2.0 -lEGL -lSM -lICE -lXrender -lfontconfig -lfreetype -lXext -lX11 -lm -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./CMakeFiles/rssguard.dir/link.txt
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtCore.a |-L/home/eaglexmw/qt4.8_static/lib -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./CMakeFiles/rssguard.dir/link.txt
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtNetwork.a |-L/home/eaglexmw/qt4.8_static/lib -lQtNetwork -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lz -lssl -lcrypto -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./CMakeFiles/rssguard.dir/link.txt
+
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtXml.a |-L/home/eaglexmw/qt4.8_static/lib -lQtXml -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./CMakeFiles/rssguard.dir/link.txt
+
+  # append qsqlite in tail.
+  sed -i 's|/home/eaglexmw/qt4.8_static/lib/libQtSql.a |-L/home/eaglexmw/qt4.8_static/lib/qt/plugins/sqldrivers -lqsqlite -L/home/eaglexmw/qt4.8_static/lib -lQtSql -lQtCore -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lQtCore -lpthread -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 |g' ./CMakeFiles/rssguard.dir/link.txt
+
+  make
+}
+
+package() {
+  cd rssguard-$pkgver/build
+  make DESTDIR="$pkgdir/" install
+}

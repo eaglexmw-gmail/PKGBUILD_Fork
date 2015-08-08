@@ -1,0 +1,80 @@
+#
+# codelite PKGBUILD
+#
+# Maintainer: Uffe Jakobsen <uffe@uffe.org>
+# Contributor: Miguel Revilla <yo@miguelrevilla.com>
+# Contributor: nem <nem@ikitten.co.uk>
+# Contributor: agvares <agvares13@gmail.com>
+# Contributor: p2k <Patrick.Schneider@uni-ulm.de>
+# Contributor: Uffe Jakobsen <uffe@uffe.org>
+#
+
+pkgname=codelite
+pkgver=7.0
+pkgrel=1
+pkgdesc="Open-source, cross platform IDE for the C/C++ programming languages"
+arch=('i686' 'x86_64')
+url="http://www.codelite.org/"
+license=('GPL')
+#depends=('wxgtk' 'curl' 'webkitgtk2' 'libssh' 'xterm' 'python2' 'libedit' 'ncurses' 'valgrind')
+makedepends=('pkgconfig' 'cmake')
+optdepends=('graphviz: callgraph visualization'
+            'lldb-svn: debugger used by the lldb plugin')
+
+source=(https://github.com/eranif/${pkgname}/archive/${pkgver}.tar.gz
+	http://repos.codelite.org/wxCrafterLibs/wxgui.zip)
+
+md5sums=('eb2dee89187f1d6537f503a35204d938'
+         '1e73977ff5eb992a2b43af8cb91ca929')
+
+#if [[ "$CARCH" == 'i686' ]]; then
+#  source+=(http://repos.codelite.org/wxCrafterLibs/ArchLinux/32/wxCrafter.so)
+#  md5sums+=('cd3e71e8187ce586031df070caed6c85')
+#elif [[ "$CARCH" == 'x86_64' ]]; then
+#  source+=(http://repos.codelite.org/wxCrafterLibs/ArchLinux/64/wxCrafter.so)
+#  md5sums+=('6fcd2f0fada5fc401d0bcd62cd5452bb')
+#fi
+
+noextract=('wxgui.zip')
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+
+    CXXFLAGS="${CXXFLAGS} -fno-devirtualize"
+
+    sed -i 's|libssh.so|libssh.a|g' CMakeLists.txt
+    sed -i 's|libedit.so|libedit.a|g' LLDBDebugger/CMakeLists.txt
+
+    mkdir -p build/lib
+
+    sed -i 's|/usr|/usr/local/codelite7|g' CMakeLists.txt
+
+    cd build
+    cmake -G "Unix Makefiles"  -DCMAKE_BUILD_TYPE=Release -DENABLE_CLANG=1 -DCMAKE_INSTALL_LIBDIR=lib ..
+
+    make cmake_check_build_system
+
+    sed -i 's|libssh.a |libssh.a -lssl -lcrypto |g' ./CodeLite/CMakeFiles/libcodelite.dir/link.txt
+    # sed -i 's|libssh.a |libssh.a -lssl -lcrypto |g' ./CodeLite/CMakeFiles/libcodelite.dir/relink.txt
+
+    # cp -f ${srcdir}/../liblldb.so ./../sdk/lldb/unix/lib/i386/
+    sed -i 's|../../../sdk/lldb/unix/lib/i386/liblldb.so |-L../../../sdk/lldb/unix/lib/i386/ -Wl,-rpath,../../lib:/usr/local/python2/lib -llldb |g' ./LLDBDebugger/codelite-lldb/CMakeFiles/codelite-lldb.dir/link.txt
+    # sed -i 's|../../../sdk/lldb/unix/lib/i386/liblldb.so |-L../../../sdk/lldb/unix/lib/i386/ -Wl,-rpath,../../lib -llldb |g' ./LLDBDebugger/codelite-lldb/CMakeFiles/codelite-lldb.dir/relink.txt
+
+    install -m 755 -D ../../../libedit.so lib/libedit.so
+    install -m 755 -D ../../../libtinfo.so.5 lib/libtinfo.so.5
+
+    make
+
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}/build"
+    make -j1 DESTDIR="${pkgdir}" install
+    install -m 755 -D "${srcdir}/../libedit.so" "${pkgdir}/usr/local/codelite7/lib/libedit.so"
+    install -m 755 -D "${srcdir}/../libtinfo.so.5" "${pkgdir}/usr/local/codelite7/lib/libtinfo.so.5"
+
+#    install -m 755 -D "${srcdir}/wxCrafter.so" "${pkgdir}/usr/local/codelite7/lib/codelite/wxCrafter.so"
+    install -m 644 -D "${srcdir}/wxgui.zip" "${pkgdir}/usr/local/codelite7/share/codelite/wxgui.zip"
+    install -m 644 -D "${srcdir}/${pkgname}-${pkgver}/LICENSE" "${pkgdir}/usr/local/codelite7/share/licenses/${pkgname}/LICENSE"
+}

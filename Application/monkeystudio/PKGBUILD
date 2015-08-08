@@ -1,0 +1,52 @@
+# Maintainer: Jameson Pugh <imntreal@gmail.com>
+# Contributor: Phil Miller <philm[at]chakra-project[dot]org
+# Contributor: Luca Bennati <lucak3 AT gmail DOT com>
+# Contributor: Laurent Navet <laurent.navet AT gmail DOT com>
+
+pkgname=monkeystudio
+pkgver=1.9.0.4
+pkgrel=1
+pkgdesc="Crossplatform IDE written in C++/Qt4"
+arch=('i686' 'x86_64')
+url="http://monkeystudio.org"
+license=('GPL')
+#depends=('qscintilla' 'qtwebkit')
+conflicts=('monkeystudio2-svn')
+source=("http://monkeystudio.googlecode.com/files/mks_${pkgver}-src.tar.gz")
+md5sums=('1b76fdaf9293ab160ca90ff919440598')
+
+build() {
+  cd "${srcdir}/mks_${pkgver}-src"
+
+  sed -i "33 a  #include <QtPlugin>"      monkey/src/main.cpp
+  sed -i "34 a  Q_IMPORT_PLUGIN(qsqlite)" monkey/src/main.cpp
+  sed -i '47 a QTPLUGIN += qsqlite' monkey/monkey.pro
+  
+  qmake -recursive prefix=/usr/local/monkeystudio
+
+  # patch -p1 -i ../../pluginman.patch
+
+  sed -i '39 a #undef Q_MONKEY_EXPORT' fresh/objects/MonkeyExport.h
+  sed -i '40 a #define Q_MONKEY_EXPORT Q_DECL_EXPORT' fresh/objects/MonkeyExport.h
+
+  sed -i 's| -lqsqlite |& -lsqlite3 |g' monkey/Makefile
+
+  make
+  
+  /bin/sh ../../pack_all_a_obj.sh
+}
+
+check() {
+  cd "${srcdir}/mks_${pkgver}-src"
+  #make -k check
+}
+
+package() {
+  cd "${srcdir}/mks_${pkgver}-src"
+  #qmake prefix="${pkgdir}/usr/local/monkeystudio"
+  make INSTALL_ROOT="$pkgdir/" install
+
+  cp libmonkeystudio.so $pkgdir/usr/local/monkeystudio/lib
+}
+
+# vim:set ts=2 sw=2 et:

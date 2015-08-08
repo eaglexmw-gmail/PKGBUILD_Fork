@@ -1,0 +1,70 @@
+# $Id$
+# Maintainer: Sven-Hendrik Haase <sh@lutzhaase.com>
+# Contributor: Lukas Jirkovsky <l.jirkovsky@gmail.com>
+pkgname=ufoai
+pkgver=2.5.0
+_pkgver=2.5
+pkgrel=3
+pkgdesc="In UFO: Alien Invasion you fight aliens trying to capture Earth"
+arch=('i686' 'x86_64')
+url="http://ufoai.ninex.info/"
+license=('GPL')
+#depends=('libjpeg' 'libgl' 'libpng' 'curl' 'sdl_image' 'sdl_mixer' 'sdl_ttf' 'xvidcore' 'ufoai-data' 'glu')
+depends=('libjpeg' 'libgl' 'libpng' 'curl' 'glu')
+makedepends=('mesa' 'zip')
+source=("http://www.mirrorservice.org/sites/download.sourceforge.net/pub/sourceforge/u/uf/ufoai/UFO_AI%202.x/$_pkgver/ufoai-$_pkgver-source.tar.bz2")
+md5sums=('01d13816e674ed87f5343366783f2697')
+
+prepare() {
+  cd ufoai-$_pkgver-source
+
+  # disable building of various data files
+  sed -i 's|include build/maps.mk|#&|' Makefile
+  sed -i 's|include build/models.mk|#&|' Makefile
+#  sed -i 's|include build/data.mk|#&|' Makefile
+
+  # link the files from ufoai-data to the base directory
+  #mkdir -p base
+  #cd /usr/share/ufoai/base
+  #for FILE in * ; do
+  #  ln -sf /usr/share/ufoai/base/$FILE "$srcdir"/ufoai-$_pkgver-source/base
+  #done
+
+  sed -i 's|(SDL_MIXER_LIBS) |& -lmikmod -lsmpeg2 -lmodplug -lSDL2 |g' build/modules/ufo.mk
+}
+
+build() {
+  cd ufoai-$_pkgver-source
+
+  export CPPFLAGS="$CPPFLAGS -I/usr/local/include/gtkglext-1.0/"
+  export CXXFLAGS="$CXXFLAGS -I/usr/local/include/gtkglext-1.0/"
+  export CFLAGS="$CFLAGS -I/usr/local/include/gtkglext-1.0/"
+
+  ./configure --prefix=/usr/local/ufoai --bindir=/usr/local/ufoai/bin --datadir=/usr/local/ufoai/share/ufoai --localedir=/usr/local/ufoai/share/ufoai/base/i18n/ \
+              --enable-release
+  make
+}
+
+package() {
+  cd ufoai-$_pkgver-source
+
+  export CPPFLAGS="$CPPFLAGS -I/usr/local/include/gtkglext-1.0/"
+  export CXXFLAGS="$CXXFLAGS -I/usr/local/include/gtkglext-1.0/"
+  export CFLAGS="$CFLAGS -I/usr/local/include/gtkglext-1.0/"
+
+  make DESTDIR="$pkgdir" install
+  # remove files already provided by ufoai-data
+  rm -rf "$pkgdir"/usr/local/ufoai/share/ufoai/base/i18n
+  rm -rf "$pkgdir"/usr/local/ufoai/share/ufoai/base/*.pk3
+
+  install -Dm644 debian/ufoai.desktop "$pkgdir"/usr/local/ufoai/share/applications/ufoai.desktop
+  install -Dm644 debian/ufoai-safe.desktop "$pkgdir"/usr/local/ufoai/share/applications/ufoai-safe.desktop
+  install -Dm644 debian/ufoded.desktop "$pkgdir"/usr/local/ufoai/share/applications/ufoded.desktop
+
+  sed -i 's|/usr/games/||' "$pkgdir"/usr/local/ufoai/share/applications/*
+
+  install -Dm644 debian/ufoai.xpm "$pkgdir"/usr/local/ufoai/share/pixmaps/ufoai.xpm
+  install -Dm644 debian/ufoded.xpm "$pkgdir"/usr/local/ufoai/share/pixmaps/ufoded.xpm
+}
+
+# vim: sw=2:ts=2 et:

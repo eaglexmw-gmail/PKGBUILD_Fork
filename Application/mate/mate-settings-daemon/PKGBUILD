@@ -1,0 +1,48 @@
+# Maintainer : Martin Wimpress <code@flexion.org>
+
+_ver=1.10
+_pkgbase=mate-settings-daemon
+pkgname=(${_pkgbase})
+pkgver=${_ver}.1
+pkgrel=1
+pkgdesc="The MATE Settings daemon (GTK2 version)"
+url="http://mate-desktop.org"
+arch=('i686' 'x86_64')
+license=('GPL')
+#depends=('dbus-glib' 'dconf' 'fontconfig' 'gtk2' 'libcanberra-pulse'
+#         'libmatekbd>=1.10' 'libmatemixer' 'libnotify' 'libxt'
+#         'mate-desktop>=1.10' 'nss' 'polkit')
+depends=('dbus-glib' 'dconf' 'fontconfig' 'gtk2' 'libnotify' 'libxt' 'nss' 'polkit')
+makedepends=('mate-common')
+groups=('mate')
+replaces=("${_pkgbase}-gstreamer" "${_pkgbase}-pulseaudio")
+conflicts=("${_pkgbase}-gtk3" "${_pkgbase}-gstreamer" "${_pkgbase}-pulseaudio")
+source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
+sha1sums=('32f9b1e6a899607b69e8d489817fa5dea0f9a4a3')
+install=${_pkgbase}.install
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=mate64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=mate
+fi
+
+build() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+
+    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/mate_gtk+2.0/lib/pkgconfig/
+
+    ./configure \
+        --prefix=/usr/local/${dstdir}/mate_gtk+2.0 \
+        --libexecdir=/usr/local/${dstdir}/mate_gtk+2.0/lib/${_pkgbase} \
+        --sysconfdir=/usr/local/${dstdir}/mate_gtk+2.0/etc \
+        --with-gtk=2.0 \
+        --enable-polkit \
+        --disable-static
+    make
+}
+
+package() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}
