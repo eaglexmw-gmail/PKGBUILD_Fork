@@ -1,0 +1,96 @@
+# $Id$
+# Maintainer: Andrea Scarpino <andrea@archlinux.org>
+
+pkgname=qtwebkit
+pkgver=2.3.4
+pkgrel=1
+arch=('i686' 'x86_64')
+url='http://trac.webkit.org/wiki/QtWebKit'
+pkgdesc='An open source web browser engine (Qt port)'
+license=('LGPL2.1' 'GPL3')
+#depends=('qt4' 'systemd' 'gst-plugins-base-libs')
+depends=('systemd')
+#makedepends=('gperf' 'python2' 'ruby' 'git' 'mesa')
+makedepends=('gperf' 'ruby' 'git' 'mesa')
+conflicts=('qt<4.8')
+options=('staticlibs')
+_qtver=4.8.0
+source=("ftp://ftp.archlinux.org/other/packages/${pkgname}/${pkgname}-${pkgver}.tar.xz"
+        "http://download.qt-project.org/official_releases/qt/4.8/${_qtver}/qt-everywhere-opensource-src-${_qtver}.tar.gz"
+        'use-python2.patch'
+        'qwebview.patch'
+        'Makefile.QtWebKit.api.patch'
+        'pack_all_a.sh'
+	)
+sha1sums=('31bc60de1cf26bb0766d539b4d564651ddbb0650'
+          '2ba35adca8fb9c66a58eca61a15b21df6213f22e'
+          '315b6ff603f35e5492a036f7082f6aa075dfb607'
+          'ba9399effb5adb77a8387daea07f13a7533c9062'
+          'a751c8287e3c7e0152cfe7c20f0f59db4e6f5e85'
+          '0467373511bac3dbb3347b1cee113737fecaf77d'
+          )
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  patch -p1 -i "${srcdir}"/use-python2.patch
+
+  #patch -p1 -i "${srcdir}"/webkitdirs.patch
+
+  cd ../qt-everywhere-opensource-src-${_qtver}
+  patch -p1 -i "${srcdir}"/qwebview.patch
+}
+
+build() {
+  cd ${pkgname}-${pkgver}
+
+  OPTS="--no-webkit2"
+  if [ "${CARCH}" = "i686" ]; then
+      # FS#33418
+      OPTS="${OPTS} --no-force-sse2"
+  fi
+
+  export QTDIR=/home/eaglexmw/qt4.8_static
+  export PATH="/home/eaglexmw/qt4.8_static/bin:/usr/local/python2/bin:$PATH"
+  Tools/Scripts/build-webkit --qt \
+    --makeargs="${MAKEFLAGS}" \
+    --prefix=/usr \
+    --qmakearg="CONFIG+=staticlib CONFIG+=static" \
+    ${OPTS}
+
+  # Build the QWebView plugin (FS#27914)
+  cd ${srcdir}/qt-everywhere-opensource-src-${_qtver}/tools/designer/src/plugins/qwebview
+  qmake
+
+  make
+
+  # build with static lib
+  cd ${srcdir}/${pkgname}-${pkgver}/WebKitBuild/Release
+  #patch -p0 -i ../../../../Makefile.QtWebKit.api.patch
+  sed -i 's|$(AR) $(TARGET) $(OBJECTS)|$(SHELL) ./pack_all_a.sh $(TARGET)|g' ./Source/Makefile.QtWebKit.api
+  cp -f ../../../pack_all_a.sh ./Source/
+  rm -f ./lib/libQtWebKit.a
+  make
+  cd ../../
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+
+  export PATH="/home/eaglexmw/qt4.8_static/bin:/usr/local/python2/bin:$PATH"
+
+  make INSTALL_ROOT="${pkgdir}" -C WebKitBuild/Release install
+
+  cd ../qt-everywhere-opensource-src-${_qtver}/tools/designer/src/plugins/qwebview
+  make INSTALL_ROOT="${pkgdir}" install
+
+  #
+  mkdir -p ${pkgdir}/usr
+  mv "${pkgdir}"/home/eaglexmw/qt4.8_static/* ${pkgdir}/usr/
+  rm -rf "${pkgdir}"/home
+
+  # Fix wrong libs path in pkgconfig file
+  perl -pi -e "s, -L${srcdir}/?\S+,,g" "${pkgdir}"/usr/lib/pkgconfig/QtWebKit.pc
+
+  # Fix wrong path in prl file
+  sed -i -e '/^QMAKE_PRL_BUILD_DIR/d;s/\(QMAKE_PRL_LIBS =\).*/\1/' "${pkgdir}"/usr/lib/pkgconfig/QtWebKit.pc
+}

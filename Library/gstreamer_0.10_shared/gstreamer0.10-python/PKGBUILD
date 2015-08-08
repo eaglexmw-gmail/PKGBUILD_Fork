@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+
+pkgname=gstreamer0.10-python
+pkgver=0.10.22
+pkgrel=2
+pkgdesc="Python bindings for GStreamer 0.10"
+arch=('i686' 'x86_64')
+license=('LGPL')
+url="http://gstreamer.freedesktop.org/"
+#depends=('pygobject>=2.20.0' 'gstreamer0.10-base>=0.10.32')
+makedepends=('pkgconfig')
+source=(http://gstreamer.freedesktop.org/src/gst-python/gst-python-${pkgver}.tar.bz2
+        static_gst_4.patch
+        static_gst_plugin.py)
+md5sums=('937152fe896241f827689f4b53e79b22'
+         'dc7a6f9dd13fbf5bfa1a162f166c5167'
+         SKIP)
+
+build() {
+  cd "${srcdir}/gst-python-${pkgver}"
+
+  patch -p1 -i ../static_gst_4.patch
+  cp -f ../static_gst_plugin.py ./codegen/
+
+  export PATH=$PATH:/usr/local/python2/bin
+  export PYTHON=python2_spec
+  sed -i -e 's%^#!.*env python$%#!/usr/bin/env python2%' examples/* gst/extend/*.py
+
+  #aclocal -I m4 -I common/m4
+  #automake -a -c
+
+  autoreconf
+
+  ./configure --prefix=/usr
+
+  make clean
+
+  make
+}
+
+package() {
+  cd "${srcdir}/gst-python-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

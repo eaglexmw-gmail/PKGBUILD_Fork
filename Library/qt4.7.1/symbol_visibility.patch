@@ -1,0 +1,78 @@
+diff -Nur qt-4.7.1_old/src/3rdparty/phonon/phonon/phonon_export.h qt-4.7.1_new/src/3rdparty/phonon/phonon/phonon_export.h
+--- qt-4.7.1_old/src/3rdparty/phonon/phonon/phonon_export.h	2010-11-06 09:55:23.000000000 +0800
++++ qt-4.7.1_new/src/3rdparty/phonon/phonon/phonon_export.h	2015-02-11 16:20:03.704225612 +0800
+@@ -40,6 +40,9 @@
+ # endif
+ #endif
+ 
++#   undef  PHONON_EXPORT
++#   define PHONON_EXPORT Q_DECL_EXPORT
++
+ #ifndef PHONON_EXPORT_DEPRECATED
+ # define PHONON_EXPORT_DEPRECATED Q_DECL_DEPRECATED PHONON_EXPORT
+ #endif
+diff -Nur qt-4.7.1_old/src/3rdparty/webkit/WebKit/qt/Api/qwebkitglobal.h qt-4.7.1_new/src/3rdparty/webkit/WebKit/qt/Api/qwebkitglobal.h
+--- qt-4.7.1_old/src/3rdparty/webkit/WebKit/qt/Api/qwebkitglobal.h	2010-11-06 09:55:20.000000000 +0800
++++ qt-4.7.1_new/src/3rdparty/webkit/WebKit/qt/Api/qwebkitglobal.h	2015-02-11 16:21:00.917248996 +0800
+@@ -46,4 +46,7 @@
+ #  endif
+ #endif
+ 
++#   undef  QWEBKIT_EXPORT
++#   define QWEBKIT_EXPORT Q_DECL_EXPORT
++
+ #endif // QWEBKITGLOBAL_H
+diff -Nur qt-4.7.1_old/src/corelib/global/qglobal.h qt-4.7.1_new/src/corelib/global/qglobal.h
+--- qt-4.7.1_old/src/corelib/global/qglobal.h	2010-11-06 09:55:18.000000000 +0800
++++ qt-4.7.1_new/src/corelib/global/qglobal.h	2015-02-11 16:18:49.747959601 +0800
+@@ -1349,6 +1349,37 @@
+ #  endif
+ #endif
+ 
++#    undef  Q_CORE_EXPORT
++#    undef  Q_GUI_EXPORT
++#    undef  Q_SQL_EXPORT
++#    undef Q_NETWORK_EXPORT
++#    undef Q_SVG_EXPORT
++#    undef Q_DECLARATIVE_EXPORT
++#    undef Q_OPENGL_EXPORT
++#    undef Q_MULTIMEDIA_EXPORT
++#    undef Q_XML_EXPORT
++#    undef Q_XMLPATTERNS_EXPORT
++#    undef Q_SCRIPT_EXPORT
++#    undef Q_SCRIPTTOOLS_EXPORT
++#    undef Q_COMPAT_EXPORT
++#    undef Q_DBUS_EXPORT
++
++#    define Q_CORE_EXPORT Q_DECL_EXPORT
++#    define Q_GUI_EXPORT Q_DECL_EXPORT
++#    define Q_SQL_EXPORT Q_DECL_EXPORT
++#    define Q_NETWORK_EXPORT Q_DECL_EXPORT
++#    define Q_SVG_EXPORT Q_DECL_EXPORT
++#    define Q_DECLARATIVE_EXPORT Q_DECL_EXPORT
++#    define Q_OPENGL_EXPORT Q_DECL_EXPORT
++#    define Q_MULTIMEDIA_EXPORT Q_DECL_EXPORT
++#    define Q_OPENVG_EXPORT Q_DECL_EXPORT
++#    define Q_XML_EXPORT Q_DECL_EXPORT
++#    define Q_XMLPATTERNS_EXPORT Q_DECL_EXPORT
++#    define Q_SCRIPT_EXPORT Q_DECL_EXPORT
++#    define Q_SCRIPTTOOLS_EXPORT Q_DECL_EXPORT
++#    define Q_COMPAT_EXPORT Q_DECL_EXPORT
++#    define Q_DBUS_EXPORT Q_DECL_EXPORT
++
+ // Functions marked as Q_GUI_EXPORT_INLINE were exported and inlined by mistake.
+ // Compilers like MinGW complain that the import attribute is ignored.
+ #if defined(Q_CC_MINGW)
+@@ -1373,6 +1404,12 @@
+ #    define Q_GUI_EXPORT_INLINE Q_GUI_EXPORT inline
+ #endif
+ 
++#    undef Q_CORE_EXPORT_INLINE
++#    undef Q_GUI_EXPORT_INLINE
++
++#    define Q_CORE_EXPORT_INLINE Q_CORE_EXPORT inline
++#    define Q_GUI_EXPORT_INLINE Q_GUI_EXPORT inline
++
+ /*
+    No, this is not an evil backdoor. QT_BUILD_INTERNAL just exports more symbols
+    for Qt's internal unit tests. If you want slower loading times and more

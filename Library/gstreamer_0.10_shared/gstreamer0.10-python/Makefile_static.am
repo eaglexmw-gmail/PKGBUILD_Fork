@@ -1,0 +1,77 @@
+
+gst_pack_lib = gst_pack.la
+
+gst_pack_SOURCES = gst_static_plugin_reg.c
+
+gst_pack_la_CFLAGS = $(common_cflags)
+gst_pack_la_LIBADD = $(common_libadd) $(GST_BASE_LIBS)
+gst_pack_la_LDFLAGS = $(common_ldflags) $(GST_BASE_LIBS) $(GST_CONTROLLER_LIBS) $(GST_NET_LIBS) $(GST_DP_LIBS)
+nodist_gst_pack_SOURCES += _gst_import_gst.c
+CLEANFILES += _gst_import_gst.c
+noinst_LIBRARIES = lib_gst.a
+lib_gst_a_SOURCES=$(_gst_la_SOURCES) $(nodist__gst_la_SOURCES)
+
+_gst_import_gst.c: lib_gst.a
+
+_gst.la: gst_pack.la
+
+gst_pack_la_LDFLAGS += $(GST_PLUGINS_BASE_LIBS)
+nodist_gst_pack_SOURCES += interfaces_import_gst.c
+CLEANFILES += interfaces_import_gst.c
+
+noinst_LIBRARIES += libinterfaces.a
+libinterfaces_a_SOURCES=$(interfaces_la_SOURCES) $(nodist_interfaces_la_SOURCES)
+
+interfaces_import_gst.c: libinterfaces.a
+
+interfaces.la: gst_pack.la
+
+nodist_gst_pack_SOURCES += pbutils_import_gst.c
+CLEANFILES += pbutils_import_gst.c
+noinst_LIBRARIES += libpbutils.a
+libpbutils_a_SOURCES=$(pbutils_la_SOURCES) $(nodist_pbutils_la_SOURCES)
+pbutils_import_gst.c: libpbutils.a
+
+pbutils.la: gst_pack.la
+
+if HAVE_GST_AUDIO
+
+nodist_gst_pack_SOURCES += audio_import_gst.c
+CLEANFILES += audio_import_gst.c
+noinst_LIBRARIES += libaudio.a
+libaudio_a_SOURCES=$(audio_la_SOURCES) $(nodist_audio_la_SOURCES)
+audio_import_gst.c: libaudio.a
+
+audio.la: gst_pack.la
+
+endif
+
+if HAVE_GST_VIDEO
+
+nodist_gst_pack_SOURCES += video_import_gst.c
+CLEANFILES += video_import_gst.c
+noinst_LIBRARIES += libvideo.a
+libvideo_a_SOURCES=$(video_la_SOURCES) $(nodist_video_la_SOURCES)
+video_import_gst.c: libvideo.a
+
+video.la: gst_pack.la
+
+endif
+
+if HAVE_GST_TAG
+
+nodist_gst_pack_SOURCES += tag_import_gst.c
+CLEANFILES += tag_import_gst.c
+noinst_LIBRARIES += libtag.a
+libtag_a_SOURCES=$(tag_la_SOURCES) $(nodist_tag_la_SOURCES)
+tag_import_gst.c: libtag.a
+
+tag.la: gst_pack.la
+
+endif
+
+.a.c: 
+	nm -g $* | grep " U " | awk '{ print $2}' | grep "^gst_" > $*.imp \
+	$(AM_V_GEN)($(PYTHON) $(top_srcdir)/codegen/gen_gst_import_code.py \
+		$*.imp $< \
+

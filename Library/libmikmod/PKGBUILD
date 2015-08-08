@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Contributor: Allan McRae <allan@archlinux.org>
+# Contributor: Tom Newsom <Jeepster@gmx.co.uk>
+
+pkgname=libmikmod_nolibpluse
+_pkgname=libmikmod
+pkgver=3.3.7
+pkgrel=1
+pkgdesc="A portable sound library"
+license=(GPL LGPL)
+url="http://mikmod.sourceforge.net"
+arch=(i686 x86_64)
+#depends=(libpulse sh)
+depends=(sh)
+makedepends=(alsa-lib)
+install=${_pkgname}.install
+source=(http://downloads.sourceforge.net/mikmod/${_pkgname}-$pkgver.tar.gz)
+sha256sums=('4cf41040a9af99cb960580210ba900c0a519f73ab97b503c780e82428b9bd9a2')
+
+prepare() {
+  mkdir build
+}
+
+build() {
+  cd build
+  ../${_pkgname}-$pkgver/configure \
+    --prefix=/usr \
+    --disable-static
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}
+

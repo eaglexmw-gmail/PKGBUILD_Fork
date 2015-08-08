@@ -1,0 +1,40 @@
+diff -Nur old/src/gui/painting/qcups_p.h new/src/gui/painting/qcups_p.h
+--- old/src/gui/painting/qcups_p.h	2010-11-06 09:55:14.000000000 +0800
++++ new/src/gui/painting/qcups_p.h	2015-02-12 03:30:30.000000000 +0800
+@@ -59,6 +59,7 @@
+ #ifndef QT_NO_CUPS
+ #include <QtCore/qlibrary.h>
+ #include <cups/cups.h>
++#include <cups/ppd.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 
+diff -Nur old/src/gui/painting/qpdf.cpp new/src/gui/painting/qpdf.cpp
+--- old/src/gui/painting/qpdf.cpp	2010-11-06 09:55:14.000000000 +0800
++++ new/src/gui/painting/qpdf.cpp	2015-02-12 03:28:47.196857992 +0800
+@@ -47,6 +47,7 @@
+ #include "private/qcups_p.h"
+ #include "qprinterinfo.h"
+ #include <qnumeric.h>
++#include "private/qfont_p.h"
+ 
+ #ifdef Q_OS_UNIX
+ #include "private/qcore_unix_p.h" // overrides QT_OPEN
+@@ -1408,7 +1409,7 @@
+ void QPdfBaseEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
+ {
+     Q_D(QPdfBaseEngine);
+-    switch (key) {
++    switch (int(key)) {
+     case PPK_CollateCopies:
+         d->collate = value.toBool();
+         break;
+@@ -1498,7 +1499,7 @@
+     Q_D(const QPdfBaseEngine);
+ 
+     QVariant ret;
+-    switch (key) {
++    switch (int(key)) {
+     case PPK_CollateCopies:
+         ret = d->collate;
+         break;

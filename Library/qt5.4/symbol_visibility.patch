@@ -1,0 +1,513 @@
+diff -Nur qt-5.4.0_old/qtbase/qmake/library/qmake_global.h qt-5.4.0_new/qtbase/qmake/library/qmake_global.h
+--- qt-5.4.0_old/qtbase/qmake/library/qmake_global.h	2014-12-06 00:24:30.000000000 +0800
++++ qt-5.4.0_new/qtbase/qmake/library/qmake_global.h	2015-02-11 06:28:45.913091973 +0800
+@@ -46,6 +46,9 @@
+ #  define QMAKE_EXPORT
+ #endif
+ 
++#    undef  QMAKE_EXPORT
++#    define QMAKE_EXPORT Q_DECL_EXPORT
++
+ // Be fast even for debug builds
+ // MinGW GCC 4.5+ has a problem with always_inline putTok and putBlockLen
+ #if defined(__GNUC__) && !(defined(__MINGW32__) && __GNUC__ == 4 && __GNUC_MINOR__ >= 5)
+diff -Nur qt-5.4.0_old/qtbase/src/concurrent/qtconcurrent_global.h qt-5.4.0_new/qtbase/src/concurrent/qtconcurrent_global.h
+--- qt-5.4.0_old/qtbase/src/concurrent/qtconcurrent_global.h	2014-12-06 00:24:38.000000000 +0800
++++ qt-5.4.0_new/qtbase/src/concurrent/qtconcurrent_global.h	2015-02-11 06:33:15.698297088 +0800
+@@ -48,6 +48,9 @@
+ #  define Q_CONCURRENT_EXPORT
+ #endif
+ 
++#    undef  Q_CONCURRENT_EXPORT
++#    define Q_CONCURRENT_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // include guard
+diff -Nur qt-5.4.0_old/qtbase/src/corelib/global/qglobal.h qt-5.4.0_new/qtbase/src/corelib/global/qglobal.h
+--- qt-5.4.0_old/qtbase/src/corelib/global/qglobal.h	2014-12-06 00:24:37.000000000 +0800
++++ qt-5.4.0_new/qtbase/src/corelib/global/qglobal.h	2015-02-11 06:36:17.903976662 +0800
+@@ -317,6 +317,16 @@
+ #  define Q_NETWORK_EXPORT
+ #endif
+ 
++#  undef  Q_CORE_EXPORT
++#  undef  Q_GUI_EXPORT
++#  undef  Q_WIDGETS_EXPORT
++#  undef  Q_NETWORK_EXPORT
++
++#  define Q_CORE_EXPORT Q_DECL_EXPORT
++#  define Q_GUI_EXPORT Q_DECL_EXPORT
++#  define Q_WIDGETS_EXPORT Q_DECL_EXPORT
++#  define Q_NETWORK_EXPORT Q_DECL_EXPORT
++
+ /*
+    No, this is not an evil backdoor. QT_BUILD_INTERNAL just exports more symbols
+    for Qt's internal unit tests. If you want slower loading times and more
+@@ -330,6 +340,9 @@
+ #    define Q_AUTOTEST_EXPORT
+ #endif
+ 
++#    undef  Q_AUTOTEST_EXPORT
++#    define Q_AUTOTEST_EXPORT Q_DECL_EXPORT
++
+ #define Q_INIT_RESOURCE(name) \
+     do { extern int QT_MANGLE_NAMESPACE(qInitResources_ ## name) ();       \
+         QT_MANGLE_NAMESPACE(qInitResources_ ## name) (); } while (0)
+diff -Nur qt-5.4.0_old/qtbase/src/dbus/qdbusmacros.h qt-5.4.0_new/qtbase/src/dbus/qdbusmacros.h
+--- qt-5.4.0_old/qtbase/src/dbus/qdbusmacros.h	2014-12-06 00:24:31.000000000 +0800
++++ qt-5.4.0_new/qtbase/src/dbus/qdbusmacros.h	2015-02-11 06:33:53.974756393 +0800
+@@ -65,6 +65,9 @@
+ 
+ #endif // QT_NO_DBUS
+ 
++#    undef  Q_DBUS_EXPORT
++#    define Q_DBUS_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif
+diff -Nur qt-5.4.0_old/qtbase/src/opengl/qtopenglglobal.h qt-5.4.0_new/qtbase/src/opengl/qtopenglglobal.h
+--- qt-5.4.0_old/qtbase/src/opengl/qtopenglglobal.h	2014-12-06 00:24:31.000000000 +0800
++++ qt-5.4.0_new/qtbase/src/opengl/qtopenglglobal.h	2015-02-11 06:32:43.398472071 +0800
+@@ -48,6 +48,9 @@
+ #  define Q_OPENGL_EXPORT
+ #endif
+ 
++#    undef  Q_OPENGL_EXPORT
++#    define Q_OPENGL_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTOPENGLGLOBAL_H
+diff -Nur qt-5.4.0_old/qtbase/src/printsupport/kernel/qtprintsupportglobal.h qt-5.4.0_new/qtbase/src/printsupport/kernel/qtprintsupportglobal.h
+--- qt-5.4.0_old/qtbase/src/printsupport/kernel/qtprintsupportglobal.h	2014-12-06 00:24:30.000000000 +0800
++++ qt-5.4.0_new/qtbase/src/printsupport/kernel/qtprintsupportglobal.h	2015-02-11 06:31:13.475625892 +0800
+@@ -48,6 +48,9 @@
+ #  define Q_PRINTSUPPORT_EXPORT
+ #endif
+ 
++#    undef  Q_PRINTSUPPORT_EXPORT
++#    define Q_PRINTSUPPORT_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTPRINTSUPPORTGLOBAL_H
+diff -Nur qt-5.4.0_old/qtbase/src/sql/kernel/qsql.h qt-5.4.0_new/qtbase/src/sql/kernel/qsql.h
+--- qt-5.4.0_old/qtbase/src/sql/kernel/qsql.h	2014-12-06 00:24:30.000000000 +0800
++++ qt-5.4.0_new/qtbase/src/sql/kernel/qsql.h	2015-02-11 06:31:58.942046246 +0800
+@@ -48,6 +48,9 @@
+ #  define Q_SQL_EXPORT
+ #endif
+ 
++#    undef  Q_SQL_EXPORT
++#    define Q_SQL_EXPORT Q_DECL_EXPORT
++
+ namespace QSql
+ {
+     enum Location
+diff -Nur qt-5.4.0_old/qtbase/src/xml/qtxmlglobal.h qt-5.4.0_new/qtbase/src/xml/qtxmlglobal.h
+--- qt-5.4.0_old/qtbase/src/xml/qtxmlglobal.h	2014-12-06 00:24:36.000000000 +0800
++++ qt-5.4.0_new/qtbase/src/xml/qtxmlglobal.h	2015-02-11 06:37:40.236863959 +0800
+@@ -48,6 +48,9 @@
+ #  define Q_XML_EXPORT
+ #endif
+ 
++#    undef  Q_XML_EXPORT
++#    define Q_XML_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTXMLGLOBAL_H
+diff -Nur qt-5.4.0_old/qtconnectivity/src/bluetooth/qbluetoothglobal.h qt-5.4.0_new/qtconnectivity/src/bluetooth/qbluetoothglobal.h
+--- qt-5.4.0_old/qtconnectivity/src/bluetooth/qbluetoothglobal.h	2014-12-06 00:25:14.000000000 +0800
++++ qt-5.4.0_new/qtconnectivity/src/bluetooth/qbluetoothglobal.h	2015-02-11 06:39:00.316430131 +0800
+@@ -47,6 +47,9 @@
+ #    define Q_BLUETOOTH_EXPORT
+ #endif
+ 
++#    undef  Q_BLUETOOTH_EXPORT
++#    define Q_BLUETOOTH_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTBLUETOOTH_H
+diff -Nur qt-5.4.0_old/qtconnectivity/src/nfc/qnfcglobal.h qt-5.4.0_new/qtconnectivity/src/nfc/qnfcglobal.h
+--- qt-5.4.0_old/qtconnectivity/src/nfc/qnfcglobal.h	2014-12-06 00:25:14.000000000 +0800
++++ qt-5.4.0_new/qtconnectivity/src/nfc/qnfcglobal.h	2015-02-11 06:39:37.526228548 +0800
+@@ -48,6 +48,9 @@
+ #    define Q_NFC_EXPORT
+ #endif
+ 
++#    undef  Q_NFC_EXPORT
++#    define Q_NFC_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTNFC_H
+diff -Nur qt-5.4.0_old/qtdeclarative/src/particles/qtquickparticlesglobal_p.h qt-5.4.0_new/qtdeclarative/src/particles/qtquickparticlesglobal_p.h
+--- qt-5.4.0_old/qtdeclarative/src/particles/qtquickparticlesglobal_p.h	2014-12-06 00:25:10.000000000 +0800
++++ qt-5.4.0_new/qtdeclarative/src/particles/qtquickparticlesglobal_p.h	2015-02-11 06:40:14.249362935 +0800
+@@ -48,4 +48,7 @@
+ #  define Q_QUICKPARTICLES_PRIVATE_EXPORT
+ #endif
+ 
++#    undef  Q_QUICKPARTICLES_PRIVATE_EXPORT
++#    define Q_QUICKPARTICLES_PRIVATE_EXPORT Q_DECL_EXPORT
++
+ #endif // QTQUICKPARTICLESGLOBAL_P_H
+diff -Nur qt-5.4.0_old/qtdeclarative/src/qml/parser/qqmljsglobal_p.h qt-5.4.0_new/qtdeclarative/src/qml/parser/qqmljsglobal_p.h
+--- qt-5.4.0_old/qtdeclarative/src/qml/parser/qqmljsglobal_p.h	2014-12-06 00:25:11.000000000 +0800
++++ qt-5.4.0_new/qtdeclarative/src/qml/parser/qqmljsglobal_p.h	2015-02-11 06:41:41.072225909 +0800
+@@ -60,4 +60,7 @@
+ #  endif
+ #endif // QT_CREATOR
+ 
++#    undef  QML_PARSER_EXPORT
++#    define QML_PARSER_EXPORT Q_DECL_EXPORT
++
+ #endif // QQMLJSGLOBAL_P_H
+diff -Nur qt-5.4.0_old/qtdeclarative/src/qml/qtqmlglobal.h qt-5.4.0_new/qtdeclarative/src/qml/qtqmlglobal.h
+--- qt-5.4.0_old/qtdeclarative/src/qml/qtqmlglobal.h	2014-12-06 00:25:11.000000000 +0800
++++ qt-5.4.0_new/qtdeclarative/src/qml/qtqmlglobal.h	2015-02-11 06:42:38.565247776 +0800
+@@ -48,5 +48,8 @@
+ #  define Q_QML_EXPORT
+ #endif
+ 
++#    undef  Q_QML_EXPORT
++#    define Q_QML_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ #endif // QTQMLGLOBAL_H
+diff -Nur qt-5.4.0_old/qtdeclarative/src/quick/qtquickglobal.h qt-5.4.0_new/qtdeclarative/src/quick/qtquickglobal.h
+--- qt-5.4.0_old/qtdeclarative/src/quick/qtquickglobal.h	2014-12-06 00:25:12.000000000 +0800
++++ qt-5.4.0_new/qtdeclarative/src/quick/qtquickglobal.h	2015-02-11 06:41:00.182447428 +0800
+@@ -48,6 +48,9 @@
+ #  define Q_QUICK_EXPORT
+ #endif
+ 
++#    undef  Q_QUICK_EXPORT
++#    define Q_QUICK_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTQUICKGLOBAL_H
+diff -Nur qt-5.4.0_old/qtdeclarative/src/quickwidgets/qtquickwidgetsglobal.h qt-5.4.0_new/qtdeclarative/src/quickwidgets/qtquickwidgetsglobal.h
+--- qt-5.4.0_old/qtdeclarative/src/quickwidgets/qtquickwidgetsglobal.h	2014-12-06 00:25:13.000000000 +0800
++++ qt-5.4.0_new/qtdeclarative/src/quickwidgets/qtquickwidgetsglobal.h	2015-02-11 06:43:30.601632537 +0800
+@@ -48,6 +48,9 @@
+ #  define Q_QUICKWIDGETS_EXPORT
+ #endif
+ 
++#    undef  Q_QUICKWIDGETS_EXPORT
++#    define Q_QUICKWIDGETS_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTQUICKWIDGETSGLOBAL_H
+diff -Nur qt-5.4.0_old/qtenginio/src/enginio_client/enginioclient_global.h qt-5.4.0_new/qtenginio/src/enginio_client/enginioclient_global.h
+--- qt-5.4.0_old/qtenginio/src/enginio_client/enginioclient_global.h	2014-12-06 00:25:13.000000000 +0800
++++ qt-5.4.0_new/qtenginio/src/enginio_client/enginioclient_global.h	2015-02-11 06:44:10.891414269 +0800
+@@ -46,6 +46,9 @@
+ #  define ENGINIOCLIENT_EXPORT
+ #endif
+ 
++#    undef  ENGINIOCLIENT_EXPORT
++#    define ENGINIOCLIENT_EXPORT Q_DECL_EXPORT
++
+ QT_BEGIN_NAMESPACE
+ ENGINIOCLIENT_EXPORT extern bool gEnableEnginioDebugInfo;
+ QT_END_NAMESPACE
+diff -Nur qt-5.4.0_old/qtlocation/src/location/qlocationglobal.h qt-5.4.0_new/qtlocation/src/location/qlocationglobal.h
+--- qt-5.4.0_old/qtlocation/src/location/qlocationglobal.h	2014-12-06 00:25:16.000000000 +0800
++++ qt-5.4.0_new/qtlocation/src/location/qlocationglobal.h	2015-02-11 06:45:38.820937914 +0800
+@@ -47,6 +47,9 @@
+ #    define Q_LOCATION_EXPORT
+ #endif
+ 
++#    undef  Q_LOCATION_EXPORT
++#    define Q_LOCATION_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QLOCATIONGLOBAL_H
+diff -Nur qt-5.4.0_old/qtlocation/src/positioning/qpositioningglobal.h qt-5.4.0_new/qtlocation/src/positioning/qpositioningglobal.h
+--- qt-5.4.0_old/qtlocation/src/positioning/qpositioningglobal.h	2014-12-06 00:25:15.000000000 +0800
++++ qt-5.4.0_new/qtlocation/src/positioning/qpositioningglobal.h	2015-02-11 06:45:00.771144047 +0800
+@@ -47,6 +47,8 @@
+ #    define Q_POSITIONING_EXPORT
+ #endif
+ 
++#    undef  Q_POSITIONING_EXPORT
++#    define Q_POSITIONING_EXPORT Q_DECL_EXPORT
+ 
+ QT_END_NAMESPACE
+ 
+diff -Nur qt-5.4.0_old/qtmacextras/src/macextras/qmacextrasglobal.h qt-5.4.0_new/qtmacextras/src/macextras/qmacextrasglobal.h
+--- qt-5.4.0_old/qtmacextras/src/macextras/qmacextrasglobal.h	2014-12-06 00:25:03.000000000 +0800
++++ qt-5.4.0_new/qtmacextras/src/macextras/qmacextrasglobal.h	2015-02-11 06:46:20.144047380 +0800
+@@ -44,6 +44,8 @@
+ #  define Q_MACEXTRAS_EXPORT Q_DECL_IMPORT
+ #endif
+ 
++#    undef  Q_MACEXTRAS_EXPORT
++#    define Q_MACEXTRAS_EXPORT Q_DECL_EXPORT
+ 
+ // ### remove when merged to QtCore
+ /*!
+diff -Nur qt-5.4.0_old/qtmultimedia/src/multimedia/qtmultimediadefs.h qt-5.4.0_new/qtmultimedia/src/multimedia/qtmultimediadefs.h
+--- qt-5.4.0_old/qtmultimedia/src/multimedia/qtmultimediadefs.h	2014-12-06 00:25:03.000000000 +0800
++++ qt-5.4.0_new/qtmultimedia/src/multimedia/qtmultimediadefs.h	2015-02-11 06:47:01.280491192 +0800
+@@ -59,6 +59,9 @@
+ #    define Q_MULTIMEDIA_EXPORT
+ #endif
+ 
++#    undef  Q_MULTIMEDIA_EXPORT
++#    define Q_MULTIMEDIA_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QMULTIMEDIA_P_H
+diff -Nur qt-5.4.0_old/qtmultimedia/src/multimedia/qtmultimediaquicktools_headers/qtmultimediaquickdefs_p.h qt-5.4.0_new/qtmultimedia/src/multimedia/qtmultimediaquicktools_headers/qtmultimediaquickdefs_p.h
+--- qt-5.4.0_old/qtmultimedia/src/multimedia/qtmultimediaquicktools_headers/qtmultimediaquickdefs_p.h	2014-12-06 00:25:03.000000000 +0800
++++ qt-5.4.0_new/qtmultimedia/src/multimedia/qtmultimediaquicktools_headers/qtmultimediaquickdefs_p.h	2015-02-11 06:48:24.400040895 +0800
+@@ -57,6 +57,8 @@
+ #    define Q_MULTIMEDIAQUICK_EXPORT
+ #endif
+ 
++#    undef  Q_MULTIMEDIAQUICK_EXPORT
++#    define Q_MULTIMEDIAQUICK_EXPORT Q_DECL_EXPORT
+ 
+ #endif // QMULTIMEDIAQUICKDEFS_P_H
+ 
+diff -Nur qt-5.4.0_old/qtmultimedia/src/multimediawidgets/qtmultimediawidgetdefs.h qt-5.4.0_new/qtmultimedia/src/multimediawidgets/qtmultimediawidgetdefs.h
+--- qt-5.4.0_old/qtmultimedia/src/multimediawidgets/qtmultimediawidgetdefs.h	2014-12-06 00:25:02.000000000 +0800
++++ qt-5.4.0_new/qtmultimedia/src/multimediawidgets/qtmultimediawidgetdefs.h	2015-02-11 06:49:45.912932635 +0800
+@@ -59,6 +59,9 @@
+ #    define Q_MULTIMEDIAWIDGETS_EXPORT
+ #endif
+ 
++#    undef  Q_MULTIMEDIAWIDGETS_EXPORT
++#    define Q_MULTIMEDIAWIDGETS_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QMULTIMEDIAWIDGETS_P_H
+diff -Nur qt-5.4.0_old/qtquick1/src/declarative/qml/parser/qdeclarativejsglobal_p.h qt-5.4.0_new/qtquick1/src/declarative/qml/parser/qdeclarativejsglobal_p.h
+--- qt-5.4.0_old/qtquick1/src/declarative/qml/parser/qdeclarativejsglobal_p.h	2014-12-06 00:24:08.000000000 +0800
++++ qt-5.4.0_new/qtquick1/src/declarative/qml/parser/qdeclarativejsglobal_p.h	2015-02-11 06:50:23.479395786 +0800
+@@ -53,4 +53,7 @@
+ #  define QML_PARSER_EXPORT
+ #endif // QT_CREATOR
+ 
++#    undef  QML_PARSER_EXPORT
++#    define QML_PARSER_EXPORT Q_DECL_EXPORT
++
+ #endif // QDECLARATIVEJSGLOBAL_P_H
+diff -Nur qt-5.4.0_old/qtquick1/src/declarative/qtdeclarativeglobal.h qt-5.4.0_new/qtquick1/src/declarative/qtdeclarativeglobal.h
+--- qt-5.4.0_old/qtquick1/src/declarative/qtdeclarativeglobal.h	2014-12-06 00:24:08.000000000 +0800
++++ qt-5.4.0_new/qtquick1/src/declarative/qtdeclarativeglobal.h	2015-02-11 06:51:07.959154819 +0800
+@@ -54,6 +54,9 @@
+ #  define Q_DECLARATIVE_EXPORT
+ #endif
+ 
++#    undef  Q_DECLARATIVE_EXPORT
++#    define Q_DECLARATIVE_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTDECLARATIVEGLOBAL_H
+diff -Nur qt-5.4.0_old/qtscript/src/script/api/qtscriptglobal.h qt-5.4.0_new/qtscript/src/script/api/qtscriptglobal.h
+--- qt-5.4.0_old/qtscript/src/script/api/qtscriptglobal.h	2014-12-06 00:24:11.000000000 +0800
++++ qt-5.4.0_new/qtscript/src/script/api/qtscriptglobal.h	2015-02-11 06:51:45.452285034 +0800
+@@ -54,6 +54,9 @@
+ #  define Q_SCRIPTTOOLS_EXPORT
+ #endif
+ 
++#    undef  Q_SCRIPT_EXPORT
++#    define Q_SCRIPT_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif
+diff -Nur qt-5.4.0_old/qtsensors/src/sensors/qsensorsglobal.h qt-5.4.0_new/qtsensors/src/sensors/qsensorsglobal.h
+--- qt-5.4.0_old/qtsensors/src/sensors/qsensorsglobal.h	2014-12-06 00:25:17.000000000 +0800
++++ qt-5.4.0_new/qtsensors/src/sensors/qsensorsglobal.h	2015-02-11 06:52:27.055392984 +0800
+@@ -48,6 +48,9 @@
+ #    define Q_SENSORS_EXPORT
+ #endif
+ 
++#    undef  Q_SENSORS_EXPORT
++#    define Q_SENSORS_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QSENSORSGLOBAL_H
+diff -Nur qt-5.4.0_old/qtserialport/src/serialport/qserialportglobal.h qt-5.4.0_new/qtserialport/src/serialport/qserialportglobal.h
+--- qt-5.4.0_old/qtserialport/src/serialport/qserialportglobal.h	2014-12-06 00:24:40.000000000 +0800
++++ qt-5.4.0_new/qtserialport/src/serialport/qserialportglobal.h	2015-02-11 06:53:09.135165019 +0800
+@@ -50,6 +50,9 @@
+ #  define Q_SERIALPORT_EXPORT
+ #endif
+ 
++#    undef  Q_SERIALPORT_EXPORT
++#    define Q_SERIALPORT_EXPORT Q_DECL_EXPORT
++
+ // These macros have been available only since Qt 5.0
+ #ifndef QT_DEPRECATED_SINCE
+ #define QT_DEPRECATED_SINCE(major, minor) 1
+diff -Nur qt-5.4.0_old/qtsvg/src/svg/qtsvgglobal.h qt-5.4.0_new/qtsvg/src/svg/qtsvgglobal.h
+--- qt-5.4.0_old/qtsvg/src/svg/qtsvgglobal.h	2014-12-06 00:25:18.000000000 +0800
++++ qt-5.4.0_new/qtsvg/src/svg/qtsvgglobal.h	2015-02-11 06:53:42.564983914 +0800
+@@ -50,6 +50,9 @@
+ #  endif
+ #endif
+ 
++#    undef  Q_SVG_EXPORT
++#    define Q_SVG_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif
+diff -Nur qt-5.4.0_old/qtwayland/src/client/qwaylandclientexport_p.h qt-5.4.0_new/qtwayland/src/client/qwaylandclientexport_p.h
+--- qt-5.4.0_old/qtwayland/src/client/qwaylandclientexport_p.h	2014-12-06 00:24:57.000000000 +0800
++++ qt-5.4.0_new/qtwayland/src/client/qwaylandclientexport_p.h	2015-02-11 06:54:14.118146309 +0800
+@@ -54,6 +54,9 @@
+ #  endif
+ #endif
+ 
++#    undef  Q_WAYLAND_CLIENT_EXPORT
++#    define Q_WAYLAND_CLIENT_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif //QWAYLANDCLIENTEXPORT_H
+diff -Nur qt-5.4.0_old/qtwayland/src/compositor/global/qwaylandexport.h qt-5.4.0_new/qtwayland/src/compositor/global/qwaylandexport.h
+--- qt-5.4.0_old/qtwayland/src/compositor/global/qwaylandexport.h	2014-12-06 00:24:58.000000000 +0800
++++ qt-5.4.0_new/qtwayland/src/compositor/global/qwaylandexport.h	2015-02-11 06:54:47.641298032 +0800
+@@ -55,6 +55,9 @@
+ #  endif
+ #endif
+ 
++#    undef  Q_COMPOSITOR_EXPORT
++#    define Q_COMPOSITOR_EXPORT Q_DECL_EXPORT
++
+ typedef void WaylandClient;
+ 
+ QT_END_NAMESPACE
+diff -Nur qt-5.4.0_old/qtwebchannel/src/webchannel/qwebchannelglobal.h qt-5.4.0_new/qtwebchannel/src/webchannel/qwebchannelglobal.h
+--- qt-5.4.0_old/qtwebchannel/src/webchannel/qwebchannelglobal.h	2014-12-06 00:24:39.000000000 +0800
++++ qt-5.4.0_new/qtwebchannel/src/webchannel/qwebchannelglobal.h	2015-02-11 06:55:16.531141522 +0800
+@@ -48,6 +48,9 @@
+ #    define Q_WEBCHANNEL_EXPORT
+ #endif
+ 
++#    undef  Q_WEBCHANNEL_EXPORT
++#    define Q_WEBCHANNEL_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTWEBCHANNEL_H
+diff -Nur qt-5.4.0_old/qtwebengine/src/core/qtwebenginecoreglobal.h qt-5.4.0_new/qtwebengine/src/core/qtwebenginecoreglobal.h
+--- qt-5.4.0_old/qtwebengine/src/core/qtwebenginecoreglobal.h	2014-12-06 00:26:46.000000000 +0800
++++ qt-5.4.0_new/qtwebengine/src/core/qtwebenginecoreglobal.h	2015-02-11 06:55:45.860982629 +0800
+@@ -57,4 +57,7 @@
+ #  define QWEBENGINE_EXPORT
+ #endif
+ 
++#    undef  QWEBENGINE_EXPORT
++#    define QWEBENGINE_EXPORT Q_DECL_EXPORT
++
+ #endif // QTWEBENGINECOREGLOBAL_H
+diff -Nur qt-5.4.0_old/qtwebengine/src/webenginewidgets/api/qtwebenginewidgetsglobal.h qt-5.4.0_new/qtwebengine/src/webenginewidgets/api/qtwebenginewidgetsglobal.h
+--- qt-5.4.0_old/qtwebengine/src/webenginewidgets/api/qtwebenginewidgetsglobal.h	2014-12-06 00:26:46.000000000 +0800
++++ qt-5.4.0_new/qtwebengine/src/webenginewidgets/api/qtwebenginewidgetsglobal.h	2015-02-11 06:56:24.484106723 +0800
+@@ -51,6 +51,9 @@
+ #  define QWEBENGINEWIDGETS_EXPORT
+ #endif
+ 
++#    undef  QWEBENGINEWIDGETS_EXPORT
++#    define QWEBENGINEWIDGETS_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTWEBENGINEWIDGETSGLOBAL_H
+diff -Nur qt-5.4.0_old/qtwebkit/Source/WebCore/platform/qt/QtTestSupport.h qt-5.4.0_new/qtwebkit/Source/WebCore/platform/qt/QtTestSupport.h
+--- qt-5.4.0_old/qtwebkit/Source/WebCore/platform/qt/QtTestSupport.h	2014-12-06 00:24:49.000000000 +0800
++++ qt-5.4.0_new/qtwebkit/Source/WebCore/platform/qt/QtTestSupport.h	2015-02-11 06:57:53.430291526 +0800
+@@ -30,6 +30,9 @@
+ #define TESTSUPPORT_EXPORT Q_DECL_IMPORT
+ #endif
+ 
++#    undef  TESTSUPPORT_EXPORT
++#    define TESTSUPPORT_EXPORT Q_DECL_EXPORT
++
+ // Helpers for test runners (DumpRenderTree and WebKitTestRunner).
+ // This is living in WebCore for better code sharing, although
+ // we expose it as (private) API, so it is part of the WebKit layer.
+diff -Nur qt-5.4.0_old/qtwebkit/Source/WebKit/qt/Api/qwebkitglobal.h qt-5.4.0_new/qtwebkit/Source/WebKit/qt/Api/qwebkitglobal.h
+--- qt-5.4.0_old/qtwebkit/Source/WebKit/qt/Api/qwebkitglobal.h	2014-12-06 00:24:45.000000000 +0800
++++ qt-5.4.0_new/qtwebkit/Source/WebKit/qt/Api/qwebkitglobal.h	2015-02-11 06:57:18.243815481 +0800
+@@ -42,6 +42,11 @@
+ #  define QWEBKIT_EXPORT
+ #endif
+ 
++#    undef  QWEBKIT_EXPORT
++#    undef  QWEBKITWIDGETS_EXPORT
++#    define QWEBKIT_EXPORT Q_DECL_EXPORT
++#    define QWEBKITWIDGETS_EXPORT Q_DECL_EXPORT
++
+ QWEBKIT_EXPORT QString qWebKitVersion();
+ QWEBKIT_EXPORT int qWebKitMajorVersion();
+ QWEBKIT_EXPORT int qWebKitMinorVersion();
+diff -Nur qt-5.4.0_old/qtwebsockets/src/websockets/qwebsockets_global.h qt-5.4.0_new/qtwebsockets/src/websockets/qwebsockets_global.h
+--- qt-5.4.0_old/qtwebsockets/src/websockets/qwebsockets_global.h	2014-12-06 00:25:16.000000000 +0800
++++ qt-5.4.0_new/qtwebsockets/src/websockets/qwebsockets_global.h	2015-02-11 06:58:22.016803327 +0800
+@@ -48,5 +48,8 @@
+ #  define Q_WEBSOCKETS_EXPORT
+ #endif
+ 
++#    undef  Q_WEBSOCKETS_EXPORT
++#    define Q_WEBSOCKETS_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ #endif // QWEBSOCKETSGLOBAL_H
+diff -Nur qt-5.4.0_old/qtwinextras/src/winextras/qwinextrasglobal.h qt-5.4.0_new/qtwinextras/src/winextras/qwinextrasglobal.h
+--- qt-5.4.0_old/qtwinextras/src/winextras/qwinextrasglobal.h	2014-12-06 00:25:16.000000000 +0800
++++ qt-5.4.0_new/qtwinextras/src/winextras/qwinextrasglobal.h	2015-02-11 06:58:48.636659114 +0800
+@@ -48,6 +48,9 @@
+ #  define Q_WINEXTRAS_EXPORT
+ #endif
+ 
++#    undef  Q_WINEXTRAS_EXPORT
++#    define Q_WINEXTRAS_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QWINEXTRASGLOBAL_H
+diff -Nur qt-5.4.0_old/qtx11extras/src/x11extras/qtx11extrasglobal.h qt-5.4.0_new/qtx11extras/src/x11extras/qtx11extrasglobal.h
+--- qt-5.4.0_old/qtx11extras/src/x11extras/qtx11extrasglobal.h	2014-12-06 00:25:03.000000000 +0800
++++ qt-5.4.0_new/qtx11extras/src/x11extras/qtx11extrasglobal.h	2015-02-11 06:59:20.469819993 +0800
+@@ -48,6 +48,9 @@
+ #  define Q_X11EXTRAS_EXPORT
+ #endif
+ 
++#    undef  Q_X11EXTRAS_EXPORT
++#    define Q_X11EXTRAS_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif // QTX11EXTRASGLOBAL_H
+diff -Nur qt-5.4.0_old/qtxmlpatterns/src/xmlpatterns/api/qtxmlpatternsglobal.h qt-5.4.0_new/qtxmlpatterns/src/xmlpatterns/api/qtxmlpatternsglobal.h
+--- qt-5.4.0_old/qtxmlpatterns/src/xmlpatterns/api/qtxmlpatternsglobal.h	2014-12-06 00:24:39.000000000 +0800
++++ qt-5.4.0_new/qtxmlpatterns/src/xmlpatterns/api/qtxmlpatternsglobal.h	2015-02-11 06:59:46.893010179 +0800
+@@ -50,6 +50,9 @@
+ #  endif
+ #endif
+ 
++#    undef  Q_XMLPATTERNS_EXPORT
++#    define Q_XMLPATTERNS_EXPORT Q_DECL_EXPORT
++
+ QT_END_NAMESPACE
+ 
+ #endif

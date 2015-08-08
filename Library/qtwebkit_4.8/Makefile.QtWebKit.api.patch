@@ -1,0 +1,38 @@
+--- Makefile.QtWebKit.api	2015-01-24 16:14:03.000000000 +0800
++++ Makefile.QtWebKit_new.api	2015-01-24 16:21:29.429422200 +0800
+@@ -129,7 +129,34 @@
+ ../lib/$(TARGET):  $(OBJECTS) $(OBJCOMP) /home/eaglexmw/x32/qtwebkit_4.8/src/qtwebkit-2.3.4/WebKitBuild/Release/Source/WebKit/release/libWebKit1.a /home/eaglexmw/x32/qtwebkit_4.8/src/qtwebkit-2.3.4/WebKitBuild/Release/Source/WebCore/release/libWebCore.a /home/eaglexmw/x32/qtwebkit_4.8/src/qtwebkit-2.3.4/WebKitBuild/Release/Source/ThirdParty/ANGLE/release/libANGLE.a /home/eaglexmw/x32/qtwebkit_4.8/src/qtwebkit-2.3.4/WebKitBuild/Release/Source/JavaScriptCore/release/libJavaScriptCore.a /home/eaglexmw/x32/qtwebkit_4.8/src/qtwebkit-2.3.4/WebKitBuild/Release/Source/WTF/release/libWTF.a
+ 	@$(CHK_DIR_EXISTS) ../lib/ || $(MKDIR) ../lib/ 
+ 	-$(DEL_FILE) $(TARGET)
+-	$(AR) $(TARGET) $(OBJECTS)
++	echo "start build static lib"
++	$(MKDIR) ./WebKit1_obj
++	cd ./WebKit1_obj
++	ar x ../WebKit/release/libWebKit1.a
++	for item in `ls *.o`; do mv $item WebKit1_$item; done
++	cd ../
++	$(MKDIR) ./WebCore_obj
++       cd ./WebCore_obj
++	ar x ../WebCore/release/libWebCore.a
++	for item in `ls *.o`; do mv $item WebCore_$item; done
++	cd ../
++	$(MKDIR) ./ANGLE_obj
++       cd ./ANGLE_obj
++	ar x ../ThirdParty/ANGLE/release/libANGLE.a
++	for item in `ls *.o`; do mv $item ANGLE_$item; done
++	cd ../
++	$(MKDIR) ./JavaScriptCore_obj
++       cd ./JavaScriptCore_obj
++	ar x ../JavaScriptCore/release/libJavaScriptCore.a
++	for item in `ls *.o`; do mv $item JavaScriptCore_$item; done
++	cd ../
++	$(MKDIR) ./WTF_obj
++       cd ./WTF_obj
++	ar x ../WTF/release/libWTF.a
++	for item in `ls *.o`; do mv $item JavaScriptCore_$item; done
++	cd ../
++	ar crus $(TARGET) ./WebKit1_obj/*.o ./WebCore_obj/*.o ./ANGLE_obj/*.o ./JavaScriptCore_obj/*.o ./WTF_obj/*.o
++	rm -f ./WebKit1_obj/ ./WebCore_obj/ ./ANGLE_obj/ ./JavaScriptCore_obj/ ./WTF_obj/
+ 	-$(DEL_FILE) ../lib/$(TARGET)
+ 	-$(MOVE) $(TARGET) ../lib/
+ 

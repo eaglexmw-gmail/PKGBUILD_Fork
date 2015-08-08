@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Eric Belanger <eric@archlinux.org>
+# Contributor: Tom Newsom <Jeepster@gmx.co.uk>
+
+pkgname=plib
+pkgver=1.8.5
+pkgrel=5
+pkgdesc="Set of libraries to write games and other realtime interactive applications"
+arch=('i686' 'x86_64')
+url="http://plib.sourceforge.net/"
+license=('custom:LGPL')
+#makedepends=('mesa-libgl' 'libxi' 'libxmu')
+makedepends=('libxi' 'libxmu')
+source=(http://plib.sourceforge.net/dist/$pkgname-$pkgver-rc1.tar.gz)
+options=('staticlibs')
+md5sums=('b28a82d44752f108dbe87ca00ebeca90')
+#sha1sums=('c2cf7e3e1e58f7b63dae4bb21e4fa82c3e4d4cfc')
+
+build() {
+  cd ${srcdir}/$pkgname-$pkgver-rc1
+
+  [ "$CARCH" = "x86_64" ] && export CXXFLAGS="$CXXFLAGS -fPIC"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd ${srcdir}/$pkgname-$pkgver-rc1
+
+  make DESTDIR="${pkgdir}" install
+  install -D -m644 COPYING ${pkgdir}/usr/share/licenses/$pkgname/COPYING
+}

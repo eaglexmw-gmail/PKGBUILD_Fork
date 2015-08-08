@@ -1,0 +1,52 @@
+diff -Nur old/gen/Makefile.libfbclient new/gen/Makefile.libfbclient
+--- old/gen/Makefile.libfbclient	2015-02-08 20:37:57.345797000 +0800
++++ new/gen/Makefile.libfbclient	2015-02-09 02:10:30.124370917 +0800
+@@ -94,7 +94,7 @@
+ .PHONY: libfbclient
+ 
+ 
+-libfbclient : $(LIBFBCLIENT_SONAME)
++libfbclient : $(LIBFBCLIENT_SONAME) $(LIB)/libfbclient.a
+ 
+ ifneq ($(ClientLibraryNameFull),$(ClientLibrarySoName))
+ $(LIBFBCLIENT_SOBASENAME):	$(LIBFBCLIENT_SO)
+@@ -109,6 +109,12 @@
+ $(LIBFBCLIENT_SO):	$(FBCLIENT_Objects)
+ 	$(LINK_CLIENT) -o $@ $^ $(LINK_CLIENT_LIBS)
+ 
++$(LIB)/libfbclient.a:	$(FBCLIENT_Objects)
++	-$(RM) $@
++	$(AR) $@ $^
++	-$(RANLIB) $@
++	$(CHMOD_6) $@
++
+ AllObjects = $(FBCLIENT_Objects)
+ Dependencies = $(AllObjects:.o=.d)
+ 
+Binary files old/gen/.Makefile.libfbclient.swp and new/gen/.Makefile.libfbclient.swp differ
+diff -Nur old/gen/Makefile.libfbembed new/gen/Makefile.libfbembed
+--- old/gen/Makefile.libfbembed	2015-02-08 20:37:57.865794000 +0800
++++ new/gen/Makefile.libfbembed	2015-02-09 02:10:40.490981423 +0800
+@@ -59,7 +59,7 @@
+ 
+ .PHONY: libfbembed
+ 
+-libfbembed : $(LIBIBUTIL_SO) $(LIBFBEMBED_SONAME)
++libfbembed : $(LIBIBUTIL_SO) $(LIBFBEMBED_SONAME) $(LIB)/libfbembed.a
+ 
+ $(LIBFBEMBED_SO): $(LIBFBEMBED_Objects) $(SERVER_Objects) $(COMMON_Objects)
+ 	$(LINK_EMBED) -o $@ $^ $(LINK_EMBED_LIBS)
+@@ -70,6 +70,12 @@
+ $(LIBFBEMBED_SONAME): $(LIBFBEMBED_SOBASENAME)
+ 	(cd $(LIB) && $(LN) -f $(SharedLibrarySoName) $(SharedLibraryBaseName) )
+ 
++$(LIB)/libfbembed.a:	$(LIBFBEMBED_Objects) $(SERVER_Objects) $(COMMON_Objects)
++	-$(RM) $@
++	$(AR) $@ $^
++	-$(RANLIB) $@
++	$(CHMOD_6) $@
++
+ include $(ROOT)/gen/make.shared.targets
+ 
+ -include $(Dependencies)
+Binary files old/gen/.Makefile.libfbembed.swp and new/gen/.Makefile.libfbembed.swp differ

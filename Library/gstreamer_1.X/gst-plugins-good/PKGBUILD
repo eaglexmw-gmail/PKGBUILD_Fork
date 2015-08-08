@@ -1,0 +1,50 @@
+# $Id$
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+
+pkgname=gst-plugins-good
+pkgver=1.4.5
+pkgrel=1
+pkgdesc="GStreamer Multimedia Framework Good Plugins"
+arch=('i686' 'x86_64')
+license=('LGPL')
+url="http://gstreamer.freedesktop.org/"
+#depends=('libpulse' 'jack' 'libsoup' 'gst-plugins-base-libs' 'wavpack' 'aalib' 'taglib' 'libdv' 'libshout' 'libvpx' 'gdk-pixbuf2' 'libcaca' 'libavc1394'    #'libiec61883' 'libxdamage' 'v4l-utils' 'cairo')
+depends=('gdk-pixbuf2' 'cairo')
+#makedepends=('gstreamer' 'speex' 'flac' 'libraw1394' 'python' 'gtk-doc')
+#makedepends=('gtk-doc')
+options=(!emptydirs staticlibs)
+source=(${url}/src/$pkgname/$pkgname-$pkgver.tar.xz)
+sha256sums=('79b1b5f3f7bcaa8a615202eb5e176121eeb8336960f70687e536ad78dbc7e641')
+
+build() {
+  cd $pkgname-$pkgver
+
+  sed -i 's|-lrom1394 |-lrom1394 -lm |g' ./configure
+
+  export PATH=$PATH:/usr/local/python2/bin/
+  export PYTHON=python2_spec
+
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --enable-static --enable-experimental \
+    --with-package-name="GStreamer Good Plugins (Arch Linux)" \
+    --with-package-origin="http://www.archlinux.org/" \
+    --enable-static --disable-shared --enable-static-plugins --disable-gtk-doc --disable-freetypetest
+
+  # https://bugzilla.gnome.org/show_bug.cgi?id=655517
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  sed -i 's|tests			\\| \\|g' ./Makefile
+
+  make
+}
+
+# Disabled for now: souphttpsrc times out, and takes a damn long time to do so
+#check() {
+#  cd $pkgname-$pkgver
+#  make check
+#}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="${pkgdir}" install
+}

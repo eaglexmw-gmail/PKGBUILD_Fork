@@ -1,0 +1,66 @@
+# $Id$
+# Maintainer: Andreas Radke <andyrtr@archlinux.org>
+
+pkgname=webkitgtk2
+pkgver=1.10.2
+pkgrel=8
+pkgdesc="GTK+ Web content engine library for GTK+ 2.0"
+arch=(i686 x86_64)
+url="http://webkitgtk.org/"
+license=(custom)
+#depends=(libxt libxslt sqlite libsoup enchant libgl geoclue gtk2 gstreamer0.10-base icu)
+#makedepends=(gperf gobject-introspection python2 mesa ruby gtk-doc)
+makedepends=(mesa ruby gperf)
+optdepends=()
+provides=("libwebkit=${pkgver}")
+conflicts=(libwebkit)
+replaces=(libwebkit)
+options=(!emptydirs)
+options=('staticlibs')
+source=(http://webkitgtk.org/releases/webkitgtk-${pkgver}.tar.xz
+        bison3.patch)
+sha256sums=('19234f8e4edfaefe91ed06471a2aa8c71d26dd55d33787eede1dcfc9a3a96d9c'
+            '0996b25d17be61470678c18db9bfad1bf807aac410690fb8935370dbc8b3ce34')
+
+prepare() {
+  cd webkitgtk-$pkgver
+  patch -Np1 -i ../bison3.patch
+}
+
+build() {
+  cd webkitgtk-$pkgver
+
+  sed -i '451 a -lm -lstdc++ \\' ./Source/WebKit/gtk/GNUmakefile.am
+
+  # remove unittests compile
+  #sed -i '462,489 d' ./Source/WebKit/gtk/GNUmakefile.am
+  #sed -i '2,3 d' ./Tools/GNUmakefile.am
+
+  # Suppress a *lot* of gcc 4.8 warnings
+  CPPFLAGS+=" -Wno-unused-local-typedefs"
+
+  PYTHON=/usr/local/python2/bin/python2 ./configure --prefix=/usr \
+    --libexecdir=/usr/lib/$pkgname \
+    --disable-webkit2 \
+    --with-gtk=2.0 \
+    --enable-static --disable-shared --disable-glibtest --disable-debug-symbols --disable-debug-features --disable-introspection --disable-gtk-doc
+
+  #  --enable-introspection \
+
+  # https://bugzilla.gnome.org/show_bug.cgi?id=655517
+  sed -i 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  cp ./GNUmakefile GNUmakefile.backup
+
+  sed -i '/\tPrograms\/unittests\/test/d' ./GNUmakefile
+  sed -i '/\tPrograms\/DumpRenderTree/d' ./GNUmakefile
+
+  make all stamp-po
+}
+
+package() {
+  cd webkitgtk-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -Dm644 Source/WebKit/LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  rm -r "$pkgdir/usr/share/gtk-doc/html/webkitgtk"
+}

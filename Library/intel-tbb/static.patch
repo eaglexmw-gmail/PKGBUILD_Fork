@@ -1,0 +1,108 @@
+diff -Nur tbb43_20150209oss/build/common_rules.inc tbb43_20150209oss_new/build/common_rules.inc
+--- tbb43_20150209oss/build/common_rules.inc	2015-02-09 17:56:55.000000000 +0800
++++ tbb43_20150209oss_new/build/common_rules.inc	2015-06-22 17:03:31.617334756 +0800
+@@ -50,7 +50,7 @@
+ CPLUS_FLAGS += $(DEFINE_KEY)__TBB_CPF_BUILD=1
+ endif
+ LINK_FLAGS += $(LDFLAGS)
+-LIB_LINK_FLAGS += $(LDFLAGS)
++LIB_LINK_FLAGS += #$(LDFLAGS)
+ CPLUS_FLAGS_NOSTRICT = $(subst -strict-ansi,-ansi,$(CPLUS_FLAGS))
+ 
+ LIB_LINK_CMD ?= $(CPLUS) $(PIC_KEY)
+diff -Nur tbb43_20150209oss/build/linux.gcc.inc tbb43_20150209oss_new/build/linux.gcc.inc
+--- tbb43_20150209oss/build/linux.gcc.inc	2015-02-09 17:56:56.000000000 +0800
++++ tbb43_20150209oss_new/build/linux.gcc.inc	2015-06-22 17:02:45.624250589 +0800
+@@ -28,15 +28,15 @@
+ TEST_WARNING_KEY = -Wshadow -Wcast-qual -Woverloaded-virtual -Wnon-virtual-dtor $(if $(findstring cc4., $(runtime)),-Wextra)
+ 
+ WARNING_SUPPRESS = -Wno-parentheses -Wno-non-virtual-dtor
+-DYLIB_KEY = -shared
+-EXPORT_KEY = -Wl,--version-script,
++DYLIB_KEY = #-shared
++EXPORT_KEY = #-Wl,--version-script,
+ LIBDL = -ldl
+ 
+ CPLUS = g++
+ CONLY = gcc
+-LIB_LINK_FLAGS = $(DYLIB_KEY) -Wl,-soname=$(BUILDING_LIBRARY)
++LIB_LINK_FLAGS = #$(DYLIB_KEY) -Wl,-soname=$(BUILDING_LIBRARY)
+ LIBS += -lpthread -lrt
+-LINK_FLAGS = -Wl,-rpath-link=. -rdynamic
++LINK_FLAGS = #-Wl,-rpath-link=. -rdynamic
+ C_FLAGS = $(CPLUS_FLAGS)
+ # gcc 4.4 and higher support -std=c++0x
+ ifneq (,$(shell gcc -dumpversion | egrep  "^(4\.[4-9]|[5-9])"))
+@@ -81,7 +81,7 @@
+ ifeq (ia32,$(arch))
+     ITT_NOTIFY = -DDO_ITT_NOTIFY
+     CPLUS_FLAGS += -m32 -march=pentium4 $(RTM_KEY)
+-    LIB_LINK_FLAGS += -m32
++    LIB_LINK_FLAGS += #-m32
+ endif
+ 
+ ifeq (ppc64,$(arch))
+diff -Nur tbb43_20150209oss/build/linux.inc tbb43_20150209oss_new/build/linux.inc
+--- tbb43_20150209oss/build/linux.inc	2015-02-09 17:56:56.000000000 +0800
++++ tbb43_20150209oss_new/build/linux.inc	2015-06-22 17:31:48.388142560 +0800
+@@ -94,6 +94,16 @@
+ LIBEXT = so
+ SONAME_SUFFIX =$(shell grep TBB_COMPATIBLE_INTERFACE_VERSION $(tbb_root)/include/tbb/tbb_stddef.h | egrep -o [0-9.]+)
+ 
++LIB_LINK_CMD = ar rcs
++LIB_LINK_FLAGS =
++LIB_LINK_LIBS =
++LIB_OUTPUT_KEY =
++DYLIB_KEY =
++DLL = a
++LIBEXT = a
++LIBPREF = lib
++LIBDL =
++
+ ifeq ($(arch),ia64)
+         def_prefix = lin64ipf
+ endif
+@@ -111,7 +121,7 @@
+     endif
+ endif
+ TBB.LST = $(tbb_root)/src/tbb/$(def_prefix)-tbb-export.lst
+-TBB.DEF = $(TBB.LST:.lst=.def)
++TBB.DEF = #$(TBB.LST:.lst=.def)
+ 
+ TBB.DLL = $(TBB_NO_VERSION.DLL).$(SONAME_SUFFIX)
+ TBB.LIB = $(TBB.DLL)
+@@ -119,19 +129,19 @@
+ LINK_TBB.LIB = $(TBB_NO_VERSION.DLL)
+ 
+ MALLOC_NO_VERSION.DLL = libtbbmalloc$(DEBUG_SUFFIX).$(MALLOC_DLL)
+-MALLOC.DEF = $(MALLOC_ROOT)/$(def_prefix)-tbbmalloc-export.def
++MALLOC.DEF = #$(MALLOC_ROOT)/$(def_prefix)-tbbmalloc-export.def
+ MALLOC.DLL = $(MALLOC_NO_VERSION.DLL).$(SONAME_SUFFIX)
+ MALLOC.LIB = $(MALLOC_NO_VERSION.DLL)
+ LINK_MALLOC.LIB = $(MALLOC_NO_VERSION.DLL)
+ 
+ MALLOCPROXY_NO_VERSION.DLL = libtbbmalloc_proxy$(DEBUG_SUFFIX).$(DLL)
+-MALLOCPROXY.DEF = $(MALLOC_ROOT)/$(def_prefix)-proxy-export.def
++MALLOCPROXY.DEF = #$(MALLOC_ROOT)/$(def_prefix)-proxy-export.def
+ MALLOCPROXY.DLL = $(MALLOCPROXY_NO_VERSION.DLL).$(SONAME_SUFFIX)
+ MALLOCPROXY.LIB = $(MALLOCPROXY_NO_VERSION.DLL)
+ LINK_MALLOCPROXY.LIB = $(MALLOCPROXY.LIB)
+ 
+ RML_NO_VERSION.DLL = libirml$(DEBUG_SUFFIX).$(DLL)
+-RML.DEF = $(RML_SERVER_ROOT)/lin-rml-export.def
++RML.DEF = #$(RML_SERVER_ROOT)/lin-rml-export.def
+ RML.DLL = $(RML_NO_VERSION.DLL).1
+ RML.LIB = $(RML_NO_VERSION.DLL)
+ 
+diff -Nur tbb43_20150209oss/build/Makefile.tbbmalloc tbb43_20150209oss_new/build/Makefile.tbbmalloc
+--- tbb43_20150209oss/build/Makefile.tbbmalloc	2015-02-09 17:56:55.000000000 +0800
++++ tbb43_20150209oss_new/build/Makefile.tbbmalloc	2015-06-22 17:16:06.853243292 +0800
+@@ -97,7 +97,7 @@
+ ifneq (,$(MALLOCPROXY.DLL))
+ $(MALLOCPROXY.DLL): BUILDING_LIBRARY = $(MALLOCPROXY.DLL)
+ $(MALLOCPROXY.DLL): $(PROXY.OBJ) $(MALLOCPROXY_NO_VERSION.DLL) $(MALLOC.DLL) $(MALLOC.RES)
+-	$(LIB_LINK_CMD) $(LIB_OUTPUT_KEY)$(MALLOCPROXY.DLL) $(PROXY.OBJ) $(MALLOC.RES) $(LIB_LINK_LIBS) $(LINK_MALLOC.LIB) $(PROXY_LINK_FLAGS)
++	$(LIB_LINK_CMD) $(LIB_OUTPUT_KEY)$(MALLOCPROXY.DLL) $(PROXY.OBJ) $(MALLOC.RES) $(LIB_LINK_LIBS) 
+ endif
+ 
+ ifneq (,$(MALLOC_NO_VERSION.DLL))

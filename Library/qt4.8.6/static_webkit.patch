@@ -1,0 +1,12 @@
+diff -Nur old/configure new/configure
+--- old/configure	2014-04-11 02:37:08.000000000 +0800
++++ new/configure	2015-02-16 07:01:05.042245195 +0800
+@@ -7870,7 +7870,7 @@
+     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SVG"
+ fi
+ 
+-if [ "$CFG_WEBKIT" != "no" ]; then
++if [ "$CFG_WEBKIT" == "auto" ]; then
+     CFG_WEBKIT="$canBuildWebKit"
+ fi
+ 

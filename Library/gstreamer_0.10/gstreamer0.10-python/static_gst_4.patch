@@ -1,0 +1,531 @@
+diff -Nur gst-python-0.10.22/codegen/gen_gst_import_code.py gst-python-0.10.22_new/codegen/gen_gst_import_code.py
+--- gst-python-0.10.22/codegen/gen_gst_import_code.py	1970-01-01 08:00:00.000000000 +0800
++++ gst-python-0.10.22_new/codegen/gen_gst_import_code.py	2015-01-21 06:34:32.592482307 +0800
+@@ -0,0 +1,33 @@
++import os,sys,random
++
++def main(argv):
++    if len(argv) < 3:
++        print "need more params."
++        return -1
++
++    src_file = argv[1]
++    dest_file = argv[2]
++    try:
++        s_handle = open(src_file, "r")
++        s_buff = s_handle.readlines()
++        s_handle.close()
++    except Exception, detail:
++        print "Exception: {0}".format(detail)
++        return -1
++    try:
++        d_handle = open(dest_file, "w")
++        for line in s_buff:
++            d_handle.write("extern void %s ();\n" % line[:-1])
++        d_handle.write("\nvoid __gst_import_%s ()\n{\n" % random.randint(0,10000) )
++        #d_handle.write("\nstatic void __gst_import_functions ()\n{\n")
++        for line in s_buff:
++            d_handle.write("    %s ();\n" % line[:-1])
++        d_handle.write("}\n\n")
++        d_handle.close()
++    except Exception, detail:
++        print "Exception: {0}".format(detail)
++        return -1
++    return 0
++     
++if __name__ == '__main__':
++    sys.exit(main(sys.argv))
+diff -Nur gst-python-0.10.22/codegen/gen_imp_code.sh gst-python-0.10.22_new/codegen/gen_imp_code.sh
+--- gst-python-0.10.22/codegen/gen_imp_code.sh	1970-01-01 08:00:00.000000000 +0800
++++ gst-python-0.10.22_new/codegen/gen_imp_code.sh	2015-01-21 06:34:32.592482307 +0800
+@@ -0,0 +1,4 @@
++#!/bin/sh
++
++nm -g $1 | grep " U " | awk "{ print \$2}" | grep "^gst_"
++
+diff -Nur gst-python-0.10.22/codegen/gen_static_gst_plugin.py gst-python-0.10.22_new/codegen/gen_static_gst_plugin.py
+--- gst-python-0.10.22/codegen/gen_static_gst_plugin.py	1970-01-01 08:00:00.000000000 +0800
++++ gst-python-0.10.22_new/codegen/gen_static_gst_plugin.py	2015-01-22 04:37:33.782900617 +0800
+@@ -0,0 +1,45 @@
++import os,sys
++
++sys.path.append(os.path.dirname(__file__))
++
++try:
++    from static_gst_plugin import static_plugin_def
++except Exception, detail:
++    print "Exception: %s" % detail
++    sys.exit(1)
++
++def main(argv):
++    if len(argv) < 3:
++        print "need more params."
++        return -1
++
++    src_file = argv[1]
++    mak_file = argv[2]
++    try:
++        s_handle = open(src_file, "w")
++        for plugin_item in static_plugin_def:
++            func_name = plugin_item[1]
++            s_handle.write("extern void gst_plugin_%s_register ();\n" % func_name)
++        s_handle.write("\nvoid python_static_gst_plugin_init ()\n{\n")
++        for plugin_item in static_plugin_def:
++            func_name = plugin_item[1]
++            s_handle.write("    gst_plugin_%s_register();\n" % func_name)
++        s_handle.write("}\n\n")
++        s_handle.close()
++    except Exception, detail:
++        print "Exception: {0}".format(detail)
++        return -1
++    try:
++        d_handle = open(mak_file, "w")
++        d_handle.write("\nlibgst_pack_la_LDFLAGS += -L/usr/local/lib/gstreamer-0.10 \n")
++        for plugin_item in static_plugin_def:
++            link_flags = plugin_item[2]
++            d_handle.write("libgst_pack_la_LDFLAGS += %s\n" % link_flags)
++        d_handle.close()
++    except Exception, detail:
++        print "Exception: {0}".format(detail)
++        return -1
++    return 0
++     
++if __name__ == '__main__':
++    sys.exit(main(sys.argv))
+diff -Nur gst-python-0.10.22/codegen/static_gst_plugin.py gst-python-0.10.22_new/codegen/static_gst_plugin.py
+--- gst-python-0.10.22/codegen/static_gst_plugin.py	1970-01-01 08:00:00.000000000 +0800
++++ gst-python-0.10.22_new/codegen/static_gst_plugin.py	2015-01-22 06:04:13.614730710 +0800
+@@ -0,0 +1,10 @@
++#!/usr/local/python2/bin/python2
++
++static_plugin_def = [
++        ["adder",            "adder", "-lgstadder" ],
++        ["audioconvert",     "audioconvert", "-lgstaudioconvert -lorc-0.4 -lm -lrt -lpthread"],
++        ["audioresample",    "audioresample", "-lgstaudioresample -lorc-test-0.4 -lorc-0.4 -lm -lrt -lpthread"],
++        ["volume",           "volume", "-lgstvolume"],
++        ]
++
++
+diff -Nur gst-python-0.10.22/gst/Makefile.am gst-python-0.10.22_new/gst/Makefile.am
+--- gst-python-0.10.22/gst/Makefile.am	2011-10-20 20:31:28.000000000 +0800
++++ gst-python-0.10.22_new/gst/Makefile.am	2015-01-22 05:57:48.340151255 +0800
+@@ -53,9 +53,9 @@
+ 
+ # GStreamer bindings
+ _gst_la_CFLAGS = $(common_cflags)
+-_gst_la_LIBADD = $(common_libadd) $(GST_BASE_LIBS)
++_gst_la_LIBADD = $(common_libadd)
+ _gst_la_LDFLAGS = $(common_ldflags) -export-symbols-regex "^(init_gst|_PyGObject_API|pygstminiobject_).*" \
+-	$(GST_BASE_LIBS) $(GST_CONTROLLER_LIBS) $(GST_NET_LIBS) $(GST_DP_LIBS)
++	-lgst_pack
+ _gst_la_SOURCES = 		\
+ 	gst-argtypes.c 		\
+ 	gstmodule.c 		\
+@@ -92,7 +92,7 @@
+ interfaces_la_CFLAGS = $(common_cflags) $(GST_PLUGINS_BASE_CFLAGS)
+ interfaces_la_LIBADD = $(common_libadd) -lgstinterfaces-$(GST_MAJORMINOR) 
+ interfaces_la_LDFLAGS = $(common_ldflags) \
+-	-export-symbols-regex "^(initinterface|_PyGObject_API).*" $(GST_PLUGINS_BASE_LIBS)
++	-export-symbols-regex "^(initinterface|_PyGObject_API).*" -lgst_pack
+ interfaces_la_SOURCES = interfacesmodule.c
+ nodist_interfaces_la_SOURCES = interfaces.c
+ INTERFACES_OVERRIDES = interfaces.override xoverlay.override
+@@ -103,9 +103,9 @@
+ 
+ # GStreamer pbutils bindings
+ pbutils_la_CFLAGS = $(common_cflags) $(GST_PLUGINS_BASE_CFLAGS)
+-pbutils_la_LIBADD = $(common_libadd) $(GST_PLUGINS_BASE_LIBS) -lgstpbutils-0.10
++pbutils_la_LIBADD = $(common_libadd)  -lgst_pack
+ pbutils_la_LDFLAGS = $(common_ldflags) \
+-	-export-symbols-regex "^(initpbutils|_PyGObject_API).*" $(GST_PLUGINS_BASE_LIBS)
++	-export-symbols-regex "^(initpbutils|_PyGObject_API).*" -lgst_pack
+ pbutils_la_SOURCES = pbutilsmodule.c gst-argtypes.c
+ nodist_pbutils_la_SOURCES = pbutils.c
+ PBUTILS_OVERRIDES = pbutils.override
+@@ -129,7 +129,7 @@
+  audio_la_CFLAGS = $(common_cflags) $(GST_PLUGINS_BASE_CFLAGS)
+  audio_la_LIBADD = $(common_libadd) $(GST_PLUGINS_BASE_LIBS) -lgstaudio-0.10
+  audio_la_LDFLAGS = $(common_ldflags) \
+-	-export-symbols-regex "^(initaudio|_PyGObject_API).*" $(GST_PLUGINS_BASE_LIBS)
++	-export-symbols-regex "^(initaudio|_PyGObject_API).*"  -lgst_pack
+  audio_la_SOURCES = audiomodule.c gst-argtypes.c
+  nodist_audio_la_SOURCES = audio.c
+ audio.c: $(AUDIO_DEFS) $(AUDIO_OVERRIDES) $(GEN_FILES)
+@@ -151,7 +151,7 @@
+  video_la_CFLAGS = $(common_cflags) $(GST_PLUGINS_BASE_CFLAGS)
+  video_la_LIBADD = $(common_libadd) $(GST_PLUGINS_BASE_LIBS) -lgstvideo-0.10
+  video_la_LDFLAGS = $(common_ldflags) \
+-	-export-symbols-regex "^(initvideo|_PyGObject_API).*" $(GST_PLUGINS_BASE_LIBS)
++	-export-symbols-regex "^(initvideo|_PyGObject_API).*" -lgst_pack
+  video_la_SOURCES = videomodule.c gst-argtypes.c
+  nodist_video_la_SOURCES = video.c
+ video.c: $(VIDEO_DEFS) $(VIDEO_OVERRIDES) $(GEN_FILES)
+@@ -173,13 +173,110 @@
+  tag_la_CFLAGS = $(common_cflags) $(GST_PLUGINS_BASE_CFLAGS)
+  tag_la_LIBADD = $(common_libadd) $(GST_PLUGINS_BASE_LIBS) -lgsttag-0.10
+  tag_la_LDFLAGS = $(common_ldflags) \
+-	-export-symbols-regex "^(inittag|_PyGObject_API).*" $(GST_PLUGINS_BASE_LIBS)
++	-export-symbols-regex "^(inittag|_PyGObject_API).*" -lgst_pack
+  tag_la_SOURCES = tagmodule.c gst-argtypes.c
+  nodist_tag_la_SOURCES = tag.c
+ tag.c: $(TAG_DEFS) $(TAG_OVERRIDES) $(GEN_FILES)
+ 
+ endif
+ 
++gstpackexecdir = /usr/lib
++gstpackexec_LTLIBRARIES = libgst_pack.la
++pygstexec_LTLIBRARIES: gstpackexec_LTLIBRARIES
++
++libgst_pack_lib = libgst_pack.la
++libgst_pack_la_SOURCES = gst_static_plugin_reg.c
++
++libgst_pack_la_CFLAGS = $(common_cflags) -fPIC
++libgst_pack_la_LIBADD = $(common_libadd) $(GST_BASE_LIBS)
++libgst_pack_la_LDFLAGS = -shared -fPIC -Wl,--no-undefined $(GST_BASE_LIBS) $(GST_CONTROLLER_LIBS) $(GST_NET_LIBS) $(GST_DP_LIBS)
++nodist_libgst_pack_la_SOURCES = lib_gst_import.c
++CLEANFILES += lib_gst_import.c
++noinst_LIBRARIES = lib_gst.a
++lib_gst_a_CFLAGS = $(_gst_la_CFLAGS)
++lib_gst_a_SOURCES = $(_gst_la_SOURCES) $(nodist__gst_la_SOURCES)
++_gst_la_DEPENDENCIES = $(libgst_pack_lib)
++lib_gst_import.c: lib_gst.a
++
++
++if HAVE_PYGOBJECT_2_16
++
++libgst_pack_la_LDFLAGS += $(GST_LIBS) $(GST_OPTION_LIBS)
++nodist_libgst_pack_la_SOURCES += libgstoption_import.c
++CLEANFILES += libgstoption_import.c
++noinst_LIBRARIES += libgstoption.a
++libgstoption_a_CFLAGS = $(common_cflags)
++libgstoption_a_SOURCES = ../gstoptionmodule.c
++libgstoption_import.c: libgstoption.a
++
++endif
++
++libgst_pack_la_LDFLAGS += $(GST_PLUGINS_BASE_LIBS) -lgstinterfaces-$(GST_MAJORMINOR) 
++nodist_libgst_pack_la_SOURCES += libinterfaces_import.c
++CLEANFILES += libinterfaces_import.c
++noinst_LIBRARIES += libinterfaces.a
++libinterfaces_a_CFLAGS = $(interfaces_la_CFLAGS)
++libinterfaces_a_SOURCES = $(interfaces_la_SOURCES) $(nodist_interfaces_la_SOURCES)
++interfaces_la_DEPENDENCIES = $(libgst_pack_lib)
++libinterfaces.c_import: libinterfaces.a
++
++
++libgst_pack_la_LDFLAGS +=  -lgstpbutils-0.10
++nodist_libgst_pack_la_SOURCES += libpbutils_import.c
++CLEANFILES += libpbutils_import.c
++noinst_LIBRARIES += libpbutils.a
++libpbutils_a_CFLAGS = $(pbutils_la_CFLAGS)
++libpbutils_a_SOURCES = $(pbutils_la_SOURCES) $(nodist_pbutils_la_SOURCES)
++pbutils_la_DEPENDENCIES = $(libgst_pack_lib)
++libpbutils_import.c: libpbutils.a
++
++
++if HAVE_GST_AUDIO
++
++ libgst_pack_la_LDFLAGS +=  -lgstaudio-0.10
++ nodist_libgst_pack_la_SOURCES += libaudio_import.c
++ CLEANFILES += libaudio_import.c
++ noinst_LIBRARIES += libaudio.a
++ libaudio_a_CFLAGS = $(audio_la_CFLAGS)
++ libaudio_a_SOURCES=$(audio_la_SOURCES) $(nodist_audio_la_SOURCES)
++ audio_la_DEPENDENCIES = $(libgst_pack_lib)
++libaudio_import.c: libaudio.a
++
++
++endif
++
++if HAVE_GST_VIDEO
++
++ libgst_pack_la_LDFLAGS += -lgstvideo-0.10
++ nodist_libgst_pack_la_SOURCES += libvideo_import.c
++ CLEANFILES += libvideo_import.c
++ noinst_LIBRARIES += libvideo.a
++ libvideo_a_CFLAGS = $(video_la_CFLAGS)
++ libvideo_a_SOURCES=$(video_la_SOURCES) $(nodist_video_la_SOURCES)
++ video_la_DEPENDENCIES = $(libgst_pack_lib)
++libvideo_import.c: libvideo.a
++
++
++endif
++
++if HAVE_GST_TAG
++
++ libgst_pack_la_LDFLAGS += -lgsttag-0.10
++ nodist_libgst_pack_la_SOURCES += libtag_import.c
++ CLEANFILES += libtag_import.c
++ noinst_LIBRARIES += libtag.a
++ libtag_a_CFLAGS = $(tag_la_CFLAGS)
++ libtag_a_SOURCES = $(tag_la_SOURCES) $(nodist_tag_la_SOURCES)
++ tag_la_DEPENDENCIES = $(libgst_pack_lib)
++libtag_import.c: libtag.a
++
++endif
++
++-include StaticPlugin.mk
++
++%_import.c: %.a
++	/bin/sh $(top_srcdir)/codegen/gen_imp_code.sh $< > $<.imp		\
++	&& $(PYTHON) $(top_srcdir)/codegen/gen_gst_import_code.py $<.imp $@  && rm -f $<.imp
+ 
+ .defs.c: 
+ 	$(AM_V_GEN)($(PYTHON) $(top_srcdir)/codegen/codegen.py \
+diff -Nur gst-python-0.10.22/gst/Makefile_static.am gst-python-0.10.22_new/gst/Makefile_static.am
+--- gst-python-0.10.22/gst/Makefile_static.am	1970-01-01 08:00:00.000000000 +0800
++++ gst-python-0.10.22_new/gst/Makefile_static.am	2015-01-21 06:34:32.592482307 +0800
+@@ -0,0 +1,92 @@
++
++libgst_pack_lib = libgst_pack.la
++pygstexec_LTLIBRARIES += $(libgst_pack_lib)
++libgst_pack_la_SOURCES = gst_static_plugin_reg.c
++
++libgst_pack_la_CFLAGS = $(common_cflags) -fPIC
++libgst_pack_la_LIBADD = $(common_libadd) $(GST_BASE_LIBS)
++libgst_pack_la_LDFLAGS = -shared -fPIC $(GST_BASE_LIBS) $(GST_CONTROLLER_LIBS) $(GST_NET_LIBS) $(GST_DP_LIBS)
++nodist_libgst_pack_la_SOURCES = lib_gst.c
++CLEANFILES += lib_gst.c
++noinst_LIBRARIES = lib_gst.a
++lib_gst_a_CFLAGS = $(_gst_la_CFLAGS)
++lib_gst_a_SOURCES = $(_gst_la_SOURCES) $(nodist__gst_la_SOURCES)
++_gst_la_DEPENDENCIES = $(libgst_pack_lib)
++lib_gst.c: lib_gst.a
++
++
++if HAVE_PYGOBJECT_2_16
++libgst_pack_la_LDFLAGS += $(GST_LIBS) $(GST_OPTION_LIBS)
++nodist_libgst_pack_la_SOURCES += libgstoption.c
++CLEANFILES += libgstoption.c
++noinst_LIBRARIES += libgstoption.a
++libgstoption_a_CFLAGS = $(common_cflags)
++libgstoption_a_SOURCES = ../gstoptionmodule.c
++libgstoption.c: libgstoption.a
++
++
++endif
++
++libgst_pack_la_LDFLAGS += $(GST_PLUGINS_BASE_LIBS) -lgstinterfaces-$(GST_MAJORMINOR) 
++nodist_libgst_pack_la_SOURCES += libinterfaces.c
++CLEANFILES += libinterfaces.c
++noinst_LIBRARIES += libinterfaces.a
++libinterfaces_a_CFLAGS = $(interfaces_la_CFLAGS)
++libinterfaces_a_SOURCES = $(interfaces_la_SOURCES) $(nodist_interfaces_la_SOURCES)
++interfaces_la_DEPENDENCIES = $(libgst_pack_lib)
++libinterfaces.c: libinterfaces.a
++
++
++libgst_pack_la_LDFLAGS +=  -lgstpbutils-0.10
++nodist_libgst_pack_la_SOURCES += libpbutils.c
++CLEANFILES += libpbutils.c
++noinst_LIBRARIES += libpbutils.a
++libpbutils_a_CFLAGS = $(pbutils_la_CFLAGS)
++libpbutils_a_SOURCES = $(pbutils_la_SOURCES) $(nodist_pbutils_la_SOURCES)
++pbutils_la_DEPENDENCIES = $(libgst_pack_lib)
++libpbutils.c: libpbutils.a
++
++
++if HAVE_GST_AUDIO
++ libgst_pack_la_LDFLAGS +=  -lgstaudio-0.10
++ nodist_libgst_pack_la_SOURCES += libaudio.c
++ CLEANFILES += libaudio.c
++ noinst_LIBRARIES += libaudio.a
++ libaudio_a_CFLAGS = $(audio_la_CFLAGS)
++ libaudio_a_SOURCES=$(audio_la_SOURCES) $(nodist_audio_la_SOURCES)
++ audio_la_DEPENDENCIES = $(libgst_pack_lib)
++libaudio.c: libaudio.a
++
++
++endif
++
++if HAVE_GST_VIDEO
++ libgst_pack_la_LDFLAGS += -lgstvideo-0.10
++ nodist_libgst_pack_la_SOURCES += libvideo.c
++ CLEANFILES += libvideo.c
++ noinst_LIBRARIES += libvideo.a
++ libvideo_a_CFLAGS = $(video_la_CFLAGS)
++ libvideo_a_SOURCES=$(video_la_SOURCES) $(nodist_video_la_SOURCES)
++ video_la_DEPENDENCIES = $(libgst_pack_lib)
++libvideo.c: libvideo.a
++
++
++endif
++
++if HAVE_GST_TAG
++ libgst_pack_la_LDFLAGS += -lgsttag-0.10
++ nodist_libgst_pack_la_SOURCES += libtag.c
++ CLEANFILES += libtag.c
++ noinst_LIBRARIES += libtag.a
++ libtag_a_CFLAGS = $(tag_la_CFLAGS)
++ libtag_a_SOURCES = $(tag_la_SOURCES) $(nodist_tag_la_SOURCES)
++ tag_la_DEPENDENCIES = $(libgst_pack_lib)
++libtag.c: libtag.a
++
++endif
++
++.a.c:
++	/bin/sh $(top_srcdir)/codegen/gen_imp_code.sh $< > $<.imp		\
++	&& $(PYTHON) $(top_srcdir)/codegen/gen_gst_import_code.py $<.imp $@	\
++	&& rm -f $<.imp
++
+diff -Nur gst-python-0.10.22/Makefile.am gst-python-0.10.22_new/Makefile.am
+--- gst-python-0.10.22/Makefile.am	2010-11-20 02:44:51.000000000 +0800
++++ gst-python-0.10.22_new/Makefile.am	2015-01-22 05:59:23.486302470 +0800
+@@ -1,8 +1,8 @@
+ SUBDIRS = common codegen gst examples plugin testsuite pkgconfig
+ 
+ common_cflags = $(PYTHON_INCLUDES) $(PYGOBJECT_CFLAGS) $(GST_CFLAGS) $(GST_OPTION_CFLAGS) -fno-strict-aliasing
+-common_libadd = $(GST_LIBS) $(GST_OPTION_LIBS)
+-common_ldflags = -module -avoid-version
++common_libadd =
++common_ldflags = -module -avoid-version 
+ 
+ # include before EXTRA_DIST for win32 assignment
+ include $(top_srcdir)/common/win32.mak
+@@ -19,9 +19,13 @@
+ gstoption_la_CFLAGS = $(common_cflags)
+ gstoption_la_LIBADD = $(common_libadd)
+ gstoption_la_LDFLAGS = $(common_ldflags) \
+-	-export-symbols-regex "^(initgstoption|_PyGObject_API).*"
++	-export-symbols-regex "^(initgstoption|_PyGObject_API).*" -L./gst -lgst_pack
+ gstoption_la_SOURCES = gstoptionmodule.c
+ 
++if HAVE_PYGOBJECT_2_16
++gstoption_la_DEPENDENCIES = gst/libgst_pack.la
++endif
++
+ EXTRA_DIST = \
+ 	gstlibtoolimporter.py \
+ 	pygst.py.in \
+@@ -33,6 +37,8 @@
+ BUILT_SOURCES = pygst.py
+ CLEANFILES = pygst.py pygst.pyc
+ 
++CLEANFILES += gst/gst_static_plugin_reg.c gst/StaticPlugin.mk
++
+ include $(top_srcdir)/common/release.mak
+ 
+ pygst.py: $(top_srcdir)/pygst.py.in Makefile
+@@ -40,7 +46,8 @@
+ 	sed -e "s|@PYGSTDIR\@|$(shell pwd)|g" \
+ 	    -e "s|@GST_MAJORMINOR\@|$(GST_MAJORMINOR)|g" \
+ 	    $< > $@
+-	chmod -w $@
++	chmod -w $@ && \
++	$(PYTHON) $(top_srcdir)/codegen/gen_static_gst_plugin.py ./gst/gst_static_plugin_reg.c ./gst/StaticPlugin.mk
+ 
+ # rewrite pygst path in installed pygst.py, install pth file.
+ # they go in pyexecdir, should make 64bit users happy
+diff -Nur gst-python-0.10.22/win32/common/config.h gst-python-0.10.22_new/win32/common/config.h
+--- gst-python-0.10.22/win32/common/config.h	2011-10-30 00:06:10.000000000 +0800
++++ gst-python-0.10.22_new/win32/common/config.h	1970-01-01 08:00:00.000000000 +0800
+@@ -1,88 +0,0 @@
+-/* config.h.in.  Generated from configure.ac by autoheader.  */
+-
+-/* Defined if gcov is enabled to force a rebuild due to config.h changing */
+-#undef GST_GCOV_ENABLED
+-
+-/* Define to 1 if you have the <dlfcn.h> header file. */
+-#undef HAVE_DLFCN_H
+-
+-/* Define to 1 if you have the <inttypes.h> header file. */
+-#undef HAVE_INTTYPES_H
+-
+-/* Define to 1 if you have the <memory.h> header file. */
+-#undef HAVE_MEMORY_H
+-
+-/* We can use the plugins-install methods */
+-#define HAVE_PLUGINS_INSTALL 1
+-
+-/* Defined if we have a 2.12 series pygobject */
+-#undef HAVE_PYGOBJECT_2_12
+-
+-/* Defined if we have a 2.16 series pygobject */
+-#undef HAVE_PYGOBJECT_2_16
+-
+-/* Define to 1 if you have the <stdint.h> header file. */
+-#undef HAVE_STDINT_H
+-
+-/* Define to 1 if you have the <stdlib.h> header file. */
+-#undef HAVE_STDLIB_H
+-
+-/* Define to 1 if you have the <strings.h> header file. */
+-#undef HAVE_STRINGS_H
+-
+-/* Define to 1 if you have the <string.h> header file. */
+-#undef HAVE_STRING_H
+-
+-/* Define to 1 if you have the <sys/stat.h> header file. */
+-#undef HAVE_SYS_STAT_H
+-
+-/* Define to 1 if you have the <sys/types.h> header file. */
+-#undef HAVE_SYS_TYPES_H
+-
+-/* Define to 1 if you have the <unistd.h> header file. */
+-#undef HAVE_UNISTD_H
+-
+-/* Define if valgrind should be used */
+-#undef HAVE_VALGRIND
+-
+-/* We can use the videoorientation interface */
+-#define HAVE_VIDEO_ORIENTATION_INTERFACE 1
+-
+-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+-#undef NO_MINUS_C_MINUS_O
+-
+-/* Name of package */
+-#define PACKAGE "gst-python"
+-
+-/* Define to the address where bug reports for this package should be sent. */
+-#define PACKAGE_BUGREPORT "http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer"
+-
+-/* Define to the full name of this package. */
+-#define PACKAGE_NAME "GStreamer Python Bindings"
+-
+-/* Define to the full name and version of this package. */
+-#define PACKAGE_STRING "GStreamer Python Bindings 0.10.22"
+-
+-/* Define to the one symbol short name of this package. */
+-#define PACKAGE_TARNAME "gst-python"
+-
+-/* Define to the version of this package. */
+-#define PACKAGE_VERSION "0.10.22"
+-
+-/* PyGst major version */
+-#define PYGST_MAJOR_VERSION 0
+-
+-/* PyGst micro version */
+-#define PYGST_MICRO_VERSION 22
+-
+-/* PyGst minor version */
+-#define PYGST_MINOR_VERSION 10
+-
+-/* PyGst nano version */
+-#define PYGST_NANO_VERSION 0
+-
+-/* Define to 1 if you have the ANSI C header files. */
+-#undef STDC_HEADERS
+-
+-/* Version number of package */
+-#define VERSION "0.10.22"
+diff -Nur gst-python-0.10.22/gst/gstmodule.c gst-python-0.10.22_new/gst/gstmodule.c
+--- gst-python-0.10.22/gst/gstmodule.c	2011-10-20 20:31:28.000000000 +0800
++++ gst-python-0.10.22_new/gst/gstmodule.c	2015-01-25 03:26:02.963408722 +0800
+@@ -150,6 +150,8 @@
+   Py_DECREF (api);
+ }
+ 
++void python_static_gst_plugin_init ();
++
+ DL_EXPORT (void)
+ init_gst (void)
+ {
+@@ -192,6 +194,8 @@
+     return;
+   }
+ 
++  python_static_gst_plugin_init();
++
+   setlocale (LC_NUMERIC, "C");
+   if (argv != NULL) {
+     PySys_SetArgv (argc, argv);

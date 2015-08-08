@@ -1,0 +1,66 @@
+diff -Nur old/qtscript/src/3rdparty/javascriptcore/JavaScriptCore/yarr/RegexCompiler.cpp new/qtscript/src/3rdparty/javascriptcore/JavaScriptCore/yarr/RegexCompiler.cpp
+--- old/qtscript/src/3rdparty/javascriptcore/JavaScriptCore/yarr/RegexCompiler.cpp	2014-12-06 00:24:12.000000000 +0800
++++ new/qtscript/src/3rdparty/javascriptcore/JavaScriptCore/yarr/RegexCompiler.cpp	2015-01-17 02:56:57.436283649 +0800
+@@ -234,7 +234,7 @@
+ };
+ 
+ 
+-CharacterClass* newlineCreate()
++inline CharacterClass* newlineCreate()
+ {
+     CharacterClass* characterClass = new CharacterClass();
+ 
+@@ -246,7 +246,7 @@
+     return characterClass;
+ }
+ 
+-CharacterClass* digitsCreate()
++inline CharacterClass* digitsCreate()
+ {
+     CharacterClass* characterClass = new CharacterClass();
+ 
+@@ -255,7 +255,7 @@
+     return characterClass;
+ }
+ 
+-CharacterClass* spacesCreate()
++inline CharacterClass* spacesCreate()
+ {
+     CharacterClass* characterClass = new CharacterClass();
+ 
+@@ -274,7 +274,7 @@
+     return characterClass;
+ }
+ 
+-CharacterClass* wordcharCreate()
++inline CharacterClass* wordcharCreate()
+ {
+     CharacterClass* characterClass = new CharacterClass();
+ 
+@@ -286,7 +286,7 @@
+     return characterClass;
+ }
+ 
+-CharacterClass* nondigitsCreate()
++inline CharacterClass* nondigitsCreate()
+ {
+     CharacterClass* characterClass = new CharacterClass();
+ 
+@@ -297,7 +297,7 @@
+     return characterClass;
+ }
+ 
+-CharacterClass* nonspacesCreate()
++inline CharacterClass* nonspacesCreate()
+ {
+     CharacterClass* characterClass = new CharacterClass();
+ 
+@@ -317,7 +317,7 @@
+     return characterClass;
+ }
+ 
+-CharacterClass* nonwordcharCreate()
++inline CharacterClass* nonwordcharCreate()
+ {
+     CharacterClass* characterClass = new CharacterClass();
+ 
