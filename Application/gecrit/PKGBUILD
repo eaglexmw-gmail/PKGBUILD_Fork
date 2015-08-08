@@ -1,0 +1,42 @@
+# Maintainer: Dan Serban
+
+pkgname=gecrit
+pkgver=2.8.4
+pkgrel=1
+pkgdesc="A fast, lightweight Python IDE intended for beginners, with common features and a focus on simplicity and ease of use"
+arch=(any)
+url=http://sourceforge.net/projects/gecrit/
+license=(GPL)
+#depends=(hspell python2 python2-pyenchant wxpython)
+#makedepends=(lynx)
+source=(http://downloads.sourceforge.net/project/gecrit/SOURCE/$pkgname-$pkgver.tar.gz)
+md5sums=('b672ef0830817b6c261fa73904bfba05')
+
+
+build()
+{
+  cd ${srcdir}/$pkgname-$pkgver
+
+  sed -i 's#/usr/bin/python$#/usr/local/python2/bin/python2#' *.py
+}
+
+package() {
+  cd ${srcdir}/$pkgname-$pkgver
+
+  mkdir -p "${pkgdir}"/usr/local/gecrit/share/{gecrit,applications}
+
+  #mv icons "${pkgdir}"/usr/local/gecrit/share/
+  mv locale "${pkgdir}"/usr/local/gecrit/share/
+  mv *.desktop "${pkgdir}"/usr/local/gecrit/share/applications/
+
+  mv * "${pkgdir}"/usr/local/gecrit/share/gecrit/
+  mkdir -p "${pkgdir}"/usr/local/gecrit/bin
+  USRBINFILE="${pkgdir}"/usr/local/gecrit/bin/gecrit
+
+  echo '#!/bin/bash' > "${USRBINFILE}"
+  echo 'cd /usr/local/gecrit/share/gecrit' >> "${USRBINFILE}"
+  echo '/usr/local/wxpython/run_py2_wx28.sh gEcrit.py &' >> "${USRBINFILE}"
+
+  chmod +x "${USRBINFILE}"
+  #install -m755 "${USRBINFILE}"
+}

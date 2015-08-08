@@ -1,8 +1,9 @@
 # $Id$
 # Maintainer: Eric Bélanger <eric@archlinux.org>
 
-pkgname=bluefish
-pkgver=2.2.6
+pkgname=bluefish_gtk
+_pkgname=bluefish
+pkgver=2.2.7
 pkgrel=1
 pkgdesc="A powerful HTML editor for experienced web designers and programmers"
 arch=('i686' 'x86_64')
@@ -11,28 +12,28 @@ license=('GPL3')
 #depends=('gtk3' 'enchant' 'python2' 'desktop-file-utils')
 depends=('gtk2' 'desktop-file-utils')
 #makedepends=('gucharmap' 'intltool')
+makedepends=('intltool')
 optdepends=('gucharmap: for using the charmap plugin')
 install=bluefish.install
-source=(http://www.bennewitz.com/bluefish/stable/source/bluefish-${pkgver}.tar.bz2{,.sig})
-sha1sums=('7742f732a4259ff927a2160a4d94e0c0a805a196'
-          'SKIP')
-validpgpkeys=('58FD02766D031E832560A6A226073EFCDAC576E6')
+source=(http://www.bennewitz.com/bluefish/stable/source/bluefish-${pkgver}.tar.bz2)
+sha1sums=('132ec9e3b05d34c35c42beda640e726c81b948a9')
+# validpgpkeys=('58FD02766D031E832560A6A226073EFCDAC576E6')
 
 prepare() {
-  cd ${pkgname}-${pkgver}
+  cd ${_pkgname}-${pkgver}
   sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2|' \
     src/plugin_zencoding/zencoding/{,filters/,actions/}*.py \
     data/{cssmin.py,jsbeautify,jsmin.py,lorem-ipsum-generator}
 }
 
 build() {
-  cd ${pkgname}-${pkgver}
+  cd ${_pkgname}-${pkgver}
   PYTHON=/usr/local/python2/bin/python2 ./configure --prefix=/usr/local/bluefish --sysconfdir=/usr/local/bluefish/etc --localstatedir=/var \
-    --enable-spell-check --disable-update-databases --disable-xml-catalog-update --with-gtk2
+    --enable-spell-check --disable-update-databases --disable-xml-catalog-update  --disable-python --with-gtk2
   make
 }
 
 package() {
-  cd ${pkgname}-${pkgver}
+  cd ${_pkgname}-${pkgver}
   make DESTDIR="${pkgdir}" install
 }
