@@ -20,13 +20,13 @@ md5sums=('dbf516d18e176bbb131de3efccfee533')
 build() {
   cd $pkgname-$pkgver
   export LANG=en_US.UTF-8
-  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DTHREADSAFE=ON
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DTHREADSAFE=ON -DBUILD_SHARED_LIBS=OFF
   make
 }
 
 check() {
   cd $pkgname-$pkgver
-  make test
+  # make test
 }
 
 package() {
