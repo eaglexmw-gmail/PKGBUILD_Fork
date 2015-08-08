@@ -1,0 +1,52 @@
+# $Id$
+# Maintainer: Sven-Hendrik Haase <sh@lutzhaase.com>
+# Contributor: Christoph Zeiler <archNOSPAM_at_moonblade.dot.org>
+
+pkgbase=bullet
+pkgname=('bullet')
+pkgver=2.83.4
+pkgrel=1
+pkgdesc="A 3D Collision Detection and Rigid Body Dynamics Library for games and animation"
+arch=('i686' 'x86_64')
+url="http://www.bulletphysics.com/Bullet/"
+license=('custom:zlib')
+#makedepends=('cmake' 'doxygen' 'graphviz' 'ttf-dejavu' 'mesa' 'glu')
+makedepends=('cmake' 'ttf-dejavu' 'mesa' 'glu')
+optdepends=('glu: for the example browser')
+source=("https://github.com/bulletphysics/bullet3/archive/${pkgver}.tar.gz")
+md5sums=('58b4e151bf580fe6746e8413cb2a4cbe')
+options=('staticlibs')
+
+build() {
+  cd ${pkgbase}3-${pkgver}
+
+  [[ -d build ]] && rm -rf build
+  mkdir build && cd build 
+
+  cmake .. \
+       -DCMAKE_INSTALL_PREFIX=/usr \
+       -DBUILD_SHARED_LIBS=0 \
+       -DINSTALL_LIBS=1 \
+       -DINSTALL_EXTRA_LIBS=1 \
+       -DCMAKE_BUILD_TYPE=Release
+
+  make
+
+  cd ..
+  #sed -i 's/GENERATE_HTMLHELP.*//g' Doxyfile
+  #doxygen
+}
+
+package() {
+  optdepends=('bullet-docs: documentation')
+
+  cd ${pkgbase}3-${pkgver}/build
+
+  # install it
+  make DESTDIR=${pkgdir} install
+
+  # install license
+  install -Dm644 ../LICENSE.txt ${pkgdir}/usr/share/licenses/${pkgbase}/LICENSE
+}
+
+# vim: sw=2 ts=2 et:
