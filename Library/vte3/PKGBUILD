@@ -20,7 +20,10 @@ build() {
   ./configure --prefix=/usr --sysconfdir=/etc \
       --libexecdir=/usr/lib/vte \
       --localstatedir=/var --enable-static \
-      --enable-introspection --enable-gnome-pty-helper
+      --enable-introspection --enable-gnome-pty-helper --datadir=/usr/local/share --disable-test-application
+
+  sed -i 's|/etc/termcap|/usr/local/share/vte/termcap-0.0/xterm|g' src/vtetc.c
+
   make
 }
 

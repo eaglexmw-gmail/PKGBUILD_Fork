@@ -7,7 +7,7 @@ pkgrel=5
 pkgdesc="Virtual Terminal Emulator widget for use with GTK2"
 arch=('i686' 'x86_64')
 license=('LGPL')
-options=('!emptydirs')
+options=('!emptydirs' 'staticlibs')
 # depends=('gtk2' 'vte-common')
 #makedepends=('pygtk' 'intltool' 'gobject-introspection' 'pygobject2-devel')
 depends=('gtk2')
@@ -35,7 +35,7 @@ build() {
   PYTHON=/usr/bin/python2 ./configure --prefix=/usr --sysconfdir=/etc \
       --libexecdir=/usr/lib/vte \
       --localstatedir=/var --enable-static \
-      --enable-introspection --with-gtk=2.0
+      --enable-introspection --with-gtk=2.0 --datadir=/usr/local/share
   make
 }
 

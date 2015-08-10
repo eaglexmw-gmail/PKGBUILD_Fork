@@ -12,8 +12,9 @@ license=('GPL')
 # depends=('caja>=1.10' 'python2-gobject')
 makedepends=('mate-common')
 conflicts=('python2-caja-gtk3')
-source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
-sha1sums=('6e9fa98bd3ee82106534dad3a464aebe436fa0a0')
+source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz" mod_path.patch)
+sha1sums=('6e9fa98bd3ee82106534dad3a464aebe436fa0a0'
+          'SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64
@@ -23,6 +24,7 @@ fi
 
 prepare() {
     cd "${srcdir}/${_pkgbase}-${pkgver}"
+    patch -p1 -i ../mod_path.patch
     sed -i 's/python-config/python2-config/' configure
 }
 

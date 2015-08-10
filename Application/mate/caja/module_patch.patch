@@ -1,0 +1,17 @@
+diff -Nur old/libcaja-private/caja-module.c new/libcaja-private/caja-module.c
+--- old/libcaja-private/caja-module.c	2014-12-29 10:27:41.000000000 +0000
++++ new/libcaja-private/caja-module.c	2015-08-09 10:38:48.217917872 +0000
+@@ -154,10 +154,12 @@
+ {
+     GObject *object;
+     const GType *types;
+-    int num_types;
++    int num_types = 0;
+     int i;
+ 
+     module->list_types (&types, &num_types);
++    if (num_types == 0)
++        return;
+ 
+     for (i = 0; i < num_types; i++)
+     {

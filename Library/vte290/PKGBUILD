@@ -30,7 +30,10 @@ build() {
     --libexecdir=/usr/lib/vte \
     --localstatedir=/var \
     --enable-static \
-    --enable-introspection
+    --enable-introspection  # --datadir=/usr/local/share --disable-shared
+
+  sed -i 's|/etc/termcap|/usr/local/share/vte/termcap-0.0/xterm|g' src/vtetc.c
+
   make
 }
 
