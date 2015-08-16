@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Ionut Biru <ibiru@archlinux.org>
+pkgname=orc
+pkgver=0.4.23
+pkgrel=1
+pkgdesc="The Oild Runtime Compiler"
+arch=('i686' 'x86_64')
+license=('custom')
+url="http://code.entropywave.com/projects/orc/"
+depends=('glibc')
+options=('staticlibs')
+makedepends=('valgrind')
+source=(http://gstreamer.freedesktop.org/data/src/orc/orc-${pkgver}.tar.xz)
+md5sums=('72e0612ace54d77aa2f7a006348ee81a')
+
+build () {
+    cd $pkgname-$pkgver
+    ./configure --prefix=/usr --enable-static --disable-shared
+    make
+}
+
+check() {
+    cd $pkgname-$pkgver
+    make check || [[ $CARCH == i686 ]]
+}
+
+package() {
+    cd $pkgname-$pkgver
+    make DESTDIR="$pkgdir" install
+    install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}

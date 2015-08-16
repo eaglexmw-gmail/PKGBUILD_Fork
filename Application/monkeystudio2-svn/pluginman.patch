@@ -1,0 +1,23 @@
+diff -Nur old/monkey/src/pluginsmanager/PluginsManager.cpp new/monkey/src/pluginsmanager/PluginsManager.cpp
+--- old/monkey/src/pluginsmanager/PluginsManager.cpp	2015-02-14 05:07:38.075256000 +0800
++++ new/monkey/src/pluginsmanager/PluginsManager.cpp	2015-02-14 07:55:40.180636913 +0800
+@@ -62,16 +62,18 @@
+ #endif
+             // load plugin
+             QPluginLoader l( f.absoluteFilePath() );
++            QString err_string = "unknown error."
+             // try unload it and reload it in case of old one in memory
+             if ( !l.instance() )
+             {
+                 l.unload();
+                 l.load();
++                err_string = l.errorString()
+             }
+             // continue on no plugin
+             if ( !l.instance() )
+             {
+-                qWarning("%s", tr( "Failed to load plugin ( %1 ): Error: %2" ).arg( f.absoluteFilePath(), l.errorString() ).toLocal8Bit().constData() );
++                qWarning("%s", tr( "Failed to load plugin ( %1 ): Error: %2" ).arg( f.absoluteFilePath(), err_string ).toLocal8Bit().constData() );
+                 continue;
+             }
+             // try to add plugin to plugins list, else unload it

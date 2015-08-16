@@ -1,0 +1,33 @@
+# Maintainer: Tim Besard <tim.besard@gmail.com>
+
+pkgname=svnqt
+pkgver=7
+pkgrel=1
+pkgdesc="svnqt is a Subversion library wrapped intended to provide easy access to Subversion facilities from Qt. It is extracted from the KDESvn."
+arch=('i686' 'x86_64')
+url="https://github.com/maleadt/svnqt"
+license=('LGPL')
+makedepends=('cmake')
+provides=('svnqt')
+source=(kdesvn_1.6.0.orig.tar.bz2)
+md5sums=(7e6adc98ff4777a06d5752d3f2b58fa3)
+
+build() {
+  cd "$srcdir"
+
+  sed -i '20 a SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmakemodules)' kdesvn-1.6.0/src/svnqt/CMakeLists.txt
+
+  mkdir -p build
+  cd build
+  
+  #SUBVERSION_INSTALL_PATH=/usr/local/subversion
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/qsvn ../kdesvn-1.6.0/src/svnqt
+
+  make
+}
+
+package() {
+  cd "$srcdir/build"
+  make DESTDIR="$pkgdir/" install
+} 
+

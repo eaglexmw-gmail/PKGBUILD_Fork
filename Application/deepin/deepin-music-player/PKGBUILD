@@ -1,0 +1,44 @@
+# Maintainer: Xu Fasheng <fasheng.xu[AT]gmail.com>
+# Contributor: 4679kun <admin[AT]4679.us>
+# Contributor: dongfengweixiao <dongfengweixiao[AT]gmail.com>
+
+pkgname=deepin-music-player
+pkgver=1.1.20141230141205
+pkgrel=1
+pkgdesc='Awesome music player with brilliant and tweakful UI Deepin-UI based, gstreamer front-end, with features likes search music by pinyin,quanpin, colorful lyrics supports, and more powerfull functions you will found.'
+arch=('any')
+url="http://www.linuxdeepin.com/"
+license=('GPL3')
+#depends=('gstreamer0.10-python' 'gstreamer0.10-bad-plugins' 'gstreamer0.10-good-plugins' 'gstreamer0.10-ugly-plugins' 'mutagen' 'python2-chardet' 'python2-scipy' 'python2-pyquery' 'python2-cssselect' 'deepin-ui' 'python2-dbus' 'sonata' 'cddb-py' 'python2-pycurl' 'python2-xlib' 'python2-keybinder2')
+
+_fileurl="http://packages.linuxdeepin.com/deepin/pool/main/d/deepin-music-player/deepin-music-player_1.1+20141230141205~868dfd8fa2.tar.gz"
+source=("${_fileurl}")
+sha256sums=('40959431bd07e84516b9e320a1d98e69a9424671df94d2b7a8e78421fdf9b32c')
+
+_filename="$(basename "${_fileurl}")"
+_filename="${_filename%.tar.gz}"
+_innerdir="${_filename/_/-}"
+
+prepare() {
+    cd "${srcdir}/${_innerdir}"
+
+    # fix python version
+    #find -iname "*.py" | xargs sed -i 's=\(^#! */usr/bin.*\)python *$=\1python2='
+    find -iname "*.py" | xargs sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2|g'
+
+    # TODO remove pycompile
+    sed -i '/pycompile/d' Makefile
+    sed -i 's|sudo cp|echo cp|g' ./tools/generate_mo.py
+}
+
+build() {
+    cd "${srcdir}/${_innerdir}"
+
+    make
+}
+
+package() {
+    cd "${srcdir}/${_innerdir}"
+
+    make DESTDIR="${pkgdir}" PREFIX="/usr" install
+}

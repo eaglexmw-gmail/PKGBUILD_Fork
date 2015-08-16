@@ -18,6 +18,11 @@ sha1ums=('5486180ec5a23efb5cae6d4292b300ab'
 
 build() {
   cd apr-$pkgver
+
+  export CFLAGS=" -fPIC "
+  export CXXFLAGS=" -fPIC "
+  export CPPFLAGS=" -fPIC "
+
   ./configure --prefix=/usr/ --includedir=/usr/include/apr-1 \
     --with-installbuilddir=/usr/share/apr-1/build \
     --enable-nonportable-atomics \

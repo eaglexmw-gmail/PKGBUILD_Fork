@@ -1,0 +1,29 @@
+
+pkgname=python2-distribute
+pkgver=0.7.3
+pkgrel=1
+pkgdesc="distribute legacy wrapper"
+arch=('any')
+license=('custom:"pil"')
+#depends=('python2') 
+provides=('python2-distribute')
+source=(distribute-${pkgver}.zip)
+md5sums=('c6c59594a7b180af57af8a0cc0cf5b4a')
+
+prepare() {
+  cd "${srcdir}/distribute-${pkgver}"
+
+  # fix python version
+  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2|g' *.py
+}
+
+build() {
+  cd "${srcdir}/distribute-${pkgver}"
+
+  /usr/local/python2/bin/python2_spec setup.py build
+}
+
+package() {
+  cd "${srcdir}/distribute-${pkgver}"
+  /usr/local/python2/bin/python2_spec setup.py install --root="${pkgdir}" --optimize=1
+}

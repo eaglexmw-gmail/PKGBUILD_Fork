@@ -1,0 +1,46 @@
+# Maintainer: Xu Fasheng <fasheng.xu[AT]gmail.com>
+# Contributor: 4679kun <admin[AT]4679.us>
+# Contributor: dongfengweixiao <dongfengweixiao[AT]gmail.com>
+# Contributor: flu
+
+pkgname=deepin-ui
+pkgver=1.1.20141029135629
+pkgrel=1
+pkgdesc='UI toolkit for Linux Deepin'
+arch=('i686' 'x86_64')
+url="http://www.linuxdeepin.com/"
+license=('GPL3')
+#depends=('deepin-utils' 'deepin-gsettings' 'deepin-pygtk' 'python2-distribute' 'python2' 'glib2' 'python2-cairo' 'python2-imaging' 'libwebkit' 'python2-xlib' 'pywebkitgtk' 'libsoup')
+
+_fileurl="http://packages.linuxdeepin.com/deepin/pool/main/d/deepin-ui/deepin-ui_1.1+20141229194712~5a86faec50.tar.gz"
+source=("${_fileurl}")
+sha256sums=('3829f85b4b888d36fac9f9d9180e6d2453e3f3fcdcc02f1051503d4ba100decc')
+
+_filename="$(basename "${_fileurl}")"
+_filename="${_filename%.tar.gz}"
+_innerdir="${_filename/_/-}"
+
+prepare() {
+  cd "${srcdir}/${_innerdir}"
+
+  # fix python version
+  #find -iname "*.py" | xargs sed -i 's=\(^#! */usr/bin.*\)python *$=\1python2='
+  find -iname "*.py" | xargs sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2|g'
+}
+
+build() {
+  cd "${srcdir}/${_innerdir}"
+
+  /usr/local/python2/bin/python2_spec setup.py build
+  cd dtk/tools
+  sed -i 's|sudo cp|echo cp|g' generate_mo.py
+  /usr/local/python2/bin/python2_spec generate_mo.py
+}
+
+package() {
+  cd "${srcdir}/${_innerdir}"
+
+  /usr/local/python2/bin/python2_spec setup.py install --root="${pkgdir}" --optimize=1
+  install -dm 755 "${pkgdir}"/usr/share/locale
+  cp -r dtk/locale/mo/* "${pkgdir}"/usr/share/locale/
+}

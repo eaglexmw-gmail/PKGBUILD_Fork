@@ -1,0 +1,25 @@
+CC            = gcc
+LINK          = g++
+#LFLAGS        =  -shared -Wl,-O1,--sort-common,--as-needed,-z,relro -Wl,--no-undefined -Wl,--allow-multiple-definition
+#LIBS          = -L/usr/X11R6/lib `pkg-config --libs QtCore QtSql QtXml QtGui QtDesigner QtDesignerComponents QtHelp QtWebKit` -lqscintilla2
+LFLAGS        = -fPIC -shared -Wl,--sort-common,--as-needed,-z,relro,--no-undefined
+
+LIBS          = -L/usr/X11R6/lib `pkg-config --libs QtCore QtSql QtXml QtGui QtDesigner QtDesignerComponents QtHelp` -lqscintilla2
+
+SOURCES       = all_file.c 
+
+OBJECTS       = all_file.o
+
+TARGET        = libmonkeystudio.so
+
+first: all
+
+.SUFFIXES: .o .c
+
+.c.o:
+	$(CC) -c $(CFLAGS) $(INCPATH) -o "$@" "$<"
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS)

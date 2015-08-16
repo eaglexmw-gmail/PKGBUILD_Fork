@@ -1,0 +1,52 @@
+# Maintainer: Hubert Star <hubertstar@gmail.com>
+pkgname=subdiversvn
+pkgver=0.1.1
+_pkgver=0.1-1
+pkgrel=1
+pkgdesc="SubdiverSVN is a Subversion client for Linux with GTKmm library."
+arch=('i686' 'x86_64')
+license=('Apache License')
+url="http://subdiversvn.sourceforge.net/"
+#depends=('gsvnclientcore' 'nautilus')
+source=(http://downloads.sourceforge.net/subdiversvn/subdiversvn-${_pkgver}.tar.gz)
+options=('!makeflags' '!emptydirs' 'docs')
+md5sums=('da034da9ec2f156fee9213bd253de3b0')
+
+build() {
+  cd ${startdir}/src/subdiversvn-${_pkgver}
+
+  find ./ -name Makefile.am -exec sed -i 's|gSvnCommon/libgsvncommon.a|& -L/usr/local/lib -lgconf-2 -lORBit-2 -lgthread-2.0 -lgobject-2.0 -lglib-2.0 -L/usr/local/lib -lglibmm-2.4 -lgobject-2.0 -lglib-2.0 -lsigc-2.0 |g' {} \;
+
+  #sed -i '113 a APR_LIBS="-L/usr/local/subversion/lib -ldl"' configure.in
+
+  sed -i 's|-I/usr/include/subversion-1/|-I/usr/local/include/gconf/2/|g' configure.in
+  sed -i 's|thunarx-1|thunarx-2|g' configure.in
+  sed -i 's|libgnomeui-2.0| |g' configure.in
+  sed -i 's|thunarx-1 thunar-vfs-1|thunarx-2|g' ./gSvnDesktop/thunar-extension/Makefile.am
+  sed -i 's|#include <thunar-vfs|//#include <thunar-vfs|g' ./gSvnDesktop/thunar-extension/gsvndesktop-thunar-extension.c
+  
+  libtoolize
+  aclocal
+  autoheader
+  automake -c --foreign --add-missing
+  autoconf
+
+  ./configure --prefix=/usr/local/subdiversvn \
+      --enable-thunar-extension=yes \
+      --enable-nautilus-extension=no \
+      --enable-konqueror-extension=no \
+      --enable-install-extensions=no
+
+  sed -i 's|password = strchr|password = (gchar*)strchr|g' ./gSvnCommon/Options.cc
+  sed -i 's|gnome_url_show_on_screen(url, screen, \&error)|gtk_show_uri (screen, url, gtk_get_current_event_time (), \&error)|g'  ./gSvnCommon/dlg.c
+
+  find ./ -name Makefile -exec sed -i 's|-lglade-2.0|& -lgmodule-2.0 |g' {} \;
+  
+  make || return 1
+}
+
+package() {
+  cd ${startdir}/src/subdiversvn-${_pkgver}
+  
+  make DESTDIR=${pkgdir} install
+}

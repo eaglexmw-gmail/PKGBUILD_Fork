@@ -1,0 +1,64 @@
+# Contributor: Kosenko Roman <madkite@gmail.com>
+pkgname=subcommander2-svn
+pkgver=2.0.0
+pkgrel=2201
+url='http://subcommander.tigris.org'
+_svntrunk="${url}/svn/subcommander/trunk/"
+#true && pkgrel=$(svn info --username 'guest' --password 'dummy' "${_svntrunk}" | awk '/Revision/ {print $2}')
+pkgdesc='A GUI frontend for subversion (based on Qt4)'
+license=('GPL')
+#depends=('subversion>=1.4.4' 'neon' 'openssl' 'db' 'apr' 'apr-util' 'boost' 'qt4>=4.3.0' 'gettext' 'krb5-crypto' 'zlib')
+#makedepends=('gcc' 'gawk' 'perl' 'python' 'ruby')
+makedepends=('gcc' 'gawk' 'perl' 'ruby')
+arch=('i686' 'x86_64')
+source=(subcommander2-patches.zip
+        Makefile.am.patch)
+md5sums=('9ac7f2e89ae632745c032a3eec2c6a77'
+         'b2bf80fb6c67da1aadd7fbdb76325b17')
+options=('!libtool')
+conflicts=('subcommander')
+
+_svnsrc="${SRCDEST}/${pkgname}-${pkgver}.tar.gz"
+
+build() {
+	cd ${srcdir}/
+	[ -d ${pkgname} ] && rm -rf ${pkgname}
+	[ -f ${_svnsrc} ] && tar -xzf ${_svnsrc}
+	msg "Connecting to ${_svntrunk} SVN server..."
+	if [ -d ${pkgname}/.svn ]; then
+                svn upgrade ${pkgname}
+		svn up ${pkgname}
+	else
+		svn co --username 'guest' --password 'dummy' "${_svntrunk}" ${pkgname}
+	fi
+	msg 'SVN checkout done or server timeout'
+	tar -czf ${_svnsrc} ${pkgname}
+	cd ${pkgname}
+	msg 'Starting make...'
+	for i in ../*.patch; do
+		patch -i $i -p1
+	done
+
+        #patch -p1 -i ../Makefile.am.patch
+
+	./gen_ac.sh
+	./gen_version.rb
+        sed -i 's|serf-0|serf-1|g' configure
+        sed -i 's|serf-0|serf-1|g' subcommander/subcommander.cpp
+	./configure --prefix=/usr/local/subcommander --enable-nls --with-qt=/home/eaglexmw/qt-static --with-serf=/usr/local
+	cp sublib/settings/SettingsWidget.* sublib/
+
+        sed -i 's|-lQtGui|`pkg-config --libs QtGui` |g' Makefile
+        sed -i 's|-lQtNetwork|`pkg-config --libs QtNetwork` |g' Makefile
+        sed -i 's|-lQtCore|`pkg-config --libs QtCore` |g' Makefile
+        sed -i 's|-lQt3Support|`pkg-config --libs Qt3Support` |g' Makefile
+
+        sed -i 's|/usr/local/lib -L/usr/local/lib|/usr/local/lib -lsvn_client-1 -lsvn_ra_svn-1 -lsvn_ra-1 -lsvn_ra_serf-1 -lserf-1 -lgssapi_krb5 -lsvn_ra_svn-1 -lsvn_ra_local-1 -lsvn_repos-1 -lsvn_fs-1 -lsvn_fs_fs-1 -lsvn_delta-1 -lsvn_fs_util-1 -lsvn_subr-1 -lsvn_fs_base-1 -lsvn_wc-1 -lsvn_diff-1 -lsvn_subr-1 -lsvn_delta-1 -lsvn_subr-1 -lsqlite3 -lmagic -L/usr/local/lib|g' Makefile
+
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}
+	make prefix=${pkgdir}/pkg/usr/local/subcommander install
+}

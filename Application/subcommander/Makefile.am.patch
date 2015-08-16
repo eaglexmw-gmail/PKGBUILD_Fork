@@ -1,0 +1,30 @@
+--- old/Makefile.am	2015-01-26 03:47:12.000000000 +0800
++++ new/Makefile.am	2015-01-27 16:03:51.883735173 +0800
+@@ -101,10 +101,10 @@
+   -lsasl2 -lz
+ 
+ submerge_submerge_LDADD = \
+-  @QT_LIBS@ \
+   sublib/libsublib.a \
+   svn/libsvn.a \
+   util/libutil.a \
++  @QT_LIBS@ \
+   @SVN_LIBS@ \
+   -lsvn_diff-1 \
+   -lsvn_subr-1 \
+@@ -116,7 +116,6 @@
+ subcommander_test_sctest_LDFLAGS =
+ 
+ subcommander_test_sctest_LDADD = \
+-  @QT_LIBS@ \
+   subcommander/libsc.a \
+   subcommander/commands/libcmds.a \
+   subcommander/settings/libsettings.a \
+@@ -124,6 +123,7 @@
+   sublib/libsublib.a \
+   svn/libsvn.a \
+   util/libutil.a \
++  @QT_LIBS@ \
+   @SVN_LIBS_ALL@ \
+   @APU_LIBS@ \
+   @APR_LIBS@ \

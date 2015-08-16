@@ -1,0 +1,37 @@
+# Maintainer: Sven-Hendrik Haase <sh@lutzhaase.com>
+pkgname=sdl2
+pkgver=2.0.3
+pkgrel=1
+pkgdesc="A library for portable low-level access to a video framebuffer, audio output, mouse, and keyboard (Version 2)"
+arch=('i686' 'x86_64')
+url="http://www.libsdl.org"
+license=('MIT')
+depends=('glibc' 'libxext' 'libxrender' 'libx11' 'libgl' 'libxcursor')
+#makedepends=('alsa-lib' 'mesa' 'libpulse' 'libxrandr' 'libxinerama' 'wayland' 'libxkbcommon')
+makedepends=('alsa-lib' 'mesa' 'libxrandr' 'libxinerama' 'wayland' 'libxkbcommon')
+optdepends=('alsa-lib: ALSA audio driver'
+            'libpulse: PulseAudio audio driver')
+source=("http://www.libsdl.org/release/SDL2-${pkgver}.tar.gz")
+md5sums=('fe6c61d2e9df9ef570e7e80c6e822537')
+options=('staticlibs')
+
+prepare() {
+  mkdir build
+}
+
+build() {
+  cd build
+  ../SDL2-$pkgver/configure --prefix=/usr \
+    --enable-sdl-dlopen \
+    --disable-arts --disable-esd --disable-nas \
+    --enable-alsa --disable-pulseaudio-shared \
+    --enable-video-wayland \
+    --disable-rpath --disable-shared --disable-pulseaudio
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+  install -Dm644 ../SDL2-$pkgver/COPYING.txt "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

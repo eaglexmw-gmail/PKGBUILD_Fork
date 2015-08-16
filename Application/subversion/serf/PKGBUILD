@@ -27,8 +27,12 @@ prepare() {
 
 build() {
   cd ${pkgname}-${pkgver}
+
+  export CFLAGS=-fPIC
+  export CXXFLAGS=-fPIC
+  export CPPFLAGS=-fPIC
   
-  scons PREFIX=/usr GSSAPI=/usr/bin/krb5-config APR=/usr/local APU=/usr/local
+  scons PREFIX=/usr GSSAPI=/usr/bin/krb5-config APR=/usr/local APU=/usr/local CFLAGS=-fPIC CPPFLAGS=-fPIC
 }
 
 check() {
@@ -39,5 +43,10 @@ check() {
 package() {
   cd ${pkgname}-${pkgver}
   install -d "${pkgdir}/usr"
+
+  export CFLAGS=-fPIC
+  export CXXFLAGS=-fPIC
+  export CPPFLAGS=-fPIC
+
   scons PREFIX="${pkgdir}/usr" install
 }

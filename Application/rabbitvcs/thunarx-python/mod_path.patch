@@ -1,0 +1,14 @@
+diff -Nur old/src/thunarx-python.c new/src/thunarx-python.c
+--- old/src/thunarx-python.c	2011-03-25 14:55:25.000000000 +0000
++++ new/src/thunarx-python.c	2015-08-09 09:14:48.065362867 +0000
+@@ -139,8 +139,8 @@
+     if (Py_IsInitialized())
+         return TRUE;
+ 
+-    debug ("g_module_open " PY_LIB_LOC "/libpython" PYTHON_VERSION "." G_MODULE_SUFFIX ".1.0");  
+-    libpython = g_module_open (PY_LIB_LOC "/libpython" PYTHON_VERSION "." G_MODULE_SUFFIX ".1.0", 0);
++    debug ("g_module_open " "libpython" PYTHON_VERSION "." G_MODULE_SUFFIX );  
++    libpython = g_module_open ( "libpython" PYTHON_VERSION "." G_MODULE_SUFFIX, 0);
+     if (!libpython)
+         g_warning ("g_module_open libpython failed: %s", g_module_error());
+   

@@ -1,0 +1,27 @@
+
+pkgname=xlocate
+pkgver=0.68
+pkgrel=0
+pkgdesc="XLocate is a file system index management tool"
+arch=('i686' 'x86_64')
+license=('GPL2')
+#depends=('qt4')
+#makedepends=('intltool')
+source=($pkgname-$pkgver.tar.gz)
+md5sums=('367860daa67205f5fe00bf1ece8f8c9e')
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  qmake xlocate-qt4.pro
+
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  make INSTALL_ROOT="$pkgdir"/usr/local/xlocate install
+}
+
+# vim:set ts=2 sw=2 et:
