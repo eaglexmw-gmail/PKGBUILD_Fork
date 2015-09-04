@@ -1,0 +1,143 @@
+# $Id$
+# Maintainer: Eric Bélanger <eric@archlinux.org>
+
+pkgbase=avidemux
+pkgname=('avidemux-cli' 'avidemux-gtk' 'avidemux-qt')
+pkgver=2.5.6
+pkgrel=12
+arch=('i686' 'x86_64')
+license=('GPL')
+url="http://fixounet.free.fr/avidemux/"
+#makedepends=('cmake' 'libxslt' 'gtk2' 'qt4' 'jack' 'libvorbis' 'sdl' 'libxv'
+#             'alsa-lib' 'lame' 'xvidcore' 'faad2' 'faac' 'libx264' 'libsamplerate'
+#             'opencore-amr' 'yasm' 'mesa' 'libvpx' 'libpulse' 'libva')
+options=('!makeflags' '!emptydirs')
+source=(http://downloads.sourceforge.net/avidemux/avidemux_${pkgver}.tar.gz
+        mangled-variables-used-attribute.patch)
+sha1sums=('47205c236bf6a4435b9d4dd944493c7b7e2752f5'
+          'da66b69593da62373f2309f88a284145fbfd99ac')
+
+prepare() {
+  cd ${pkgbase}_${pkgver}
+
+  # Fix build on i686 when using GCC 5.1
+  # https://bugs.archlinux.org/task/45361
+  patch -Np1 -i ../mangled-variables-used-attribute.patch
+}
+
+build() {
+  cd ${pkgbase}_${pkgver}
+  mkdir build
+  cd build
+  cmake -D CMAKE_INSTALL_PREFIX=/usr/local/avidemux -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_SKIP_RPATH=ON -D GTK=1 -D QT4=1 \
+    ..
+
+    #-D LRELEASE_EXECUTABLE=/usr/lib/qt4/bin/lrelease ..
+
+  make cmake_check_build_system
+
+  sed -i 's|libADM5postproc.so.51|& -lXrandr |g' ./avidemux/ADM_userInterfaces/ADM_render/CMakeFiles/ADM_render_gtk.dir/link.txt
+  sed -i 's|libADM5postproc.so.51|& -lpng15 -ljpeg -ltiff -lgobject-2.0 -lglib-2.0 -lfontconfig -lEGL -lSM -lICE -lXrender |g' ./avidemux/ADM_userInterfaces/ADM_render/CMakeFiles/ADM_render_qt4.dir/link.txt
+  sed -i 's|libADM5postproc.so.51|& -lpng15 -ljpeg -ltiff -lgobject-2.0 -lglib-2.0 -lfontconfig -lEGL -lSM -lICE -lXrender |g' ./avidemux/ADM_UIs/ADM_QT4/src/CMakeFiles/ADM_UIQT4.dir/link.txt
+  sed -i 's|libQtCore.a|& -lz -lpng15 -ljpeg -ltiff -lgobject-2.0 -lglib-2.0 -lfontconfig -lfreetype -lEGL -lSM -lICE -lXrender |g' ./avidemux/CMakeFiles/avidemux2_qt4.dir/link.txt
+
+  make
+
+# plugin build expects libraries to be already installed; we fake a prefix
+# in build/ by symlinking all libraries to build/lib/
+  cd lib
+  find ../avidemux -name '*.so*' | xargs ln -sft .
+  cd ../../plugins
+  mkdir build
+  cd build
+
+  export CFLAGS=" -lm -lpthread -ldl "
+  export CXXFLAGS=" -lm -lpthread -ldl "
+  export CPPFLAGS=" -lm -lpthread -ldl "
+
+  cmake -D CMAKE_INSTALL_PREFIX=/usr/local/avidemux -D AVIDEMUX_SOURCE_DIR="${srcdir}/avidemux_${pkgver}" \
+    -D AVIDEMUX_CORECONFIG_DIR="${srcdir}/avidemux_${pkgver}/build/config" \
+    -D AVIDEMUX_INSTALL_PREFIX="${srcdir}/avidemux_${pkgver}/build" \
+    -D CMAKE_BUILD_TYPE=Release -D CMAKE_SKIP_RPATH=ON ..
+  make
+}
+
+package_avidemux-cli() {
+  pkgdesc="A graphical tool to edit video (filter/re-encode/split)"
+  depends=('libxml2' 'sdl' 'fontconfig' 'libvpx' 'libva')
+  optdepends=('lame: for the corresponding audio encoder plugin'
+              'faac: for the corresponding audio encoder plugin'
+              'faad2: for the corresponding audio decoder plugin'
+              'opencore-amr: for the corresponding audio decoder plugin'
+              'jack: for the corresponding audio device plugin'
+              'libpulse: for the corresponding audio device plugin'
+              'sdl: for the corresponding audio device plugin'
+              'libx264: for the corresponding video encoder plugin'
+              'xvidcore: for the corresponding video encoder plugin')
+  provides=('avidemux')
+  conflicts=('avidemux')
+  replaces=('avidemux')
+
+  cd ${pkgbase}_${pkgver}/build
+  make DESTDIR="${pkgdir}" install
+
+  cd "${srcdir}/${pkgbase}_${pkgver}/plugins/build"
+  make DESTDIR="${pkgdir}" install
+  rm -r "${pkgdir}"/usr/local/avidemux/share/avidemux
+  rm "${pkgdir}"/usr/local/avidemux/share/ADM_addons/avsfilter/{avsload.exe,pipe_source.dll}
+  rm "${pkgdir}"/usr/local/avidemux/bin/avidemux2_{gtk,qt4}
+  rm "${pkgdir}"/usr/local/avidemux/lib/*{_gtk,_qt4,Gtk,QT4}.so
+  rm "${pkgdir}"/usr/local/avidemux/lib/ADM_plugins/videoEncoder/x264/*{Gtk,Qt}.so
+  rm "${pkgdir}"/usr/local/avidemux/lib/ADM_plugins/videoEncoder/xvid/*{Gtk,Qt}.so
+  rm "${pkgdir}"/usr/local/avidemux/lib/ADM_plugins/videoFilter/*{_gtk,_qt4}.so
+
+  ln -s /usr/local/avidemux/lib/ADM_plugins/videoEncoder/libADM_vidEnc_xvid.so "${pkgdir}/usr/local/avidemux/lib/libADM_vidEnc_xvid.so"
+  ln -s /usr/local/avidemux/lib/ADM_plugins/videoEncoder/libADM_vidEnc_x264.so "${pkgdir}/usr/local/avidemux/lib/libADM_vidEnc_x264.so"
+
+  install -D -m644 ../../avidemux_icon.png "${pkgdir}/usr/local/avidemux/share/pixmaps/avidemux.png"
+  install -D -m644 ../../man/avidemux.1 "${pkgdir}/usr/local/avidemux/share/man/man1/avidemux.1"
+}
+
+package_avidemux-gtk() {
+  pkgdesc="A graphical tool to edit video (filter/re-encode/split) - GTK GUI"
+  depends=("avidemux-cli=${pkgver}" 'gtk2' 'libxv' 'desktop-file-utils')
+  install=avidemux.install
+
+  cd ${pkgbase}_${pkgver}
+  install -D -m755 build/avidemux/avidemux2_gtk "${pkgdir}/usr/local/avidemux/bin/avidemux2_gtk"
+
+  install -d "${pkgdir}"/usr/local/avidemux/lib/ADM_plugins/videoEncoder/{x264,xvid}
+  install -d "${pkgdir}"/usr/local/avidemux/lib/ADM_plugins/videoFilter
+
+  install -D -m755 build/lib/*{_gtk,Gtk}.so "${pkgdir}/usr/local/avidemux/lib"
+  install -D -m755 plugins/build/ADM_videoEncoder/ADM_vidEnc_x264/gtk/*Gtk.so "${pkgdir}/usr/local/avidemux/lib/ADM_plugins/videoEncoder/x264"
+  install -D -m755 plugins/build/ADM_videoEncoder/ADM_vidEnc_xvid/gtk/*Gtk.so "${pkgdir}/usr/local/avidemux/lib/ADM_plugins/videoEncoder/xvid"
+  install -D -m755 plugins/build/ADM_videoFilters/*/*_gtk.so "${pkgdir}/usr/local/avidemux/lib/ADM_plugins/videoFilter"
+
+  install -D -m644 avidemux2-gtk.desktop "${pkgdir}/usr/local/avidemux/share/applications/avidemux-gtk.desktop"
+  sed -i "s|\[\$e\]||" "${pkgdir}/usr/local/avidemux/share/applications/avidemux-gtk.desktop"
+}
+
+package_avidemux-qt() {
+  pkgdesc="A graphical tool to edit video (filter/re-encode/split) - Qt GUI"
+  depends=("avidemux-cli=${pkgver}" 'qt4')
+  install=avidemux.install
+
+  cd ${pkgbase}_${pkgver}
+  install -D -m755 build/avidemux/avidemux2_qt4 "${pkgdir}/usr/local/avidemux/bin/avidemux2_qt4"
+  install -d "${pkgdir}"/usr/local/avidemux/lib/ADM_plugins/videoEncoder/{x264,xvid}
+  install -d "${pkgdir}"/usr/local/avidemux/lib/ADM_plugins/videoFilter
+
+  install -D -m755 build/lib/*{_qt4,QT4}.so "${pkgdir}/usr/local/avidemux/lib"
+  install -D -m755 plugins/build/ADM_videoEncoder/ADM_vidEnc_x264/qt4/*Qt.so "${pkgdir}/usr/local/avidemux/lib/ADM_plugins/videoEncoder/x264"
+  install -D -m755 plugins/build/ADM_videoEncoder/ADM_vidEnc_xvid/qt4/*Qt.so "${pkgdir}/usr/local/avidemux/lib/ADM_plugins/videoEncoder/xvid"
+  install -D -m755 plugins/build/ADM_videoFilters/*/*_qt4.so "${pkgdir}/usr/local/avidemux/lib/ADM_plugins/videoFilter"
+
+  install -d "${pkgdir}/usr/local/avidemux/share/avidemux/i18n"
+  install -D -m644 build/po/*.qm "${pkgdir}/usr/local/avidemux/share/avidemux/i18n"
+
+  install -D -m644 avidemux2.desktop "${pkgdir}/usr/local/avidemux/share/applications/avidemux-qt.desktop"
+  sed -i 's/Name=avidemux2/Name=avidemux (Qt)/' "${pkgdir}/usr/local/avidemux/share/applications/avidemux-qt.desktop"
+  sed -i 's/avidemux2_gtk/avidemux2_qt4/' "${pkgdir}/usr/local/avidemux/share/applications/avidemux-qt.desktop"
+}
