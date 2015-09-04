@@ -1,0 +1,50 @@
+# $Id$
+# Maintainer: Alexandre Filgueira <alexfilgueira@antergos.com>
+# Contributor: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+
+pkgname=cinnamon-session
+pkgver=2.6.3
+pkgrel=1
+pkgdesc="The Cinnamon Session Handler"
+arch=(i686 x86_64)
+license=(GPL LGPL)
+# depends=(dbus-glib cinnamon-desktop libsm libcanberra)
+depends=(dbus-glib libsm)
+makedepends=(intltool mesa json-glib xtrans gnome-common)
+options=('!emptydirs')
+install=cinnamon-session.install
+url="https://github.com/linuxmint/cinnamon-session"
+source=(${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/cinnamon-session/archive/${pkgver}.tar.gz
+        timeout.patch)
+sha256sums=('391db79472cbd6c1546cec5e7e8e82f2a465fea92cda019fca14f7c54cfa4dc1'
+            'ef421a14814c7858490b3a806568ab4ec8a0dc21d390e94f801771c1261bb24a')
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=cinnamon64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+fi
+
+prepare() {
+  cd $pkgname-$pkgver
+
+  # Increase timeout, for slow machines
+  patch -Np1 -i ../timeout.patch
+
+}
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+
+  ./autogen.sh --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc \
+      --localstatedir=/var --libexecdir=/usr/local/${dstdir}/lib/cinnamon-session \
+      --disable-schemas-compile --enable-systemd --disable-gconf
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

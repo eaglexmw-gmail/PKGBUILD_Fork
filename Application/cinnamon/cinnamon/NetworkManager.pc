@@ -1,0 +1,13 @@
+prefix=/usr/local/networkmanager
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+libgnome_serverdir=/usr/local/networkmanager/lib/networkmanager
+plugindir=${exec_prefix}/lib/NetworkManager
+configdir=/usr/local/networkmanager/etc/NetworkManager
+
+Name: NetworkManager
+Description: System for maintaining active network connection
+Requires:
+Version: 0.9.8.0
+Cflags: -I${includedir}/NetworkManager

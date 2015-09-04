@@ -3,7 +3,7 @@
 # Contributor: Alexander Fehr <pizzapunk gmail com>
 
 pkgname=roxterm
-pkgver=2.9.7
+pkgver=3.1.5
 pkgrel=1
 pkgdesc='Tabbed, VTE-based terminal emulator'
 arch=('i686' 'x86_64')
@@ -13,11 +13,11 @@ license=('GPL3')
 #makedepends=('docbook-xsl' 'xmlto' 'po4a' 'python2' 'python2-lockfile'
 #             'imagemagick' 'librsvg' 'itstool')
 install=roxterm.install
-source=("http://downloads.sourceforge.net/roxterm/roxterm-$pkgver.tar.bz2"
+source=("http://downloads.sourceforge.net/roxterm/roxterm-$pkgver.tar.xz"
         xslt.patch) #"http://downloads.sourceforge.net/roxterm/roxterm-$pkgver.tar.bz2.sign")
 #md5sums=('496b5ddc078cede502f168dadef46cb6'
 #         'SKIP')
-sha1sums=('b88fe4d807b5cd96128d8320793569405c4b208e'
+sha1sums=('1c28a941db454e3c618b4915268e34a032814f2e'
           'SKIP')
 #validpgpkeys=('2FF283656D0745E54850B1C0BF0EBCD13D97CD09') # Tony Houghton
 

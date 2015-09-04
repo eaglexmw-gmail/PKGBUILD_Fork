@@ -1,0 +1,15 @@
+diff -Nur old/nemo-python/src/nemo-python.c new/nemo-python/src/nemo-python.c
+--- old/nemo-python/src/nemo-python.c	2015-08-08 17:01:54.080738000 +0000
++++ new/nemo-python/src/nemo-python.c	2015-08-09 16:52:16.064159625 +0000
+@@ -161,8 +161,8 @@
+ 	if (Py_IsInitialized())
+ 		return TRUE;
+ 
+-  	debug("g_module_open " PY_LIB_LOC "/libpython" PYTHON_VERSION "." G_MODULE_SUFFIX ".1.0");
+-	libpython = g_module_open(PY_LIB_LOC "/libpython" PYTHON_VERSION "." G_MODULE_SUFFIX ".1.0", 0);
++  	debug("g_module_open "  "libpython" PYTHON_VERSION "." G_MODULE_SUFFIX );
++	libpython = g_module_open( "libpython" PYTHON_VERSION "." G_MODULE_SUFFIX , 0);
+ 	if (!libpython)
+ 		g_warning("g_module_open libpython failed: %s", g_module_error());
+ 
+Binary files old/nemo-python/src/.nemo-python.c.swp and new/nemo-python/src/.nemo-python.c.swp differ

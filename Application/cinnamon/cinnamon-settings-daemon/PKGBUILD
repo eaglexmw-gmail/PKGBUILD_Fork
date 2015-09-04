@@ -1,0 +1,53 @@
+# $Id$
+# Maintainer: Alexandre Filgueira (faidoc) <alexfilgueira@antergos.com>
+# Contributor: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+
+pkgname=cinnamon-settings-daemon
+pkgver=2.6.3
+pkgrel=1
+pkgdesc="The Cinnamon Settings daemon"
+arch=('i686' 'x86_64')
+license=('GPL')
+#depends=('cinnamon-desktop' 'libibus' 'libcanberra-pulse' 'librsvg' 'nss'
+#         'pulseaudio-alsa' 'upower' 'libnotify' 'libgnomekbd' 'libwacom'
+#         'libgudev')
+depends=('librsvg' 'nss'
+         'upower' 'libnotify'
+         'libgudev')
+# makedepends=('intltool' 'docbook-xsl' 'gnome-common' 'xf86-input-wacom')
+makedepends=('intltool' 'docbook-xsl' 'gnome-common')
+options=('!emptydirs')
+install=cinnamon-settings-daemon.install
+url="https://github.com/linuxmint/cinnamon-settings-daemon"
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/cinnamon-settings-daemon/archive/${pkgver}.tar.gz")
+sha256sums=('b71a515f9eed5efd35ef134f291a9dd9674d81026b23c85377493b53ec1cf0ae')
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=cinnamon64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+fi
+
+prepare() {
+  cd $pkgname-$pkgver
+
+}
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+
+  ./autogen.sh --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var \
+      --libexecdir=/usr/local/${dstdir}/lib/$pkgname --disable-static --enable-systemd
+
+  #https://bugzilla.gnome.org/show_bug.cgi?id=656231
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

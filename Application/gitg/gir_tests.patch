@@ -1,0 +1,50 @@
+diff -Nur old/libgitg/Makefile.am new/libgitg/Makefile.am
+--- old/libgitg/Makefile.am	2015-01-18 18:35:40.000000000 +0000
++++ new/libgitg/Makefile.am	2015-08-28 22:08:50.225154000 +0000
+@@ -92,11 +92,11 @@
+ libgitg_libgitg_1_0_la_vapidir = $(prefix)/share/vala/vapi
+ libgitg_libgitg_1_0_la_vapi_DATA = libgitg/libgitg-1.0.vapi
+ 
+-libgitg_libgitg_1_0_la_girdir = $(datadir)/gir-1.0
+-libgitg_libgitg_1_0_la_gir_DATA = Gitg-1.0.gir
++# libgitg_libgitg_1_0_la_girdir = $(datadir)/gir-1.0
++# libgitg_libgitg_1_0_la_gir_DATA = Gitg-1.0.gir
+ 
+-libgitg_libgitg_1_0_la_typelibdir = $(libdir)/girepository-1.0
+-libgitg_libgitg_1_0_la_typelib_DATA = Gitg-1.0.typelib
++# libgitg_libgitg_1_0_la_typelibdir = $(libdir)/girepository-1.0
++# libgitg_libgitg_1_0_la_typelib_DATA = Gitg-1.0.typelib
+ 
+ libgitg_libgitg_1_0_la_pkgconfigdir = $(libdir)/pkgconfig
+ libgitg_libgitg_1_0_la_pkgconfig_DATA = libgitg/libgitg-1.0.pc
+diff -Nur old/libgitg-ext/Makefile.am new/libgitg-ext/Makefile.am
+--- old/libgitg-ext/Makefile.am	2015-01-18 18:35:40.000000000 +0000
++++ new/libgitg-ext/Makefile.am	2015-08-28 22:08:50.225154000 +0000
+@@ -89,11 +89,11 @@
+ docs: libgitg-ext-docs
+ endif
+ 
+-libgitg_ext_libgitg_ext_1_0_la_girdir = $(datadir)/gir-1.0
+-libgitg_ext_libgitg_ext_1_0_la_gir_DATA = GitgExt-1.0.gir
++# libgitg_ext_libgitg_ext_1_0_la_girdir = $(datadir)/gir-1.0
++# libgitg_ext_libgitg_ext_1_0_la_gir_DATA = GitgExt-1.0.gir
+ 
+-libgitg_ext_libgitg_ext_1_0_la_typelibdir = $(libdir)/girepository-1.0
+-libgitg_ext_libgitg_ext_1_0_la_typelib_DATA = GitgExt-1.0.typelib
++# libgitg_ext_libgitg_ext_1_0_la_typelibdir = $(libdir)/girepository-1.0
++# libgitg_ext_libgitg_ext_1_0_la_typelib_DATA = GitgExt-1.0.typelib
+ 
+ if ENABLE_PYTHON
+ libgitg_ext_libgitg_ext_1_0_la_overridesdir = $(pyoverridesdir)
+diff -Nur old/Makefile.am new/Makefile.am
+--- old/Makefile.am	2014-10-19 11:51:49.000000000 +0000
++++ new/Makefile.am	2015-08-28 22:08:50.225154000 +0000
+@@ -96,7 +96,7 @@
+ include plugins/Makefile.am
+ include gitg/Makefile.am
+ include data/Makefile.am
+-include tests/Makefile.am
++# include tests/Makefile.am
+ 
+ include icons.mk
+ 

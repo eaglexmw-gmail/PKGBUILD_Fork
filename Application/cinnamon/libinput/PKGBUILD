@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Andreas Radke <andyrtr@archlinux.org>
+# Maintainer: Jan de Groot
+
+pkgname=libinput
+pkgver=0.20.0
+pkgrel=1
+pkgdesc="library that handles input devices for display servers and other applications that need to directly deal with input devices."
+arch=(i686 x86_64)
+url="http://www.freedesktop.org/wiki/Software/libinput/"
+license=(custom:X11)
+depends=('mtdev' 'systemd' 'libevdev')
+install=libinput.install
+options=('!libtool')
+source=(http://freedesktop.org/software/$pkgname/$pkgname-$pkgver.tar.xz ) #{,.sig})
+sha256sums=('175bdfce97cfab13a2a0d02c3138fcf02f60c8fcd098835a97128ff114d7125d'
+           ) # 'SKIP')
+# validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF') # Peter Hutterer (Who-T) <office@who-t.net>
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=cinnamon64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+fi
+
+prepare() {
+  cd $pkgname-$pkgver
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr/local/${dstdir} --disable-static
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -Dm644 COPYING "${pkgdir}/usr/local/${dstdir}/share/licenses/${pkgname}/COPYING"
+}

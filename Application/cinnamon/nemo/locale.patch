@@ -1,0 +1,22 @@
+diff -Nur old/src/nemo-main.c new/src/nemo-main.c
+--- old/src/nemo-main.c	2015-06-22 21:36:38.000000000 +0000
++++ new/src/nemo-main.c	2015-08-01 08:12:20.327115082 +0000
+@@ -60,7 +60,7 @@
+ {
+ 	gint retval;
+ 	NemoApplication *application;
+-	
++
+ #if defined (HAVE_MALLOPT) && defined(M_MMAP_THRESHOLD)
+ 	/* Nemo uses lots and lots of small and medium size allocations,
+ 	 * and then a few large ones for the desktop background. By default
+@@ -85,7 +85,7 @@
+ 	}
+ 	
+ 	/* Initialize gettext support */
+-	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
++	bindtextdomain (GETTEXT_PACKAGE, DATADIR "/locale");
+ 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+ 	textdomain (GETTEXT_PACKAGE);
+ 
+Binary files old/src/.nemo-main.c.swp and new/src/.nemo-main.c.swp differ

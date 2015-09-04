@@ -1,0 +1,58 @@
+# $Id$
+# Maintainer : Ionut Biru <ibiru@archlinux.org>
+# Contributor: Adam Hani Schakaki <krzd@krzd.net>
+
+pkgname=caribou
+pkgver=0.4.18.1
+pkgrel=1
+pkgdesc="A text entry and UI navigation application (on-screen keyboard)"
+arch=('i686' 'x86_64')
+url="http://live.gnome.org/Caribou"
+license=(LGPL)
+# depends=(at-spi2-atk python2-atspi python2-gobject gtk3 libxklavier libgee clutter dconf)
+depends=(at-spi2-atk gtk3 libxklavier dconf)
+makedepends=(intltool docbook-xsl gtk2 gobject-introspection)
+install=caribou.install
+options=(!emptydirs)
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:3}/$pkgname-$pkgver.tar.xz)
+sha256sums=('aefadf125a647fc68696f4134e99ee43dca121da5de8e1edf6eab5664a9f3150')
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=cinnamon64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+fi
+
+prepare() {
+  cd $pkgname-$pkgver
+  sed -i s'|#!/usr/bin/python|#!/usr/bin/python2|'g tools/{fix_gir,make_schema}.py
+}
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+
+  export PYTHON=/usr/bin/python2
+  ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc \
+    --libexecdir=/usr/local/${dstdir}/lib/$pkgname \
+    --disable-static \
+    --disable-schemas-compile
+
+  # https://bugzilla.gnome.org/show_bug.cgi?id=655517
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make -k check
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}
+
+# vim:set ts=2 sw=2 et:
