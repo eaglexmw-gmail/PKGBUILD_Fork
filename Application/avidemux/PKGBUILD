@@ -13,9 +13,9 @@ url="http://fixounet.free.fr/avidemux/"
 #             'opencore-amr' 'yasm' 'mesa' 'libvpx' 'libpulse' 'libva')
 options=('!makeflags' '!emptydirs')
 source=(http://downloads.sourceforge.net/avidemux/avidemux_${pkgver}.tar.gz
-        mangled-variables-used-attribute.patch)
+        mangled-variables-used-attribute.patch qt_static.patch)
 sha1sums=('47205c236bf6a4435b9d4dd944493c7b7e2752f5'
-          'da66b69593da62373f2309f88a284145fbfd99ac')
+          'da66b69593da62373f2309f88a284145fbfd99ac' 'SKIP')
 
 prepare() {
   cd ${pkgbase}_${pkgver}
@@ -23,6 +23,9 @@ prepare() {
   # Fix build on i686 when using GCC 5.1
   # https://bugs.archlinux.org/task/45361
   patch -Np1 -i ../mangled-variables-used-attribute.patch
+
+  patch -Np1 -i ../qt_static.patch
+
 }
 
 build() {
@@ -38,9 +41,11 @@ build() {
   make cmake_check_build_system
 
   sed -i 's|libADM5postproc.so.51|& -lXrandr |g' ./avidemux/ADM_userInterfaces/ADM_render/CMakeFiles/ADM_render_gtk.dir/link.txt
-  sed -i 's|libADM5postproc.so.51|& -lpng15 -ljpeg -ltiff -lgobject-2.0 -lglib-2.0 -lfontconfig -lEGL -lSM -lICE -lXrender |g' ./avidemux/ADM_userInterfaces/ADM_render/CMakeFiles/ADM_render_qt4.dir/link.txt
-  sed -i 's|libADM5postproc.so.51|& -lpng15 -ljpeg -ltiff -lgobject-2.0 -lglib-2.0 -lfontconfig -lEGL -lSM -lICE -lXrender |g' ./avidemux/ADM_UIs/ADM_QT4/src/CMakeFiles/ADM_UIQT4.dir/link.txt
-  sed -i 's|libQtCore.a|& -lz -lpng15 -ljpeg -ltiff -lgobject-2.0 -lglib-2.0 -lfontconfig -lfreetype -lEGL -lSM -lICE -lXrender |g' ./avidemux/CMakeFiles/avidemux2_qt4.dir/link.txt
+  sed -i 's|libQtCore.a|& -lz -lm -ldl -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpthread -lgthread-2.0 -pthread -lrt -lglib-2.0 -lpng16 -ljpeg -ltiff -lz -lfreetype -lgobject-2.0 -lglib-2.0 -lEGL -lSM -lICE -lXrender -lfontconfig -lfreetype -lXext -lX11 -lm -lstdc++ |g' ./avidemux/ADM_qt/CMakeFiles/ADM_qt.dir/link.txt
+
+  # sed -i 's|libADM5postproc.so.51|& -lpng16 -ljpeg -ltiff -lgobject-2.0 -lglib-2.0 -lfontconfig -lEGL -lSM -lICE -lXrender |g' ./avidemux/ADM_userInterfaces/ADM_render/CMakeFiles/ADM_render_qt4.dir/link.txt
+  # sed -i 's|libADM5postproc.so.51|& -lpng16 -ljpeg -ltiff -lgobject-2.0 -lglib-2.0 -lfontconfig -lEGL -lSM -lICE -lXrender |g' ./avidemux/ADM_UIs/ADM_QT4/src/CMakeFiles/ADM_UIQT4.dir/link.txt
+  # sed -i 's|libQtCore.a|& -lz -lpng15 -ljpeg -ltiff -lgobject-2.0 -lglib-2.0 -lfontconfig -lfreetype -lEGL -lSM -lICE -lXrender |g' ./avidemux/CMakeFiles/avidemux2_qt4.dir/link.txt
 
   make
 
