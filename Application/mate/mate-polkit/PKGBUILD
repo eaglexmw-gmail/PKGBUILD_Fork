@@ -1,18 +1,18 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.10
+_ver=1.12
 pkgbase=mate-polkit
 pkgname=(${pkgbase} ${pkgbase}-gtk3)
-pkgver=${_ver}.1
+pkgver=${_ver}.0
 pkgrel=1
 pkgdesc="PolicyKit integration for the MATE desktop"
 url="http://mate-desktop.org"
 arch=('i686' 'x86_64')
 license=('LGPL')
-depends=('gtk2' 'gtk3' 'polkit')
+depends=('gtk2' 'gtk3' 'polkit' 'accountsservice')
 makedepends=('gobject-introspection' 'mate-common')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgname}-${pkgver}.tar.xz")
-sha1sums=('ccdb689c4baa09aba251662b31e016aa233e7191')
+sha1sums=('26ec78dda925755f0c0b272c9b53fb77a78bfe98')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64
