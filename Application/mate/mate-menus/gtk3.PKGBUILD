@@ -1,6 +1,6 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.10
+_ver=1.12
 # pkgname=mate-menus
 pkgbase=mate-menus
 pkgver=${_ver}.0
@@ -14,7 +14,7 @@ depends=('glib2' 'python2')
 makedepends=('gobject-introspection' 'mate-common')
 groups=('mate' 'mate-gtk3')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgbase}-${pkgver}.tar.xz")
-sha1sums=('04662fc22aec5c37755029b8f8d8c56390c49807')
+sha1sums=('a52eacac8cd912b866c085bc4a20e866572f96d6')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64

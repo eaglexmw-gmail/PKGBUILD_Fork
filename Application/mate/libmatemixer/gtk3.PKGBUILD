@@ -1,7 +1,7 @@
 # $Id$
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.10
+_ver=1.12
 # pkgname=libmatemixer
 pkgbase=libmatemixer
 pkgname=(${pkgbase}-gtk3)
@@ -15,7 +15,7 @@ license=('LGPL')
 depends=('alsa-lib')
 makedepends=('mate-common')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgbase}-${pkgver}.tar.xz")
-sha1sums=('7acaf44336b2631f9a0ed39494f5cb10e0f65d5b')
+sha1sums=('cb83bf944716e6e3bc1f8f70ca7847a4ae2f21be')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64

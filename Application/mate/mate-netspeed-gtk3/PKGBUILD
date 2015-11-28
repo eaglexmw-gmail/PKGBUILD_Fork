@@ -1,9 +1,9 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.10
+_ver=1.12
 _pkgbase=mate-netspeed
 pkgname=(${_pkgbase}-gtk3)
-pkgver=${_ver}.2
+pkgver=${_ver}.0
 pkgrel=1
 pkgdesc="A MATE applet that shows how much traffic occurs on a specified network device. (GTK3 version [EXPERIMENTAL])"
 url="http://mate-desktop.org"
@@ -16,7 +16,7 @@ optdepends=('yelp: for reading MATE help documents')
 groups=('mate-extra-gtk3')
 conflicts=("${_pkgbase}")
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
-sha1sums=('d140868282415f1bcf067b8d8116fc292aec840d')
+sha1sums=('b661c3118b16017ce3d0df84e322904a4c54da8a')
 install=${_pkgbase}.install
 
 if [ "$CARCH" = "x86_64" ]; then
