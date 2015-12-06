@@ -17,7 +17,11 @@ sha256sums=('9b8d4af5e1bb64e52b53bc8ef471ef43e1b9d11a829f16ef54c3a92985b0dd0c')
 
 build() {
   cd "$_pkgbasename-$pkgver"
+
+  sed -i 's|-lglibmm_generate_extra_defs-2.4|& `pkg-config --libs gtk+-3.0` |g' ./tools/Makefile.in
+
   ./configure --prefix=/usr --enable-static 
+
   make
 }
 

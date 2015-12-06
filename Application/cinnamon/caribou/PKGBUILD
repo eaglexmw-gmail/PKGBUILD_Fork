@@ -3,7 +3,7 @@
 # Contributor: Adam Hani Schakaki <krzd@krzd.net>
 
 pkgname=caribou
-pkgver=0.4.18.1
+pkgver=0.4.19
 pkgrel=1
 pkgdesc="A text entry and UI navigation application (on-screen keyboard)"
 arch=('i686' 'x86_64')
@@ -11,11 +11,11 @@ url="http://live.gnome.org/Caribou"
 license=(LGPL)
 # depends=(at-spi2-atk python2-atspi python2-gobject gtk3 libxklavier libgee clutter dconf)
 depends=(at-spi2-atk gtk3 libxklavier dconf)
-makedepends=(intltool docbook-xsl gtk2 gobject-introspection)
+makedepends=(intltool docbook-xsl gtk2 gobject-introspection vala)
 install=caribou.install
 options=(!emptydirs)
 source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:3}/$pkgname-$pkgver.tar.xz)
-sha256sums=('aefadf125a647fc68696f4134e99ee43dca121da5de8e1edf6eab5664a9f3150')
+sha256sums=('2f0bd0c14c5f94cf5ac3a7627018919addf7a054ac84aaa8e62356957c175a44')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
