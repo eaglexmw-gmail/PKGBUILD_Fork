@@ -17,6 +17,13 @@ source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgbase}-${pkgver}.tar.x
 sha1sums=('688cb261b9938ef6946a70786f7bb67b19f77fe6')
 install=${pkgname}.install
 
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=mate64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=mate
+fi
+
 prepare() {
     cd "${srcdir}"
     mv "${pkgname}-${pkgver}" "${pkgbase}-gtk2"
@@ -26,16 +33,16 @@ prepare() {
 build() {
     cd "${srcdir}/${pkgbase}-gtk2"
     ./configure \
-        --prefix=/usr/local/mate/mate_gtk+2.0 \
-        --libexecdir=/usr/local/mate/mate_gtk+2.0/lib/${pkgbase} \
+        --prefix=/usr/local/${dstdir}/mate_gtk+2.0 \
+        --libexecdir=/usr/local/${dstdir}/mate_gtk+2.0/lib/${pkgbase} \
         --with-gtk=2.0 \
         --disable-static
     make
 
     cd "${srcdir}/${pkgbase}-gtk3"
     ./configure \
-        --prefix=/usr/local/mate/mate_gtk+3.0 \
-        --libexecdir=/usr/local/mate/mate_gtk+3.0/lib/${pkgbase} \
+        --prefix=/usr/local/${dstdir}/mate_gtk+3.0 \
+        --libexecdir=/usr/local/${dstdir}/mate_gtk+3.0/lib/${pkgbase} \
         --with-gtk=3.0 \
         --disable-static
     make
