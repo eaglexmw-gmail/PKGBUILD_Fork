@@ -10,7 +10,7 @@ arch=('i686' 'x86_64')
 license=('GPL')
 #depends=('dbus' 'desktop-file-utils' 'exiv2' 'gtk2' 'lcms2' 'libcanberra' 'libcups' 'libexif' 'libnotify' 'libtiff'
 #         'libunique' 'mate-desktop' 'sane' 'vte')
-depends=('dbus' 'desktop-file-utils' 'gtk2' 'lcms2' 'libcups' 'libexif' 'libnotify' 'libtiff' 'sane' 'vte')
+depends=('dbus' 'desktop-file-utils' 'gtk2' 'lcms2' 'libcups' 'libexif' 'libnotify' 'libtiff' 'sane')
 makedepends=('mate-common' 'perl-xml-parser' 'yelp-tools')
 options=('!emptydirs')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/NiceandGently/${pkgname}/archive/v${pkgver}.tar.gz"
@@ -19,6 +19,13 @@ sha1sums=('9727991077ca740eb050eb7a64cc7a6f5dd0e3ae'
           'f4b910418866c90530ff990564d992c802d9ba05')
 
 install=${pkgname}.install
+
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=mate64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=mate
+fi
 
 prepare() {
     cd "${srcdir}/${pkgname}-${pkgver}"
@@ -37,10 +44,10 @@ build() {
     export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/mate/mate_gtk+2.0/lib/pkgconfig/
 
     ./configure \
-        --prefix=/usr/local/mate/mate_gtk+2.0 \
-        --sysconfdir=/usr/local/mate/mate_gtk+2.0/etc \
-        --sbindir=/usr/local/mate/mate_gtk+2.0/bin \
-        --libexecdir=/usr/local/mate/mate_gtk+2.0/lib/${pkgname} \
+        --prefix=/usr/local/${dstdir}/mate_gtk+2.0 \
+        --sysconfdir=/usr/local/${dstdir}/mate_gtk+2.0/etc \
+        --sbindir=/usr/local/${dstdir}/mate_gtk+2.0/bin \
+        --libexecdir=/usr/local/${dstdir}/mate_gtk+2.0/lib/${pkgname} \
         --disable-static
     make
 }

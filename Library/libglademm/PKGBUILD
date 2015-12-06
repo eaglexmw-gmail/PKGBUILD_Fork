@@ -16,7 +16,7 @@ source=(http://ftp.gnome.org/pub/gnome/sources/${pkgname}/2.6/${pkgname}-${pkgve
 md5sums=('f9ca5b67f6c551ea98790ab5f21c19d0')
 
 build() {
-  cd ${startdir}/src/${pkgname}-${pkgver}
+  cd "${srcdir}/${pkgbase}-${pkgver}"
 
   sed -i 's|-lglibmm_generate_extra_defs-2.4|& `pkg-config --libs gtk+-3.0` |g' ./tools/extra_defs_gen/Makefile.in
 
@@ -25,6 +25,6 @@ build() {
 }
 
 package() {
-  cd ${startdir}/src/${pkgname}-${pkgver}
-  make DESTDIR=${startdir}/pkg install || return 1
+  cd "${srcdir}/${pkgbase}-${pkgver}"
+  make DESTDIR=${pkgdir} install || return 1
 }
