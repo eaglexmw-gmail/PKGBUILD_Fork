@@ -3,7 +3,7 @@
 # Contributor: Ner0
 
 pkgname=nemo
-pkgver=2.6.7
+pkgver=2.8.6
 pkgrel=1
 pkgdesc="Cinnamon file manager (Nautilus fork)"
 arch=('i686' 'x86_64')
@@ -14,12 +14,12 @@ license=('GPL')
 depends=('libexif' 'dconf' 'desktop-file-utils'
          'libnotify' 'libxml2' )
 #makedepends=('gtk-doc' 'gobject-introspection' 'intltool' 'gnome-common' 'python2-gobject' 'python2-polib')
-makedepends=('gtk-doc' 'gobject-introspection' 'intltool' 'gnome-common')
+makedepends=('gtk-doc' 'gobject-introspection' 'intltool' 'gnome-common' 'python2-gobject' 'python2-polib')
 options=('!emptydirs')
 install=nemo.install
 source=("$pkgname-$pkgver.tar.gz::https://github.com/linuxmint/nemo/tarball/$pkgver"
         locale.patch)
-sha256sums=('a4fe464c82b6b86b51ab050341b16dabc652c326789dae450f267a8edfb94fc3'
+sha256sums=('47fd96df864af5c74ed3abba4dcaf7ca5855289bbb61d58f14972200c169e84c'
             'f06edae8650ce1e759577c560f621950d529f18320e4e9d9f883626d7478079d')
 
 if [ "$CARCH" = "x86_64" ]; then
@@ -52,11 +52,15 @@ build() {
       --disable-tracker \
       --disable-gtk-doc-html \
       --disable-schemas-compile
+
+  #https://bugzilla.gnome.org/show_bug.cgi?id=656231
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
   make
 }
 
 package() {
   cd linuxmint-nemo-*
 
-  make DESTDIR="$pkgdir/" install
+  make DESTDIR="$pkgdir" install
 }
