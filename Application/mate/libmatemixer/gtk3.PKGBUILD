@@ -5,7 +5,7 @@ _ver=1.12
 # pkgname=libmatemixer
 pkgbase=libmatemixer
 pkgname=(${pkgbase}-gtk3)
-pkgver=${_ver}.0
+pkgver=${_ver}.1
 pkgrel=1
 pkgdesc="Mixer library for MATE Desktop"
 url="http://mate-desktop.org"
@@ -15,7 +15,7 @@ license=('LGPL')
 depends=('alsa-lib')
 makedepends=('mate-common')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgbase}-${pkgver}.tar.xz")
-sha1sums=('cb83bf944716e6e3bc1f8f70ca7847a4ae2f21be')
+sha1sums=('37c5b081e80db36210834e123643e2f7a12f176d')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64

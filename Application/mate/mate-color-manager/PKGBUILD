@@ -8,9 +8,8 @@ pkgdesc="Color management application for MATE."
 url="https://github.com/NiceandGently/${pkgname}"
 arch=('i686' 'x86_64')
 license=('GPL')
-#depends=('dbus' 'desktop-file-utils' 'exiv2' 'gtk2' 'lcms2' 'libcanberra' 'libcups' 'libexif' 'libnotify' 'libtiff'
-#         'libunique' 'mate-desktop' 'sane' 'vte')
-depends=('dbus' 'desktop-file-utils' 'gtk2' 'lcms2' 'libcups' 'libexif' 'libnotify' 'libtiff' 'sane')
+depends=('dbus' 'desktop-file-utils' 'exiv2' 'gtk2' 'lcms2' 'libcanberra' 'libcups' 'libexif' 'libnotify' 'libtiff'
+         'libunique' 'mate-desktop' 'sane' 'vte')
 makedepends=('mate-common' 'perl-xml-parser' 'yelp-tools')
 options=('!emptydirs')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/NiceandGently/${pkgname}/archive/v${pkgver}.tar.gz"
@@ -20,6 +19,8 @@ sha1sums=('9727991077ca740eb050eb7a64cc7a6f5dd0e3ae'
 
 install=${pkgname}.install
 
+
+depends=('dbus' 'desktop-file-utils' 'gtk2' 'lcms2' 'libcups' 'libexif' 'libnotify' 'libtiff' 'sane')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64
@@ -41,7 +42,7 @@ prepare() {
 build() {
     cd "${srcdir}/${pkgname}-${pkgver}"
 
-    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/mate/mate_gtk+2.0/lib/pkgconfig/
+    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/mate_gtk+2.0/lib/pkgconfig/
 
     ./configure \
         --prefix=/usr/local/${dstdir}/mate_gtk+2.0 \
