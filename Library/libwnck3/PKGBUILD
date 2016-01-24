@@ -17,6 +17,11 @@ options=('staticlibs')
 
 build() {
     cd "$_pkgbasename-$pkgver"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
     ./configure --prefix=/usr --sysconfdir=/etc \
         --localstatedir=/var --enable-static
     make

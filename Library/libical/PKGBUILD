@@ -22,6 +22,9 @@ options=('staticlibs')
 
 build() {
   cd build
+  export CFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
   cmake ../${pkgname}-${pkgver} \
     -DCMAKE_BUILD_TYPE=Release \
     -DSHARED_ONLY=false \

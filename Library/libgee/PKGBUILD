@@ -17,6 +17,10 @@ options=('staticlibs')
 
 build() {
   cd $pkgname-$pkgver
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --enable-static --disable-shared --enable-introspection=no
   make
 }

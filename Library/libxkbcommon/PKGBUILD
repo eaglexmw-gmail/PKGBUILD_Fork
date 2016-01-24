@@ -24,6 +24,10 @@ prepare() {
 
 build() {
   cd $pkgbase-$pkgver
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --disable-shared --enable-static
   make
 }

@@ -21,6 +21,10 @@ sha256sums=('e7e4b5ab74a6c00fc267c9f5963852d28759ad3154dab6388e2d6e1962d598f3')
 
 build() {
   cd $pkgname-$pkgver
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --sysconfdir=/etc \
       --localstatedir=/var --enable-static --disable-tls-check
   make
