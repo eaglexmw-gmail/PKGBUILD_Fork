@@ -14,6 +14,14 @@ url="http://www.freedesktop.org/software/vaapi/releases/gstreamer-vaapi/"
 makedepends=(libxrandr)
 options=(!emptydirs)
 
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir_0.10=gstreamer_0.10_64
+  dstdir_1.x=gstreamer_1.x_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir_0.10=gstreamer_0.10
+  dstdir_1.x=gstreamer_1.x
+fi
+
 #source=(git://gitorious.org/vaapi/${pkgbase}.git#commit=5ffa82b)
 source=($url/$pkgbase-$pkgver.tar.bz2)
 sha1sums=('14f476f834a15422ecfa6a472df1b18ac2a0e50f')
@@ -21,25 +29,28 @@ sha1sums=('14f476f834a15422ecfa6a472df1b18ac2a0e50f')
 prepare() {
   mkdir build build-0.10
   sed -i "s| tests | |g" ./gstreamer-vaapi-0.5.9/Makefile.am
+  cd $pkgbase-$pkgver/
+  autoreconf
 }
 
 _build() (
-  cd "$1"; shift
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
+  dstdir=$2;
+  cd "$1"; shift; shift
 
-  ../$pkgbase-$pkgver/configure --prefix=/usr/local/gstreamer_0.10 \
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
+
+  ../$pkgbase-$pkgver/configure --prefix=/usr/local/gstreamer/${dstdir} \
     --disable-static \
     --disable-builtin-libvpx --disable-gtk-doc --enable-shared \
     "$@"
-  # --enable-static-plugins  --enable-introspection=no
+  # --enable-static-plugins  --enable-introspection=yes
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make
 )
 
 build() {
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
-  _build build
-  _build build-0.10 --with-gstreamer-api=0.10 --disable-wayland
+  _build build $dstdir_1.x
+  _build build-0.10 $dstdir_0.10 --with-gstreamer-api=0.10 --disable-wayland
 }
 
 #check() {
@@ -49,12 +60,12 @@ build() {
 
 package_gst-vaapi() {
   depends=(gst-plugins-base gst-plugins-bad libva libxrandr libvpx)
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/$dstdir_1.x/lib/pkgconfig:${PKG_CONFIG_PATH}
   make -C build DESTDIR="$pkgdir" install
 }
 
 package_gstreamer0.10-vaapi() {
   depends=(gstreamer0.10-base-plugins gstreamer0.10-bad-plugins libva libxrandr libvpx)
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/$dstdir_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
   make -C build-0.10 DESTDIR="$pkgdir" install
 }

@@ -15,14 +15,20 @@ url="http://gstreamer.freedesktop.org/"
 source=(${url}/src/$pkgbase/$pkgbase-${pkgver}.tar.xz)
 sha256sums=('77bd8199e7a312d3d71de9b7ddf761a3b78560a2c2a80829d0815ca39cbd551d')
 
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gstreamer_1.x_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gstreamer_1.x
+fi
+
 build() {
   cd $pkgbase-$pkgver
 
   export PATH=$PATH:/usr/local/python2/bin/
   export PYTHON=python2_spec
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_1.X/lib/pkgconfig:${PKG_CONFIG_PATH}
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
 
-  ./configure --prefix=/usr/local/gstreamer_1.X --sysconfdir=/usr/local/gstreamer_1.X/etc --localstatedir=/var --enable-experimental \
+  ./configure --prefix=/usr/local/gstreamer/${dstdir} --sysconfdir=/usr/local/gstreamer/${dstdir}/etc --localstatedir=/var --enable-experimental \
     --with-package-name="GStreamer Base Plugins (Arch Linux)" \
     --with-package-origin="http://www.archlinux.org/" \
     --disable-static --enable-shared --disable-static-plugins --disable-gtk-doc --disable-freetypetest

@@ -18,6 +18,12 @@ sha256sums=('SKIP'
             'e66642affa6c0e69837d37615010e67e59ef3d672663303d46c1e2591e2ddfc6'
             '01e780ddf1f8161a6115dded9dc5bf4bdd4d09a9eee00fa423b1330e90e76c68')
 
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gstreamer_0.10_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gstreamer_0.10
+fi
+
 prepare() {
   cd gst-plugins-bad
   sed -e 's/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/' -i configure.ac
@@ -30,9 +36,9 @@ build() {
   cd gst-plugins-bad
   NOCONFIGURE=1 ./autogen.sh
 
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
 
-  ./configure --prefix=/usr/local/gstreamer_0.10 --sysconfdir=/usr/local/gstreamer_0.10/etc --localstatedir=/var \
+  ./configure --prefix=/usr/local/gstreamer/${dstdir} --sysconfdir=/usr/local/gstreamer/${dstdir}/etc --localstatedir=/var \
     --disable-static --enable-experimental --disable-gtk-doc \
     --with-package-name="GStreamer Bad Plugins (Archlinux)" \
     --with-package-origin="http://www.archlinux.org/" --enable-shared
@@ -52,7 +58,7 @@ package_gstreamer0.10-bad() {
   options=('staticlibs')
 
   cd gst-plugins-bad
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
   make DESTDIR="${pkgdir}" install
 }
 
@@ -64,7 +70,7 @@ package_gstreamer0.10-bad-plugins() {
   options=('staticlibs')
 
   cd gst-plugins-bad
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
   make -C gst-libs DESTDIR="${pkgdir}" install
   make -C ext DESTDIR="${pkgdir}" install
   make -C sys DESTDIR="${pkgdir}" install

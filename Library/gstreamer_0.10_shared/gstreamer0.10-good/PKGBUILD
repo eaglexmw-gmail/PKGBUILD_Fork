@@ -16,6 +16,12 @@ source=("git://anongit.freedesktop.org/gstreamer-sdk/gst-plugins-good#commit=e28
 sha256sums=('SKIP'
             'c2f7f07f9bf5ca3afddc81d0a44665d2d54b1e9aea0ef1b25d219cf34bf7bb29')
 
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gstreamer_0.10_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gstreamer_0.10
+fi
+
 prepare() {
   cd gst-plugins-good
 
@@ -31,9 +37,9 @@ build() {
   NOCONFIGURE=1 ./autogen.sh
   sed -i 's|-lrom1394|-lrom1394 -lm|g' configure
 
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
 
-  ./configure --prefix=/usr/local/gstreamer_0.10 --sysconfdir=/usr/local/gstreamer_0.10/etc --localstatedir=/var \
+  ./configure --prefix=/usr/local/gstreamer/${dstdir} --sysconfdir=/usr/local/gstreamer/${dstdir}/etc --localstatedir=/var \
     --disable-static --enable-experimental \
     --disable-schemas-install \
     --disable-hal \
@@ -59,9 +65,9 @@ package_gstreamer0.10-good() {
   options=('staticlibs')
 
   cd gst-plugins-good
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
   make GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1 DESTDIR="${pkgdir}" install
-  rm -rf "${pkgdir}/usr/local/gstreamer_0.10/etc/gconf"
+  rm -rf "${pkgdir}/usr/local/gstreamer/${dstdir}/etc/gconf"
 }
 
 package_gstreamer0.10-good-plugins() {
@@ -74,10 +80,10 @@ package_gstreamer0.10-good-plugins() {
   options=('staticlibs')
 
   cd gst-plugins-good
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_0.10/lib/pkgconfig:${PKG_CONFIG_PATH}
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
 
   make -C sys DESTDIR="${pkgdir}" install
   make -C ext GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1 DESTDIR="${pkgdir}" install
-  install -m755 -d "${pkgdir}/usr/local/gstreamer_0.10/share/gconf/schemas"
-  install -m644 gconf/gstreamer-0.10.schemas "${pkgdir}/usr/local/gstreamer_0.10/share/gconf/schemas/gstreamer0.10-good-plugins.schemas"
+  install -m755 -d "${pkgdir}/usr/local/gstreamer/${dstdir}/share/gconf/schemas"
+  install -m644 gconf/gstreamer-0.10.schemas "${pkgdir}/usr/local/gstreamer/${dstdir}/share/gconf/schemas/gstreamer0.10-good-plugins.schemas"
 }

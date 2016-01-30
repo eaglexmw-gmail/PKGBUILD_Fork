@@ -10,8 +10,8 @@ license=('LGPL')
 url="http://gstreamer.com"
 depends=('libxml2' 'glib2')
 optdepends=('sh: feedback script')
-#makedepends=('intltool' 'pkgconfig' 'gtk-doc' 'gobject-introspection' 'git')
-makedepends=('intltool' 'pkgconfig' 'git')
+makedepends=('intltool' 'pkgconfig' 'gtk-doc' 'gobject-introspection' 'git')
+makedepends=('intltool' 'pkgconfig' 'gobject-introspection' 'git')
 options=('staticlibs')
 source=("git://anongit.freedesktop.org/gstreamer-sdk/gstreamer#commit=3ddc31eaa18c3be1613e43430eca78a3e445639e"
         tests-remove-silly-test_fail_abstract_new-check.patch
@@ -19,6 +19,12 @@ source=("git://anongit.freedesktop.org/gstreamer-sdk/gstreamer#commit=3ddc31eaa1
 sha256sums=('SKIP'
             'd3d3f4f04453831fdb4244bfe174a38c4e6f9f4da5c8c9050dcfa1a6097aad52'
             'ed154e280abf59b24d98a8ab0fe868b449b26aa61f7ae3813fab8ac615fcaefa')
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gstreamer_0.10_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gstreamer_0.10
+fi
 
 prepare() {
   cd gstreamer
@@ -31,11 +37,14 @@ prepare() {
 }
 build() {
   cd gstreamer
+
+   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/gstreamer/${dstdir}/lib/pkgconfig/
+
   NOCONFIGURE=1 ./autogen.sh
-  ./configure --prefix=/usr/local/gstreamer_0.10 --sysconfdir=/usr/local/gstreamer_0.10/etc --localstatedir=/var --libexecdir=/usr/local/gstreamer_0.10/lib \
+  ./configure --prefix=/usr/local/gstreamer/${dstdir} --sysconfdir=/usr/local/gstreamer/${dstdir}/etc --localstatedir=/var --libexecdir=/usr/local/gstreamer/${dstdir}/lib \
     --with-package-name="GStreamer (Archlinux)" \
     --with-package-origin="http://www.archlinux.org/" \
-    --disable-gtk-doc --enable-shared  --enable-introspection=no
+    --disable-gtk-doc --enable-shared  --enable-introspection=yes
   make
 }
 

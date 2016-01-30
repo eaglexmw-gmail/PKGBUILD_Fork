@@ -14,10 +14,19 @@ groups=('gstreamer0.10-plugins')
 source=("git://anongit.freedesktop.org/gstreamer-sdk/gst-ffmpeg#commit=94e587b9182c6d2fde9a61c9def790c8047453c0")
 sha256sums=('SKIP')
 
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gstreamer_0.10_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gstreamer_0.10
+fi
+
 build() {
   cd gst-ffmpeg
+
+   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/gstreamer/${dstdir}/lib/pkgconfig/
+
   NOCONFIGURE=1 ./autogen.sh
-  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-static --enable-static-plugins --disable-gtk-doc --with-ffmpeg-extra-configure="--enable-runtime-cpudetect"
+  ./configure --prefix=/usr/local/gstreamer/${dstdir} --sysconfdir=/usr/local/gstreamer/${dstdir}/etc --localstatedir=/var --enable-static --enable-static-plugins --disable-gtk-doc --with-ffmpeg-extra-configure="--enable-runtime-cpudetect"
   make
 }
 

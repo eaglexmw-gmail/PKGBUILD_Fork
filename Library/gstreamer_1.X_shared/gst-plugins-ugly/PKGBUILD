@@ -14,16 +14,22 @@ options=(!emptydirs staticlibs)
 source=(${url}/src/$pkgname/$pkgname-$pkgver.tar.xz)
 sha256sums=('5cd5e81cf618944f4dc935f1669b2125e8bb2fe9cc7dc8dc15b72237aca49067')
 
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gstreamer_1.x_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gstreamer_1.x
+fi
+
 build() {
   cd $pkgname-$pkgver
 
   export PATH=$PATH:/usr/local/python2/bin/
   export PYTHON=python2_spec
-  export PKG_CONFIG_PATH=/usr/local/gstreamer_1.X/lib/pkgconfig:${PKG_CONFIG_PATH}
+  export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
 
   sed -i 's|-ldvdread|-ldvdread -ldl|g' configure
 
-  ./configure --prefix=/usr/local/gstreamer_1.X --sysconfdir=/usr/local/gstreamer_1.X/etc --localstatedir=/var \
+  ./configure --prefix=/usr/local/gstreamer/${dstdir} --sysconfdir=/usr/local/gstreamer/${dstdir}/etc --localstatedir=/var \
     --disable-static --enable-experimental --disable-gtk-doc \
     --with-package-name="GStreamer Ugly Plugins (Arch Linux)" \
     --with-package-origin="http://www.archlinux.org/" --enable-shared
