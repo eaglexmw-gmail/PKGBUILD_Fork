@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+
+pkgname=gnome-shell-extensions
+pkgver=3.18.2
+pkgrel=1
+pkgdesc="Extensions for GNOME shell, including classic mode"
+arch=(any)
+url="http://live.gnome.org/GnomeShell/Extensions"
+license=(GPL2)
+depends=(gnome-shell)
+makedepends=(intltool)
+optdepends=('nautilus: gnome-classic session')
+install=gnome-shell-extensions.install
+groups=('gnome')
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+sha256sums=('cc514ffc896ed8c04853a89cb8e97058f9d5518313becf7c92aea5210b8adf61')
+
+depends=()
+makedepends=(intltool gtk-doc python gobject-introspection)
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  ./configure --prefix=/usr/local/${dstdir} --libexecdir=/usr/local/${dstdir}/lib/gnome-session --enable-extensions=all
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

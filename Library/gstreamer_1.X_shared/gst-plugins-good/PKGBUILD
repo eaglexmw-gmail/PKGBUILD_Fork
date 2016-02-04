@@ -2,7 +2,7 @@
 # Maintainer: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gst-plugins-good
-pkgver=1.4.5
+pkgver=1.6.3
 pkgrel=1
 pkgdesc="GStreamer Multimedia Framework Good Plugins"
 arch=('i686' 'x86_64')
@@ -14,7 +14,7 @@ depends=('gdk-pixbuf2' 'cairo')
 #makedepends=('gtk-doc')
 options=(!emptydirs staticlibs)
 source=(${url}/src/$pkgname/$pkgname-$pkgver.tar.xz)
-sha256sums=('79b1b5f3f7bcaa8a615202eb5e176121eeb8336960f70687e536ad78dbc7e641')
+sha256sums=('24b19db70b2a83461ebddfe20033db432dadfdb5d4b54ffb1dfa0d830134a177')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gstreamer_1.x_64

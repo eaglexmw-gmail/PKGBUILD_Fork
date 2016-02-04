@@ -1,0 +1,61 @@
+# $Id$
+# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Contributor: György Balló <ballogy@freestart.hu>
+
+pkgname=geoclue2
+pkgver=2.4.1
+pkgrel=1
+pkgdesc="Modular geoinformation service built on the D-Bus messaging system"
+arch=(i686 x86_64)
+url="http://geoclue.freedesktop.org/"
+license=(LGPL)
+# depends=(libsoup json-glib libnm-glib libmm-glib avahi)
+depends=(libsoup json-glib avahi)
+#makedepends=(intltool geoip python2 systemd gobject-introspection)
+makedepends=(intltool python2 systemd gobject-introspection)
+optdepends=('geoip: geoip-lookup server binary')
+backup=(etc/geoclue/geoclue.conf)
+source=(http://freedesktop.org/software/geoclue/releases/${pkgver:0:3}/geoclue-$pkgver.tar.xz)
+md5sums=('3b4ccf1ce72cebd6becacedb20f52845')
+
+# Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
+# Note: These are for Arch Linux use ONLY. For your own distribution, please
+# get your own set of keys. Feel free to contact foutrelis@archlinux.org for
+# more information.
+_google_api_key=AIzaSyDwr302FpOSkGRpLlUpPThNTDPbXcIn_FM
+
+# Mozilla API keys (see https://location.services.mozilla.com/api)
+# Note: These are for Arch Linux use ONLY. For your own distribution, please
+# get your own set of keys. Feel free to contact heftig@archlinux.org for
+# more information.
+_mozilla_api_key=16674381-f021-49de-8622-3021c5942aff
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+prepare() {
+  cd geoclue-$pkgver
+  sed -e "s/key=geoclue/key=$_mozilla_api_key/" \
+      -e "s/key=YOUR_KEY/key=$_google_api_key/" \
+      -i data/geoclue.conf.in
+}
+
+build() {
+  cd geoclue-$pkgver
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var \
+    --libexecdir=/usr/local/${dstdir}/lib/$pkgname --disable-static
+  make
+}
+
+package() {
+  cd geoclue-$pkgver
+  make DESTDIR="$pkgdir" install
+}

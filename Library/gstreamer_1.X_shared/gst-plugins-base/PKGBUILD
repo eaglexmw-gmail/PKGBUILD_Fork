@@ -3,7 +3,7 @@
 
 pkgbase=gst-plugins-base
 pkgname=('gst-plugins-base-libs' 'gst-plugins-base')
-pkgver=1.4.5
+pkgver=1.6.3
 pkgrel=1
 pkgdesc="GStreamer Multimedia Framework Base Plugins"
 arch=('i686' 'x86_64')
@@ -13,7 +13,7 @@ makedepends=('pkgconfig' 'libxv' 'alsa-lib' 'libvorbis' 'pango')
 options=(!emptydirs staticlibs)
 url="http://gstreamer.freedesktop.org/"
 source=(${url}/src/$pkgbase/$pkgbase-${pkgver}.tar.xz)
-sha256sums=('77bd8199e7a312d3d71de9b7ddf761a3b78560a2c2a80829d0815ca39cbd551d')
+sha256sums=('b6154f8fdba4877e95efd94610ef0ada4f0171cd12eb829a3c3c97345d9c7a75')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gstreamer_1.x_64

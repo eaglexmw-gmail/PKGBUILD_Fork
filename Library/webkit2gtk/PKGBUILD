@@ -11,8 +11,7 @@ license=('custom')
 #depends=('libxt' 'libxslt' 'enchant' 'geoclue2' 'gst-plugins-base-libs'
 #	 'libsecret' 'libwebp' 'harfbuzz-icu' 'gtk3')
 depends=('libxt' 'gtk3')
-#makedepends=('gtk2' 'gperf' 'gobject-introspection' 'python2' 'ruby' 'gtk-doc' 'cmake' 'python')
-makedepends=('gtk2' 'gperf' 'ruby' 'cmake')
+makedepends=('gtk2' 'gperf' 'gobject-introspection' 'python2' 'ruby' 'gtk-doc' 'cmake' 'python')
 optdepends=('gtk2: Netscape plugin support'
             'gst-plugins-base: free media decoding'
             'gst-plugins-good: media decoding'
@@ -29,54 +28,32 @@ prepare() {
   cd webkitgtk-$pkgver
   patch -p0 -i ../fix-pretty-quotes.patch
 
-  #sed -i '1s/python$/&2/' Tools/gtk/generate-gtkdoc
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/WebKit2/Scripts/generate-messages-header.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/WebKit2/Scripts/generate-message-receiver.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/replay/scripts/CodeGeneratorReplayInputs.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/replay/scripts/CodeGeneratorReplayInputsTemplates.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/codegen/generator.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/codegen/generate_backend_commands.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/codegen/generate_frontend_dispatcher_implementation.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/codegen/generate_frontend_dispatcher_header.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/codegen/generate_backend_dispatcher_implementation.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/codegen/models.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/codegen/generate_backend_dispatcher_header.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/codegen/generate_protocol_types_header.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/codegen/generate_protocol_types_implementation.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/codegen/generator_templates.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/inline-and-minify-stylesheets-and-scripts.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/JavaScriptCore/inspector/scripts/generate-inspector-protocol-bindings.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/WebCore/make-file-arrays.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/WebCore/css/makeSelectorPseudoElementsMap.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/WebCore/css/makeSelectorPseudoClassAndCompatibilityElementMap.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/WebCore/html/parser/create-html-entity-table
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/WebCore/Scripts/make-js-file-arrays.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Source/WebCore/platform/network/create-http-header-name-table
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Tools/gtk/jhbuildrc
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Tools/gtk/check-for-webkitdom-api-breaks
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Tools/gtk/generate-inspector-gresource-manifest.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Tools/gtk/webkitdom.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Tools/gtk/common.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Tools/gtk/generate-gtkdoc
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Tools/gtk/ycm_extra_conf.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Tools/gtk/make-dist.py
-  sed -i 's|/usr/bin/env python|/usr/local/python2/bin/python2_spec|g' ./Tools/Scripts/run-gtk-tests
-
   
   #sed -i 's| SHARED| STATIC|g' ./CMakeLists.txt
   #sed -i 's|ruT|ru|g' ./Source/cmake/OptionsCommon.cmake
 
   rm -r Source/ThirdParty/gtest/
   rm -r Source/ThirdParty/qunit/
+
+  sed -i '1 a INCLUDE(${CMAKE_ROOT}/Modules/CheckIncludeFiles.cmake)' ./Source/cmake/OptionsGTK.cmake
+  sed -i 's|check_include_files|CHECK_INCLUDE_FILE|' ./Source/cmake/OptionsGTK.cmake
+
+  sed -i '51 a list(APPEND HARFBUZZ_INCLUDE_DIRS "/usr/local/include/harfbuzz")' ./Source/cmake/FindHarfBuzz.cmake
+
+  sed -i 's|using|//uning |g' Source/WTF/wtf/gobject/GMutexLocker.h
+
+  sed -i '101 a #define GMutexLocker WTF::GMutexLocker' Source/WTF/wtf/gobject/GMutexLocker.h
+  sed -i '55 a #define GMutexLocker WTF::GMutexLocker' ./Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp
+  sed -i '42 a #define GMutexLocker WTF::GMutexLocker' ./Source/WebCore/platform/graphics/gstreamer/VideoSinkGStreamer.cpp
+  sed -i '52 a #define GMutexLocker WTF::GMutexLocker' ./Source/WebCore/platform/graphics/gstreamer/WebKitWebSourceGStreamer.cpp
 }
 
 build() {
   cd build
-  export PATH="$PATH:/usr/local/python2/bin"
-  PYTHON=/usr/local/python2/bin/python2_spec
+  export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/:${PKG_CONFIG_PATH}
   cmake -DPORT=GTK -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_SKIP_RPATH=ON -DCMAKE_INSTALL_PREFIX=/usr \
-        -DLIB_INSTALL_DIR=/usr/lib -DLIBEXEC_INSTALL_DIR=/usr/lib/webkit2gtk-4.0 \
+        -DCMAKE_SKIP_RPATH=ON -DCMAKE_INSTALL_PREFIX=/usr/local/webkit \
+        -DLIB_INSTALL_DIR=/usr/local/webkit/lib -DLIBEXEC_INSTALL_DIR=/usr/local/webkit/lib/webkit2gtk-4.0 \
         -DENABLE_GTKDOC=OFF ../webkitgtk-$pkgver
 
   make cmake_check_build_system
@@ -93,7 +70,7 @@ build() {
   #sed -i 's|libWebCorePlatformGTK.a |libWebCorePlatformGTK.a -L../../lib/ -lWebCoreGTK |g' ./Source/WebKit2/CMakeFiles/PluginProcess.dir/link.txt
 
   sed -i 's|libharfbuzz.a |libharfbuzz.a -lgraphite2 |g' ./Source/WebKit2/CMakeFiles/WebKitPluginProcess2.dir/link.txt
-  sed -i 's|libgstaudio-1.0.a |libgstaudio-1.0.a -lorc-0.4 |g' ./Source/WebKit2/CMakeFiles/WebKitPluginProcess2.dir/link.txt
+  sed -i 's|libgstaudio-1.0.a |libgstaudio-1.0.a -lorc-0.4 -lX11 -lXcomposite -lXdamage |g' ./Source/WebKit2/CMakeFiles/WebKitPluginProcess2.dir/link.txt
   #sed -i 's|libWebCorePlatformGTK.a |libWebCorePlatformGTK.a -L../../lib/ -lWebCoreGTK |g' ./Source/WebKit2/CMakeFiles/WebKitPluginProcess2.dir/link.txt
 
   sed -i 's|libharfbuzz.a |libharfbuzz.a -lgraphite2 |g' ./Source/WebKit2/CMakeFiles/WebProcess.dir/link.txt
@@ -104,7 +81,7 @@ build() {
   #sed -i '150,153 d' ./Source/WebKit2/cmake_install.cmake
 
   sed -i 's|libharfbuzz.a |libharfbuzz.a -lgraphite2 |g' ./Source/WebKit2/CMakeFiles/WebKit2.dir/link.txt
-  sed -i 's|libgstaudio-1.0.a |libgstaudio-1.0.a -lorc-0.4  |g' ./Source/WebKit2/CMakeFiles/WebKit2.dir/link.txt
+  sed -i 's|libgstaudio-1.0.a |libgstaudio-1.0.a -lorc-0.4 -lX11 -lXcomposite -lXdamage |g' ./Source/WebKit2/CMakeFiles/WebKit2.dir/link.txt
 
   make
 }
@@ -113,13 +90,13 @@ package() {
   cd build
   make DESTDIR="$pkgdir" install
 
-  cp -f ./lib/*.a $pkgdir/usr/lib/
+  cp -f ./lib/*.a $pkgdir/usr/local/webkit/lib/
 
-  install -m755 -d "$pkgdir/usr/share/licenses/webkit2gtk"
+  install -m755 -d "$pkgdir/usr/local/webkit/share/licenses/webkit2gtk"
   cd "$srcdir/webkitgtk-$pkgver/Source"
   for f in $(find -name 'COPYING*' -or -name 'LICENSE*'); do
-    echo $f >> "$pkgdir/usr/share/licenses/webkit2gtk/LICENSE"
-    cat $f >> "$pkgdir/usr/share/licenses/webkit2gtk/LICENSE"
-    echo "" >> "$pkgdir/usr/share/licenses/webkit2gtk/LICENSE"
+    echo $f >> "$pkgdir/usr/local/webkit/share/licenses/webkit2gtk/LICENSE"
+    cat $f >> "$pkgdir/usr/local/webkit/share/licenses/webkit2gtk/LICENSE"
+    echo "" >> "$pkgdir/usr/local/webkit/share/licenses/webkit2gtk/LICENSE"
   done
 }

@@ -1,0 +1,44 @@
+--- xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitleParserSSA.cpp.old	2013-12-03 01:56:51.534107255 +0400
++++ xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitleParserSSA.cpp	2013-12-03 02:12:38.490731819 +0400
+@@ -41,7 +41,9 @@
+ 
+   if (!CDVDSubtitleParserText::Open())
+     return false;
+-  if(!m_libass->CreateTrack((char* )m_pStream->m_stringstream.str().c_str()))
++
++  std::string buffer = m_pStream->m_stringstream.str();
++  if(!m_libass->CreateTrack((char* ) buffer.c_str(), buffer.length()))
+     return false;
+ 
+   //Creating the overlays by going through the list of ass_events
+--- xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitlesLibass.cpp.old	2013-12-03 01:57:25.367439307 +0400
++++ xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitlesLibass.cpp	2013-12-03 02:13:45.310728784 +0400
+@@ -132,7 +132,7 @@
+   return true;
+ }
+ 
+-bool CDVDSubtitlesLibass::CreateTrack(char* buf)
++bool CDVDSubtitlesLibass::CreateTrack(char* buf, int size)
+ {
+   CSingleLock lock(m_section);
+   if(!m_library)
+@@ -143,7 +143,7 @@
+ 
+   CLog::Log(LOGINFO, "SSA Parser: Creating m_track from SSA buffer");
+ 
+-  m_track = m_dll.ass_read_memory(m_library, buf, 0, 0);
++  m_track = m_dll.ass_read_memory(m_library, buf, size, 0);
+   if(m_track == NULL)
+     return false;
+ 
+--- xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitlesLibass.h.old	2013-12-03 01:57:55.014104652 +0400
++++ xbmc/cores/dvdplayer/DVDSubtitles/DVDSubtitlesLibass.h	2013-12-03 02:14:07.360727835 +0400
+@@ -39,7 +39,7 @@
+ 
+   bool DecodeHeader(char* data, int size);
+   bool DecodeDemuxPkt(char* data, int size, double start, double duration);
+-  bool CreateTrack(char* buf);
++  bool CreateTrack(char* buf, int size);
+ 
+ private:
+   DllLibass m_dll;

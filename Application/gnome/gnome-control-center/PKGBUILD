@@ -1,0 +1,74 @@
+# $Id$
+# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+
+pkgname=gnome-control-center
+pkgver=3.18.2
+pkgrel=1
+pkgdesc="The Control Center for GNOME"
+license=(GPL)
+arch=(i686 x86_64)
+depends=(accountsservice cups-pk-helper gnome-bluetooth gnome-desktop
+         gnome-online-accounts gnome-settings-daemon gsettings-desktop-schemas gtk3
+         libgtop libnm-gtk sound-theme-freedesktop upower libpwquality
+         gnome-color-manager smbclient libmm-glib libgnomekbd grilo clutter-gtk libibus
+         cheese libgudev)
+makedepends=(intltool docbook-xsl modemmanager gnome-common)
+optdepends=('system-config-printer: Printer settings'
+            'gnome-user-share: Bluetooth and WebDAV file sharing'
+            'rygel: media sharing'
+            'vino: screen sharing'
+            'openssh: remote login')
+groups=(gnome)
+url="http://www.gnome.org"
+install=gnome-control-center.install
+options=('!emptydirs')
+source=(http://download.gnome.org/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz
+        g_drop_goa.patch drop_colord.patch drop_smbclient.patch)
+sha256sums=('36fe6157247d2b7c8a98dbb3dbcde1c3a6f9e5e8fcc9ccf357e2b2417578f8ad'
+            'SKIP' 'SKIP' 'SKIP')
+
+depends=(accountsservice
+         gsettings-desktop-schemas gtk3
+         sound-theme-freedesktop upower
+         libgudev)
+makedepends=(intltool docbook-xsl gnome-common)
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../g_drop_goa.patch
+  patch -p1 -i ../drop_colord.patch
+  patch -p1 -i ../drop_smbclient.patch
+  ACLOCAL_FLAGS="-I libgd" NOCONFIGURE=1 srcdir=. gnome-autogen.sh
+}
+
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var \
+      --libexecdir=/usr/local/${dstdir}/lib/$pkgname --disable-static
+
+  #https://bugzilla.gnome.org/show_bug.cgi?id=656229
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0 /g' -e 's/    if test "$export_dynamic" = yes && test -n "$export_dynamic_flag_spec"; then/      func_append compile_command " -Wl,-O1,--as-needed"\n      func_append finalize_command " -Wl,-O1,--as-needed"\n\0/' libtool
+
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  make DESTDIR="$pkgdir" install
+
+  install -d -o root -g 102 -m 750 "$pkgdir/usr/local/${dstdir}/share/polkit-1/rules.d"
+}

@@ -1,0 +1,100 @@
+diff -Nur gnome-control-center-3.18.2/config.h.in gnome-control-center-3.18.2_new/config.h.in
+--- gnome-control-center-3.18.2/config.h.in	2015-11-10 21:13:41.000000000 +0800
++++ gnome-control-center-3.18.2_new/config.h.in	2016-01-03 11:34:06.000000000 +0800
+@@ -18,6 +18,9 @@
+ /* Define if debugging is enabled */
+ #undef GNOME_ENABLE_DEBUG
+ 
++/* Define to 1 if OnlineAccounts support is available */
++#undef HAVE_ONLINE_ACCOUNTS
++
+ /* Define to 1 if bluetooth support is available */
+ #undef HAVE_BLUETOOTH
+ 
+diff -Nur gnome-control-center-3.18.2/configure.ac gnome-control-center-3.18.2_new/configure.ac
+--- gnome-control-center-3.18.2/configure.ac	2015-11-10 21:13:19.000000000 +0800
++++ gnome-control-center-3.18.2_new/configure.ac	2016-01-03 11:34:34.000000000 +0800
+@@ -140,7 +139,15 @@
+ PKG_CHECK_MODULES(NETWORK_PANEL, $COMMON_MODULES gmodule-2.0
+                   polkit-gobject-1 >= $POLKIT_REQUIRED_VERSION)
+ PKG_CHECK_MODULES(NOTIFICATIONS_PANEL, $COMMON_MODULES)
+-PKG_CHECK_MODULES(ONLINE_ACCOUNTS_PANEL, $COMMON_MODULES goa-1.0 goa-backend-1.0 >= $GOA_REQUIRED_VERSION)
++PKG_CHECK_MODULES(ONLINE_ACCOUNTS_PANEL, $COMMON_MODULES goa-1.0 goa-backend-1.0 >= $GOA_REQUIRED_VERSION,
++                  [have_online_accounts=yes], have_online_accounts=no)
++if test "x$have_online_accounts" = xyes ; then
++	AC_DEFINE(BUILD_ONLINE_ACCOUNTS, 1, [Define to 1 to build the OnlineAccounts panel])
++fi
++AM_CONDITIONAL(BUILD_ONLINE_ACCOUNTS, [test x$have_online_accounts = xyes])
++if test x${have_online_accounts} = xyes; then
++  AC_DEFINE(HAVE_ONLINE_ACCOUNTS, 1, [Define to 1 if OnlineAccounts support is available])
++fi
+ PKG_CHECK_MODULES(POWER_PANEL, $COMMON_MODULES upower-glib >= 0.99.0
+                   gnome-settings-daemon >= $GSD_REQUIRED_VERSION)
+ PKG_CHECK_MODULES(COLOR_PANEL, $COMMON_MODULES
+diff -Nur gnome-control-center-3.18.2/panels/Makefile.am gnome-control-center-3.18.2_new/panels/Makefile.am
+--- gnome-control-center-3.18.2/panels/Makefile.am	2014-09-05 18:39:00.000000000 +0800
++++ gnome-control-center-3.18.2_new/panels/Makefile.am	2016-01-03 14:11:46.000000000 +0800
+@@ -6,7 +6,6 @@
+ 	display \
+ 	mouse \
+ 	notifications \
+-	online-accounts \
+ 	region \
+ 	info \
+ 	sound \
+@@ -18,6 +17,10 @@
+ 	privacy \
+ 	sharing
+ 
++if BUILD_ONLINE_ACCOUNTS
++SUBDIRS += online-accounts
++endif
++
+ if BUILD_WACOM
+ SUBDIRS += wacom
+ endif
+diff -Nur gnome-control-center-3.18.2/shell/Makefile.am gnome-control-center-3.18.2_new/shell/Makefile.am
+--- gnome-control-center-3.18.2/shell/Makefile.am	2015-07-10 19:09:23.000000000 +0800
++++ gnome-control-center-3.18.2_new/shell/Makefile.am	2016-01-03 14:14:10.000000000 +0800
+@@ -65,7 +65,6 @@
+ 	$(top_builddir)/panels/keyboard/libkeyboard.la			\
+ 	$(top_builddir)/panels/mouse/libmouse-properties.la		\
+ 	$(top_builddir)/panels/notifications/libnotifications.la	\
+-	$(top_builddir)/panels/online-accounts/libonline-accounts.la	\
+ 	$(top_builddir)/panels/power/libpower.la			\
+ 	$(top_builddir)/panels/privacy/libprivacy.la			\
+ 	$(top_builddir)/panels/region/libregion.la			\
+@@ -75,6 +74,10 @@
+ 	$(top_builddir)/panels/universal-access/libuniversal-access.la	\
+ 	$(top_builddir)/panels/user-accounts/libuser-accounts.la
+ 
++if BUILD_ONLINE_ACCOUNTS
++gnome_control_center_LDADD += $(top_builddir)/panels/online-accounts/libonline-accounts.la
++endif
++
+ if BUILD_WACOM
+ gnome_control_center_LDADD += $(top_builddir)/panels/wacom/libwacom-properties.la
+ endif
+diff -Nur gnome-control-center-3.18.2/shell/cc-panel-loader.c gnome-control-center-3.18.2_new/shell/cc-panel-loader.c
+--- gnome-control-center-3.18.2/shell/cc-panel-loader.c	2015-09-21 22:59:32.000000000 +0800
++++ gnome-control-center-3.18.2_new/shell/cc-panel-loader.c	2016-01-03 14:13:34.000000000 +0800
+@@ -43,7 +43,9 @@
+ extern GType cc_network_panel_get_type (void);
+ #endif /* BUILD_NETWORK */
+ extern GType cc_notifications_panel_get_type (void);
++#ifdef BUILD_ONLINE_ACCOUNTS
+ extern GType cc_goa_panel_get_type (void);
++#endif /* BUILD_ONLINE_ACCOUNTS */
+ extern GType cc_power_panel_get_type (void);
+ #ifdef BUILD_PRINTERS
+ extern GType cc_printers_panel_get_type (void);
+@@ -87,7 +89,9 @@
+   PANEL_TYPE("network",          cc_network_panel_get_type      ),
+ #endif
+   PANEL_TYPE("notifications",    cc_notifications_panel_get_type),
++#ifdef BUILD_ONLINE_ACCOUNTS
+   PANEL_TYPE("online-accounts",  cc_goa_panel_get_type          ),
++#endif
+   PANEL_TYPE("power",            cc_power_panel_get_type        ),
+ #ifdef BUILD_PRINTERS
+   PANEL_TYPE("printers",         cc_printers_panel_get_type     ),

@@ -2,7 +2,7 @@
 # Maintainer: Eric Bélanger <eric@archlinux.org>
 
 pkgname=gitg
-pkgver=3.15.1
+pkgver=3.18.0
 pkgrel=1
 pkgdesc='A GIT repository viewer based on GTK+'
 arch=('i686' 'x86_64')
@@ -12,27 +12,29 @@ license=('GPL')
 makedepends=('intltool' 'vala' 'gobject-introspection' 'gnome-common')
 groups=('gnome-extra')
 install=gitg.install
-source=(ftp://ftp.gnome.org/pub/GNOME/sources/gitg/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz
-        gir_tests.patch)
-sha256sums=('feec5c8ef4f7134900305539ad4f087927497015191f26fd9f0cacfc7379cff3'
-            'SKIP')
+source=(ftp://ftp.gnome.org/pub/GNOME/sources/gitg/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz)
+sha256sums=('fa4b7b9c492f13f5f1d864af1281ea377ac8c7619c856e05f533b18989edf421')
 
 build() {
   cd ${pkgname}-${pkgver}
 
-  patch -p1 -i ../gir_tests.patch
-  autopoint --force
-  AUTOPOINT='intltoolize --automake --copy' autoreconf --force --install --verbose
+  # patch -p1 -i ../gir_tests.patch
+  # autopoint --force
+  # AUTOPOINT='intltoolize --automake --copy' autoreconf --force --install --verbose
 
-  export PKG_CONFIG_PATH="/usr/local/webkit/lib/pkgconfig:$PKG_CONFIG_PATH"
-  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/webkit/lib"
+  export PKG_CONFIG_PATH="/usr/local/gitg/lib/pkgconfig:/usr/local/webkit/lib/pkgconfig:$PKG_CONFIG_PATH"
+  export LD_LIBRARY_PATH="/usr/local/gitg/lib:/usr/local/webkit/lib:$LD_LIBRARY_PATH"
+  export XDG_DATA_DIRS="/usr/local/gitg/share:/usr/local/webkit/share:/usr/share"
 
   ./configure --prefix=/usr/local/gitg
 
   # Don't overlink
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0 /g' -e 's/    if test "$export_dynamic" = yes && test -n "$export_dynamic_flag_spec"; then/      func_append compile_command " -Wl,-O1,--as-needed"\n      func_append finalize_command " -Wl,-O1,--as-needed"\n\0/' libtool
 
-  #sed -i 's|-lgirepository-1.0 |/usr/local/lib/libgirepository-1.0.a -lffi |g' Makefile
+  # sed -i 's|-lgirepository-1.0 |/usr/local/lib/libgirepository-1.0.a -lffi |g' Makefile
+
+  # mv Gitg_in-1.0.gir Gitg-1.0.gir
+  cp ../../Gitg-1.0.gir ./
 
   make WARN_CFLAGS="-Wall"
 }

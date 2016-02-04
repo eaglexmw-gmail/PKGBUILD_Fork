@@ -1,0 +1,47 @@
+# $Id$
+# Maintainer:  Ionut Biru <ibiru@archlinux.org>
+# Contributor: Ju Liu <liuju86 at gmail dot com>
+# Contributor: Bjorn Lindeijer <bjorn lindeijer nl>
+# Contributor: Andreas Zwinkau <beza1e1@web.de>
+
+pkgname=telepathy-mission-control
+pkgver=5.16.3
+pkgrel=1
+pkgdesc="A Telepathy component providing abstraction of some of the details of connection managers."
+arch=('i686' 'x86_64')
+url="http://telepathy.freedesktop.org/wiki/Mission Control"
+license=('LGPL2.1')
+depends=('telepathy-glib' 'libgnome-keyring' 'dconf' 'networkmanager')
+makedepends=('libxslt' 'python2' 'gtk-doc')
+install=telepathy-mission-control.install
+source=(http://telepathy.freedesktop.org/releases/$pkgname/$pkgname-$pkgver.tar.gz)
+md5sums=('af583c41b97c649c37eebba1f2113427')
+
+depends=('dconf')
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+build() {
+    cd "$pkgname-$pkgver"
+
+  export PKG_CONFIG_PATH=/usr/local/${dstdir}/lib/pkgconfig/:${PKG_CONFIG_PATH}
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+    PYTHON=python2 ./configure --prefix=/usr/local/${dstdir} --libexecdir=/usr/local/${dstdir}/lib/telepathy \
+        --with-connectivity=nm \
+        --enable-gtk-doc \
+        --disable-upower \
+        --disable-static \
+        --disable-schemas-compile
+    make
+}
+
+package() {
+    cd "$pkgname-$pkgver"
+    make DESTDIR="$pkgdir" install
+}

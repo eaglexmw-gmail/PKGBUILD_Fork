@@ -14,11 +14,18 @@ md5sums=('b22f040e268fd4cc8fa2c7a1b34cbe8f')
 
 build(){
 	cd "$srcdir"/${pkgname}-0.0.2+${pkgver}/
-        export CPPFLAGS="$CPPFLAGS -I/usr/include -I/usr/local/include -I/usr/local/python-gtk/py2_gtk2/include -I/usr/local/python-gtk/py2_gtk2/include/pygtk-2.0/"
+
+        export PKG_CONFIG_PATH=/usr/local/webkit/lib/pkgconfig/:${PKG_CONFIG_PATH}
+
+        export CPPFLAGS="$CPPFLAGS -I/usr/include -I/usr/local/include -I/usr/local/python-gtk/py2_gtk2/include -I/usr/local/python-gtk/py2_gtk2/include/pygtk-2.0/ -L/usr/local/webkit/lib"
+
 	/usr/local/python2/bin/python2_spec setup.py build
 }
 package() {
 	cd "$srcdir"/${pkgname}-0.0.2+${pkgver}/
+
+        export PKG_CONFIG_PATH=/usr/local/webkit/lib/pkgconfig/:${PKG_CONFIG_PATH}
+
 	/usr/local/python2/bin/python2_spec setup.py install --root="$pkgdir/" --optimize=1
 	
 	cd ${pkgdir}/usr/local/python2/lib/python2.7/site-packages/deepin_utils/

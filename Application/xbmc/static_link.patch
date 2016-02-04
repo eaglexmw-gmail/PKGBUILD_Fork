@@ -1,0 +1,522 @@
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cdrip/DllFlacEnc.h xbmc-12.3-Frodo/xbmc/cdrip/DllFlacEnc.h
+--- xbmc-12.3-Frodo_old/xbmc/cdrip/DllFlacEnc.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cdrip/DllFlacEnc.h	2014-01-04 09:27:02.265068206 +0800
+@@ -52,6 +52,7 @@
+   virtual ~DllFlacEncInterface() {}
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllFlacEnc : public DllDynamic, DllFlacEncInterface
+ {
+   DECLARE_DLL_WRAPPER(DllFlacEnc, DLL_PATH_FLAC_CODEC)
+@@ -93,3 +94,4 @@
+     RESOLVE_METHOD(FLAC__metadata_object_delete)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cdrip/DllLameenc.h xbmc-12.3-Frodo/xbmc/cdrip/DllLameenc.h
+--- xbmc-12.3-Frodo_old/xbmc/cdrip/DllLameenc.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cdrip/DllLameenc.h	2014-01-04 09:27:02.271734836 +0800
+@@ -25,6 +25,7 @@
+ #include <lame.h>
+ #else
+ #include "lame/lame.h"
++#include "id3tag.h"
+ #endif
+ 
+ class DllLameEncInterface
+@@ -58,6 +58,7 @@
+   virtual ~DllLameEncInterface() {}
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLameEnc : public DllDynamic, DllLameEncInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLameEnc, DLL_PATH_LAME_ENC)
+@@ -112,3 +113,4 @@
+     RESOLVE_METHOD(lame_encode_flush)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cdrip/DllOgg.h xbmc-12.3-Frodo/xbmc/cdrip/DllOgg.h
+--- xbmc-12.3-Frodo_old/xbmc/cdrip/DllOgg.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cdrip/DllOgg.h	2014-01-04 09:27:02.335067827 +0800
+@@ -39,6 +39,7 @@
+   virtual ~DllOggInterface() {}
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllOgg : public DllDynamic, DllOggInterface
+ {
+   DECLARE_DLL_WRAPPER(DllOgg, DLL_PATH_OGG)
+@@ -57,3 +58,4 @@
+     RESOLVE_METHOD(ogg_stream_packetin)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cdrip/DllVorbisEnc.h xbmc-12.3-Frodo/xbmc/cdrip/DllVorbisEnc.h
+--- xbmc-12.3-Frodo_old/xbmc/cdrip/DllVorbisEnc.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cdrip/DllVorbisEnc.h	2014-01-04 09:27:02.351734403 +0800
+@@ -35,6 +35,7 @@
+   virtual ~DllVorbisEncInterface() {}
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllVorbisEnc : public DllDynamic, DllVorbisEncInterface
+ {
+   DECLARE_DLL_WRAPPER(DllVorbisEnc, DLL_PATH_VORBIS_ENC)
+@@ -45,3 +46,4 @@
+     RESOLVE_METHOD(vorbis_encode_init_vbr)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cdrip/DllVorbis.h xbmc-12.3-Frodo/xbmc/cdrip/DllVorbis.h
+--- xbmc-12.3-Frodo_old/xbmc/cdrip/DllVorbis.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cdrip/DllVorbis.h	2014-01-04 09:27:02.355067718 +0800
+@@ -49,6 +49,7 @@
+   virtual ~DllVorbisInterface() {}
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllVorbis : public DllDynamic, DllVorbisInterface
+ {
+   DECLARE_DLL_WRAPPER(DllVorbis, DLL_PATH_VORBIS)
+@@ -87,3 +88,4 @@
+     RESOLVE_METHOD(vorbis_dsp_clear)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cores/amlplayer/DllLibamplayer.h xbmc-12.3-Frodo/xbmc/cores/amlplayer/DllLibamplayer.h
+--- xbmc-12.3-Frodo_old/xbmc/cores/amlplayer/DllLibamplayer.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cores/amlplayer/DllLibamplayer.h	2014-01-04 09:27:02.275068152 +0800
+@@ -73,6 +73,7 @@
+   virtual int av_register_protocol2(AML_URLProtocol *protocol, int size)=0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibAmplayer : public DllDynamic, DllLibAmplayerInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibAmplayer, "libamplayer.so")
+@@ -152,3 +153,4 @@
+ 
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDCodecs/Audio/DllLibMad.h xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Audio/DllLibMad.h
+--- xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDCodecs/Audio/DllLibMad.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Audio/DllLibMad.h	2014-01-04 09:27:02.305067989 +0800
+@@ -50,6 +50,7 @@
+   virtual void mad_timer_add(mad_timer_t *, mad_timer_t) = 0;
+   virtual mad_timer_t Get_mad_timer_zero() = 0;
+ };
++#include "def_static_lib_method.h"
+ 
+ class DllLibMad : public DllDynamic, DllLibMadInterface
+ {
+@@ -86,3 +87,4 @@
+   END_METHOD_RESOLVE()
+ };
+ 
++#include "def_shared_so_method.h"
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDCodecs/Video/CrystalHD.cpp xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Video/CrystalHD.cpp
+--- xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDCodecs/Video/CrystalHD.cpp	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Video/CrystalHD.cpp	2014-01-04 09:27:02.255068260 +0800
+@@ -90,6 +90,7 @@
+   virtual BCM::BC_STATUS DtsCrystalHDVersion(void *hDevice, BCM::BC_INFO_CRYSTAL *CrystalInfo)=0;
+ #endif
+ };
++#include "def_static_lib_method.h"
+ 
+ class DllLibCrystalHD : public DllDynamic, DllLibCrystalHDInterface
+ {
+@@ -164,6 +165,7 @@
+ #endif
+   };
+ };
++#include "def_shared_so_method.h"
+ 
+ void PrintFormat(BCM::BC_PIC_INFO_BLOCK &pib);
+ void BcmDebugLog( BCM::BC_STATUS lResult, CStdString strFuncName="");
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibMpeg2.h xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibMpeg2.h
+--- xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibMpeg2.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibMpeg2.h	2014-01-04 09:27:02.311734620 +0800
+@@ -53,6 +53,7 @@
+   virtual void mpeg2_skip(mpeg2dec_t * mpeg2dec, int skip)=0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibMpeg2 : public DllDynamic, DllLibMpeg2Interface
+ {
+   DECLARE_DLL_WRAPPER(DllLibMpeg2, DLL_PATH_LIBMPEG2)
+@@ -83,3 +84,4 @@
+     RESOLVE_METHOD(mpeg2_skip)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecVDA.cpp xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecVDA.cpp
+--- xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecVDA.cpp	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Video/DVDVideoCodecVDA.cpp	2014-01-04 09:27:02.365067664 +0800
+@@ -133,6 +133,7 @@
+   virtual CFStringRef Get_kVDADecoderConfiguration_avcCData() = 0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibVDADecoder : public DllDynamic, DllLibVDADecoderInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibVDADecoder, DLL_PATH_LIBVDADECODER)
+@@ -157,6 +158,7 @@
+   END_METHOD_RESOLVE()
+ };
+ 
++#include "def_shared_so_method.h"
+ ////////////////////////////////////////////////////////////////////////////////////////////
+ // helper function that wraps dts/pts into a dictionary
+ static CFDictionaryRef CreateDictionaryWithDisplayTime(double time, double dts, double pts)
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDCodecs/Video/OpenMax.cpp xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Video/OpenMax.cpp
+--- xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDCodecs/Video/OpenMax.cpp	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Video/OpenMax.cpp	2014-01-04 09:27:02.371734295 +0800
+@@ -60,6 +60,7 @@
+   virtual OMX_ERRORTYPE OMX_ComponentNameEnum(OMX_STRING cComponentName, OMX_U32 nNameLength, OMX_U32 nIndex) = 0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibOpenMax : public DllDynamic, DllLibOpenMaxInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibOpenMax, "/usr/lib/libnvomx.so")
+@@ -82,6 +83,7 @@
+   END_METHOD_RESOLVE()
+ };
+ 
++#include "def_shared_so_method.h"
+ ////////////////////////////////////////////////////////////////////////////////////////////
+ #define OMX_INIT_STRUCTURE(a) \
+   memset(&(a), 0, sizeof(a)); \
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDInputStreams/DllLibRTMP.h xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDInputStreams/DllLibRTMP.h
+--- xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDInputStreams/DllLibRTMP.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDInputStreams/DllLibRTMP.h	2014-01-04 09:27:02.321734565 +0800
+@@ -44,6 +44,7 @@
+   virtual bool Pause(RTMP* r, bool DoPause)=0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibRTMP : public DllDynamic, DllLibRTMPInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibRTMP, DLL_PATH_LIBRTMP)
+@@ -76,4 +77,5 @@
+     RESOLVE_METHOD_RENAME(RTMP_Pause,Pause)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+ 
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDSubtitles/DllLibass.h xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDSubtitles/DllLibass.h
+--- xbmc-12.3-Frodo_old/xbmc/cores/dvdplayer/DVDSubtitles/DllLibass.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDSubtitles/DllLibass.h	2014-01-04 09:27:02.281734782 +0800
+@@ -68,6 +68,7 @@
+                                 , void *data)=0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibass : public DllDynamic, DllLibassInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibass, DLL_PATH_LIBASS)
+@@ -114,3 +115,4 @@
+     RESOLVE_METHOD(ass_set_message_cb)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+diff -Nur xbmc-12.3-Frodo_old/xbmc/cores/omxplayer/DllOMX.h xbmc-12.3-Frodo/xbmc/cores/omxplayer/DllOMX.h
+--- xbmc-12.3-Frodo_old/xbmc/cores/omxplayer/DllOMX.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/cores/omxplayer/DllOMX.h	2014-01-04 09:27:02.345067772 +0800
+@@ -87,6 +87,7 @@
+   virtual void Unload() {}
+ };
+ #else
++#include "def_static_lib_method.h"
+ class DllOMX : public DllDynamic, DllOMXInterface
+ {
+   //DECLARE_DLL_WRAPPER(DllLibOpenMax, "/usr/lib/libnvomx.so")
+@@ -117,6 +118,7 @@
+     return DllDynamic::Load();
+   }
+ };
++#include "def_shared_so_method.h"
+ #endif
+ 
+ #endif
+diff -Nur xbmc-12.3-Frodo_old/xbmc/def_shared_so_method.h xbmc-12.3-Frodo/xbmc/def_shared_so_method.h
+--- xbmc-12.3-Frodo_old/xbmc/def_shared_so_method.h	1970-01-01 08:00:00.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/def_shared_so_method.h	2014-01-04 09:27:02.235068368 +0800
+@@ -0,0 +1,33 @@
++#ifndef __DEF_SHARED_SO_METHOD_H__
++#define __DEF_SHARED_SO_METHOD_H__
++
++#undef DECLARE_DLL_WRAPPER
++#undef XDECLARE_DLL_WRAPPER
++#undef RESOLVE_METHOD
++#undef RESOLVE_METHOD_FP
++#undef RESOLVE_METHOD_RENAME
++#undef RESOLVE_METHOD_RENAME_EXT
++#undef RESOLVE_METHOD_RENAME_FP
++
++#define DECLARE_DLL_WRAPPER(classname, dllname) \
++XDECLARE_DLL_WRAPPER(classname,dllname)
++
++#define XDECLARE_DLL_WRAPPER(classname, dllname) \
++public: \
++  classname () : DllDynamic( dllname ) {}
++
++#define RESOLVE_METHOD(method) \
++  m_dll->ResolveExport( #method , & m_##method##_ptr ) &&
++
++#define RESOLVE_METHOD_FP(method) \
++  m_dll->ResolveExport( #method , & method##_ptr ) &&
++
++#define RESOLVE_METHOD_RENAME(dllmethod, method) \
++  m_dll->ResolveExport( #dllmethod , & m_##method##_ptr ) &&
++
++#define RESOLVE_METHOD_RENAME_FP(dllmethod, method) \
++  m_dll->ResolveExport( #dllmethod , & method##_ptr ) &&
++
++#undef __DEF_STATIC_LIB_METHOD_H__
++
++#endif
+diff -Nur xbmc-12.3-Frodo_old/xbmc/def_static_lib_method.h xbmc-12.3-Frodo/xbmc/def_static_lib_method.h
+--- xbmc-12.3-Frodo_old/xbmc/def_static_lib_method.h	1970-01-01 08:00:00.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/def_static_lib_method.h	2014-01-04 09:27:02.238401684 +0800
+@@ -0,0 +1,38 @@
++#ifndef __DEF_STATIC_LIB_METHOD_H__
++#define __DEF_STATIC_LIB_METHOD_H__
++
++#undef DECLARE_DLL_WRAPPER
++#undef XDECLARE_DLL_WRAPPER
++#undef RESOLVE_METHOD
++#undef RESOLVE_METHOD_FP
++#undef RESOLVE_METHOD_RENAME
++#undef RESOLVE_METHOD_RENAME_FP
++
++
++#define DECLARE_DLL_WRAPPER(classname, dllname) \
++XDECLARE_DLL_WRAPPER(classname,dllname)
++
++#define XDECLARE_DLL_WRAPPER(classname, dllname) \
++public: \
++  classname () : DllDynamic( dllname ) {} \
++  virtual bool Load() { if (m_dll) return true; m_dll = (LibraryLoader*)1; return ResolveExports(); }    \
++  virtual void Unload()  { m_dll = 0; }
++
++#define RESOLVE_METHOD(method) \
++  ( m_##method##_ptr = (void*) & :: method ) &&
++
++#define RESOLVE_METHOD_FP(method) \
++  ( method##_ptr = (void*) & :: method ) &&
++
++#define RESOLVE_METHOD_RENAME(dllmethod, method) \
++  ( m_##method##_ptr = (void*) & :: dllmethod ) &&
++
++#define RESOLVE_METHOD_RENAME_EXT(bcm, dllmethod, method) \
++  ( m_##method##_ptr = (void*) & bcm :: dllmethod ) &&
++
++#define RESOLVE_METHOD_RENAME_FP(dllmethod, method) \
++  ( method##_ptr = (void*) & :: dllmethod ) &&
++
++#undef __DEF_SHARED_SO_METHOD_H__
++
++#endif
+diff -Nur xbmc-12.3-Frodo_old/xbmc/filesystem/DllLibNfs.h xbmc-12.3-Frodo/xbmc/filesystem/DllLibNfs.h
+--- xbmc-12.3-Frodo_old/xbmc/filesystem/DllLibNfs.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/filesystem/DllLibNfs.h	2014-01-04 09:27:02.315067935 +0800
+@@ -80,6 +80,7 @@
+   virtual int nfs_lseek(struct nfs_context *nfs,     struct nfsfh *nfsfh,  uint64_t offset, int whence,   uint64_t *current_offset)=0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibNfs : public DllDynamic, DllLibNfsInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibNfs, DLL_PATH_LIBNFS)
+@@ -171,4 +172,5 @@
+     RESOLVE_METHOD_RENAME(nfs_link,      nfs_link)      
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+ 
+diff -Nur xbmc-12.3-Frodo_old/xbmc/linux/DllBCM.h xbmc-12.3-Frodo/xbmc/linux/DllBCM.h
+--- xbmc-12.3-Frodo_old/xbmc/linux/DllBCM.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/linux/DllBCM.h	2014-01-04 09:27:02.261734891 +0800
+@@ -154,6 +154,7 @@
+   virtual void Unload() {}
+ };
+ #else
++#include "def_static_lib_method.h"
+ class DllBcmHost : public DllDynamic, DllBcmHostInterface
+ {
+   DECLARE_DLL_WRAPPER(DllBcmHost, "/opt/vc/lib/libbcm_host.so")
+@@ -226,6 +227,7 @@
+     return DllDynamic::Load();
+   }
+ };
++#include "def_shared_so_method.h"
+ #endif
+ 
+ #endif
+diff -Nur xbmc-12.3-Frodo_old/xbmc/linux/DllOMX.h xbmc-12.3-Frodo/xbmc/linux/DllOMX.h
+--- xbmc-12.3-Frodo_old/xbmc/linux/DllOMX.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/linux/DllOMX.h	2014-01-04 09:27:02.341734457 +0800
+@@ -87,6 +87,7 @@
+   virtual void Unload() {}
+ };
+ #else
++#include "def_static_lib_method.h"
+ class DllOMX : public DllDynamic, DllOMXInterface
+ {
+   DECLARE_DLL_WRAPPER(DllOMX, "libopenmaxil.so")
+@@ -116,6 +117,7 @@
+     return DllDynamic::Load();
+   }
+ };
++#include "def_shared_so_method.h"
+ #endif
+ 
+ #endif
+diff -Nur xbmc-12.3-Frodo_old/xbmc/main/main.cpp xbmc-12.3-Frodo/xbmc/main/main.cpp
+--- xbmc-12.3-Frodo_old/xbmc/main/main.cpp	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/main/main.cpp	2014-01-04 09:27:02.245068314 +0800
+@@ -42,6 +42,7 @@
+ #endif
+ #include "XbmcContext.h"
+ 
++#include "sig_back_traces.c"
+ int main(int argc, char* argv[])
+ {
+   // set up some xbmc specific relationships
+@@ -49,6 +50,7 @@
+ 
+   bool renderGUI = true;
+   //this can't be set from CAdvancedSettings::Initialize() because it will overwrite
++__set_signal_no_print_bt(SIGSEGV);
+   //the loglevel set with the --debug flag
+ #ifdef _DEBUG
+   g_advancedSettings.m_logLevel     = LOG_LEVEL_DEBUG;
+diff -Nur xbmc-12.3-Frodo_old/xbmc/network/DllLibShairplay.h xbmc-12.3-Frodo/xbmc/network/DllLibShairplay.h
+--- xbmc-12.3-Frodo_old/xbmc/network/DllLibShairplay.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/network/DllLibShairplay.h	2014-01-04 09:27:02.325067881 +0800
+@@ -42,6 +42,7 @@
+   virtual void        raop_destroy(raop_t *raop)=0;  
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibShairplay : public DllDynamic, DllLibShairplayInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibShairplay, DLL_PATH_LIBSHAIRPLAY)
+@@ -65,4 +66,5 @@
+     RESOLVE_METHOD_RENAME(raop_destroy,           raop_destroy)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+ 
+diff -Nur xbmc-12.3-Frodo_old/xbmc/network/DllLibShairport.h xbmc-12.3-Frodo/xbmc/network/DllLibShairport.h
+--- xbmc-12.3-Frodo_old/xbmc/network/DllLibShairport.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/network/DllLibShairport.h	2014-01-04 09:27:02.331734511 +0800
+@@ -37,6 +37,7 @@
+   virtual void  shairport_set_printf(struct printfPtr *funcPtr)=0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibShairport : public DllDynamic, DllLibShairportInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibShairport, DLL_PATH_LIBSHAIRPORT)
+@@ -57,3 +58,4 @@
+     RESOLVE_METHOD_RENAME(shairport_set_printf,   shairport_set_printf)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+diff -Nur xbmc-12.3-Frodo_old/xbmc/sig_back_traces.c xbmc-12.3-Frodo/xbmc/sig_back_traces.c
+--- xbmc-12.3-Frodo_old/xbmc/sig_back_traces.c	1970-01-01 08:00:00.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/sig_back_traces.c	2014-01-04 09:27:02.238401684 +0800
+@@ -0,0 +1,54 @@
++#ifndef __SIG_BACK_TRACES_C__
++#define __SIG_BACK_TRACES_C__
++
++#include <stdio.h>
++#include <signal.h>
++#include <execinfo.h>
++
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++#define BACK_TRACES_ARRAY_SIZE          20
++
++static void __signal_act_function(int signo)
++{
++    int i;
++    int depth = 0;
++    char** symbols = NULL;
++    char* stack[BACK_TRACES_ARRAY_SIZE] = {0};
++
++    printf("Signal caught:%u, dumping backtrace...\n", signo);
++    depth = backtrace( (void**)(stack), sizeof(stack)/sizeof(stack[0]));
++    if (depth)
++    {
++        symbols = backtrace_symbols((void**)(stack), depth);
++        if (symbols)
++        {
++            for(i = 0; i < depth; i++)
++            {
++                printf("===[%u]:%s\n", (i+1), symbols[i]);
++            }
++        }
++        free(symbols);
++    }
++
++    sleep(5);
++    //re-throw 
++    raise(signo);
++}
++
++static void __set_signal_no_print_bt(int signo)
++{
++    struct sigaction act;
++    act.sa_handler = & __signal_act_function ;
++    act.sa_flags |= SA_RESETHAND; //one-time only
++    sigaction(SIGSEGV, &act, NULL);
++}
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif
+diff -Nur xbmc-12.3-Frodo_old/xbmc/windowing/X11/WinSystemX11.cpp xbmc-12.3-Frodo/xbmc/windowing/X11/WinSystemX11.cpp
+--- xbmc-12.3-Frodo_old/xbmc/windowing/X11/WinSystemX11.cpp	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/windowing/X11/WinSystemX11.cpp	2014-01-04 09:27:02.235068368 +0800
+@@ -53,7 +53,7 @@
+   m_minimized = false;
+   m_dpyLostTime = 0;
+ 
+-  XSetErrorHandler(XErrorHandler);
++  //XSetErrorHandler(XErrorHandler);
+ }
+ 
+ CWinSystemX11::~CWinSystemX11()
+@@ -64,7 +64,7 @@
+ {
+   if ((m_dpy = XOpenDisplay(NULL)))
+   {
+-
++    XSetErrorHandler(XErrorHandler);
+     SDL_EnableUNICODE(1);
+     // set repeat to 10ms to ensure repeat time < frame time
+     // so that hold times can be reliablyidetected
+diff -Nur xbmc-12.3-Frodo_old/xbmc/DllPaths_generated.h.in xbmc-12.3-Frodo/xbmc/DllPaths_generated.h.in
+--- xbmc-12.3-Frodo_old/xbmc/DllPaths_generated.h.in    2014-04-20 11:45:10.793341000 +0800
++++ xbmc-12.3-Frodo/xbmc/DllPaths_generated.h.in        2014-04-20 12:24:27.183909491 +0800
+@@ -40,7 +40,7 @@
+ #define DLL_PATH_LIBCEC        "@LIBCEC_SONAME@"
+ 
+ #ifndef DLL_PATH_LIBCURL
+-#define DLL_PATH_LIBCURL       "@CURL_SONAME@"
++#define DLL_PATH_LIBCURL       "libcurl.so"
+ #endif
+ 
+ /* paplayer */

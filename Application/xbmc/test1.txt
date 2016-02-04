@@ -1,0 +1,37 @@
+  -> afpfs-ng                +
+  -> bluez-libs              +
+  -> fribidi                 +
+  -> glew                    +
+  -> libass                  +  ==> enca, fribidi, enca => recode
+  -> libbluray               +
+  -> libcdio                 +  ==> libcddb
+  -> libmad                  +
+  -> libmariadbclient        +
+  -> libmicrohttpd           +
+  -> libmodplug              +
+  -> libmpeg2                +
+  -> libnfs                  +
+  -> libshairport            +  ==> libao
+  -> libssh                  +
+  -> libva                   +
+  -> mesa-demos              ?
+  -> rtmpdump                +
+  -> sdl_image               \  ==> sdl
+  -> sdl_mixer               \  ==> sdl
+  -> tinyxml                 \
+  -> yajl                    +
+
+lame
+libplist
+
+  -> boost
+  -> cmake
+  -> doxygen
+  -> gperf
+  -> libcec
+  -> nasm
+  -> swig
+  -> java-environment
+
+options=('staticlibs')
+

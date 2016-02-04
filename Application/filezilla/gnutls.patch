@@ -1,0 +1,14 @@
+diff -Nur filezilla-3.5.1/src/engine/tlssocket.cpp filezilla-3.5.1_new/src/engine/tlssocket.cpp
+--- filezilla-3.5.1/src/engine/tlssocket.cpp	2011-05-02 03:30:19.000000000 +0000
++++ filezilla-3.5.1_new/src/engine/tlssocket.cpp	2015-11-29 19:30:47.744266973 +0000
+@@ -113,7 +113,9 @@
+ 	gnutls_transport_set_push_function(m_session, PushFunction);
+ 	gnutls_transport_set_pull_function(m_session, PullFunction);
+ 	gnutls_transport_set_ptr(m_session, (gnutls_transport_ptr_t)this);
+-	gnutls_transport_set_lowat(m_session, 0);
++#if GNUTLS_VERSION_NUMBER < 0x020c00
++        gnutls_transport_set_lowat(m_session, 0);
++#endif
+ 
+ 	m_shutdown_requested = false;
+ 

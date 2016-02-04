@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+
+pkgname=libsecret
+pkgver=0.18.3
+pkgrel=1
+pkgdesc='Library for storing and retrieving passwords and other secrets.'
+arch=('i686' 'x86_64')
+license=('LGPL')
+url="https://wiki.gnome.org/Projects/Libsecret"
+depends=('glib2' 'libgcrypt')
+checkdepends=('python2-dbus' 'dbus-glib' 'python2-gobject2' 'python2-gobject' 'gjs')
+makedepends=('intltool' 'docbook-xsl' 'gobject-introspection' 'vala')
+optdepends=('gnome-keyring: key storage service (or use any other service implementing org.freedesktop.secrets)')
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+sha256sums=('f2bf1d0c5ab4640664f3e3c7ef6b086c180e50ff415720b5e22f96750dbf84c9')
+
+checkdepends=()
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+prepare() {
+  mkdir path
+  ln -s /usr/bin/python2 path/python
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc \
+      --localstatedir=/var --disable-static
+  make
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  # PATH="$srcdir/path:$PATH" dbus-run-session make -k check 
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
+}

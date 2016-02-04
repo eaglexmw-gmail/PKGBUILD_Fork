@@ -1,0 +1,148 @@
+# $Id$
+# Maintainer: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Contributor: Brad Fanella <bradfanella@archlinux.us>
+# Contributor: [vEX] <niechift.dot.vex.at.gmail.dot.com>
+# Contributor: Zeqadious <zeqadious.at.gmail.dot.com>
+# Contributor: BlackIkeEagle < ike DOT devolder AT gmail DOT com >
+
+_prefix=/usr/local/xbmc
+
+pkgname=xbmc
+pkgver=12.3
+_codename=Frodo
+pkgrel=4
+pkgdesc="A software media player and entertainment hub for digital media"
+arch=('i686' 'x86_64')
+url="http://xbmc.org"
+license=('GPL' 'custom')
+#depends=('libpulse' 'hicolor-icon-theme' 'fribidi' 'lzo2' 'smbclient' 'libtiff' 'libva'
+#	 'libpng' 'libcdio' 'yajl' 'libmariadbclient' 'libjpeg-turbo' 'libsamplerate'
+#	 'glew' 'libssh' 'libmicrohttpd' 'libxrandr' 'sdl_mixer' 'sdl_image' 'python2'
+#	 'libass' 'libmpeg2' 'libmad' 'libmodplug' 'jasper' 'rtmpdump' 'unzip' 'mesa-demos'
+#	 'xorg-xdpyinfo' 'libbluray' 'libnfs' 'afpfs-ng' 'libshairport' 'avahi' 'bluez-libs' 'glu'
+#	 'tinyxml' 'taglib')
+depends=('hicolor-icon-theme' 
+	 'libjpeg-turbo' 'libsamplerate' 'jasper' 'xorg-xdpyinfo' 'avahi' 'glu' 'taglib')
+makedepends=('boost' 'cmake' 'gperf' 'nasm' 'libxinerama' 'zip' 'libvdpau' 'libcec'
+	     'udisks' 'upower' 'mesa' 'doxygen' 'swig' 'java-environment')
+optdepends=('libcec: support for Pulse-Eight USB-CEC adapter'
+	    'pulseaudio: pulseaudio support'
+	    'lirc: remote controller support'
+	    'udisks: automount external drives'
+	    'upower: used to trigger suspend functionality'
+	    'unrar: access compressed files without unpacking them'
+	    'xorg-xinit: autostart xbmc')
+install="${pkgname}.install"
+source=("http://mirrors.xbmc.org/releases/source/xbmc-$pkgver.tar.gz"
+	"xbmc.service"
+	"polkit.rules"
+	"libass.patch::https://bugs.archlinux.org/index.php?getfile=11285"
+        static_link.patch
+        static_link_2.patch)
+md5sums=('7ae385ebf8e5cfcb917393235e6efbdb'
+         '8312d6d4ac5d7c3d9eed40ab08a17d3b'
+         'd4cbb6609c8e7b713c714241f529000e'
+         '7fd6399d2ffbdf06b724f0cc2efa0784'
+         'd302ba66746166ff2beb8ab523b67d80'
+         'b70dcb23cf9f36908a736743f3aab334')
+
+prepare() {
+  cd "${srcdir}/xbmc-$pkgver-$_codename"
+
+  patch -p0 <$srcdir/libass.patch
+
+  # fix lsb_release dependency
+  sed -i -e 's:/usr/bin/lsb_release -d:cat /etc/arch-release:' xbmc/utils/SystemInfo.cpp
+  sed -i -e 's:#include <libsmbclient.h>:#include <samba-4.0/libsmbclient.h>:' xbmc/filesystem/{SmbFile,SMBDirectory}.cpp
+  patch -p1 <$srcdir/static_link.patch
+  patch -p1 <$srcdir/static_link_2.patch
+  sed -i -e 's| RESOLVE_METHOD_RENAME(| RESOLVE_METHOD_RENAME_EXT(BCM, |g' ./xbmc/cores/dvdplayer/DVDCodecs/Video/CrystalHD.cpp
+}
+
+build() {
+  cd "${srcdir}/xbmc-$pkgver-$_codename"
+
+  # Bootstrapping XBMC
+  sed -i 's|XB_FIND_SONAME(|echo #XB_FIND_SONAME(|g' configure.in
+  ./bootstrap
+
+  # Configuring XBMC
+  export PYTHON_VERSION=2  # external python v2
+  export PATH=$PATH:/usr/local/python2/bin
+  sed -i 's|-lva|-lva -ldl |g' ./lib/ffmpeg/configure
+
+  ./configure --prefix=$_prefix --exec-prefix=$_prefix \
+    --enable-debug \
+    --enable-optimizations \
+    --enable-gl \
+    --enable-sdl \
+    --enable-vaapi \
+    --enable-vdpau \
+    --enable-joystick \
+    --enable-xrandr \
+    --enable-rsxs \
+    --enable-projectm \
+    --enable-x11 \
+    --enable-rtmp \
+    --enable-nfs \
+    --enable-afpclient \
+    --enable-airplay \
+    --enable-airtunes \
+    --enable-ffmpeg-libvorbis \
+    --enable-dvdcss \
+    --disable-hal \
+    --enable-avahi \
+    --enable-webserver \
+    --enable-optical-drive \
+    --enable-libbluray \
+    --enable-texturepacker \
+    --enable-udev \
+    --enable-libusb \
+    --enable-libcec \
+    --enable-mid \
+    --enable-external-libraries \
+    --disable-external-ffmpeg --disable-samba --disable-mysql
+  # Now (finally) build
+
+  sed -e 's|-lva-glx|-lva-glx -lva -lva-x11 -lXfixes -ldrm|g' \
+      -e 's|-lmicrohttpd|-lmicrohttpd -lgnutls|g' \
+      -e 's| xbmc/main/main.a -Wl,--no-whole-archive $(NWAOBJSXBMC) $(LIBS)| xbmc/main/main.a -Wl,--no-whole-archive $(XBMC_BIN_OTHER_LIBS) $(NWAOBJSXBMC) $(LIBS)|g' \
+      -e '4 a XBMC_BIN_OTHER_LIBS=-lafpclient -lplist -lcrystalhd -L/usr/local/lib -lbluray -ldl -lxml2 -lfreetype -L/usr/local/lib -lmodplug -lstdc++ -lm -lvorbisfile -lvorbis -lm -logg -ldvdnav -lpthread -ldvdread -lshairport -lmad -lmpeg2 -lrtmp -lass -lm -lharfbuzz -lfontconfig -lenca -lm -lfribidi -lfreetype -lFLAC -lid3tag -lmp3lame -logg -lvorbis -lvorbisenc -lm -logg -lcurl -lnfs ' \
+      -i  Makefile
+  sed -i 's|-lSDL |-L/usr/local/lib -lSDL -lm -ldl -lpthread -lXrender -lXext -lX11 |g' ./tools/TexturePacker/Makefile
+  sed -i 's|-lSDL_image|-L/usr/local/lib -lSDL_image -lpng -ltiff -ljpeg -lz -lSDL -lm -ldl -lpthread -lXrender -lXext -lX11|g' ./tools/TexturePacker/Makefile
+
+  sed -i 's|unresolved-symbols=ignore-all -lm|unresolved-symbols=ignore-all -lm -lpthread |g' ./lib/libhdhomerun/Makefile
+  sed -i 's|xbmc/cores/DllLoader/exports/wrapper.o -lexpat|xbmc/cores/DllLoader/exports/wrapper.o -lexpat -ldl |g' Makefile
+
+  make
+}
+
+package() {
+  cd "${srcdir}/xbmc-$pkgver-$_codename"
+  # Running make install
+  make DESTDIR="${pkgdir}" install
+
+  # run feh with python2
+  sed -i -e 's/python/python2/g' ${pkgdir}${_prefix}/bin/xbmc
+
+  # lsb_release fix
+  sed -i -e 's/which lsb_release &> \/dev\/null/\[ -f \/etc\/arch-release ]/g' "${pkgdir}${_prefix}/bin/xbmc"
+  sed -i -e "s/lsb_release -a 2> \/dev\/null | sed -e 's\/\^\/    \/'/cat \/etc\/arch-release/g" "${pkgdir}${_prefix}/bin/xbmc"
+
+  # Tools
+  install -D -m 0755 "${srcdir}/xbmc-$pkgver-$_codename/xbmc-xrandr" "${pkgdir}${_prefix}/share/xbmc/xbmc-xrandr"
+  install -D -m 0755 "${srcdir}/xbmc-$pkgver-$_codename/tools/TexturePacker/TexturePacker" "${pkgdir}${_prefix}/share/xbmc/"
+
+  # Licenses
+  install -d -m 0755 "${pkgdir}${_prefix}/share/licenses/${pkgname}"
+  for licensef in LICENSE.GPL copying.txt; do
+    mv "${pkgdir}${_prefix}/share/doc/xbmc/${licensef}" "${pkgdir}${_prefix}/share/licenses/${pkgname}"
+  done
+
+  install -Dm0644 $srcdir/xbmc.service $pkgdir/usr/lib/systemd/system/xbmc.service
+  install -Dm0644 $srcdir/polkit.rules $pkgdir/etc/polkit-1/rules.d/10-xbmc.rules
+  chmod 0700 $pkgdir/etc/polkit-1/rules.d/
+  ln -s /usr/lib/libcurl.so $pkgdir/usr/local/xbmc/lib/xbmc/system/libcurl.so
+}
+# vim:set ts=2 sw=2 et:

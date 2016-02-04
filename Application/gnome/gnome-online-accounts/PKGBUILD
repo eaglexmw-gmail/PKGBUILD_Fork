@@ -1,0 +1,52 @@
+# $Id$
+# Maintainer: Ionut Biru <ibiru@archlinux.org>
+
+pkgname=gnome-online-accounts
+pkgver=3.18.2.1
+pkgrel=1
+pkgdesc="GNOME service to access online accounts"
+arch=(i686 x86_64)
+url="http://www.gnome.org"
+license=('GPL')
+depends=('webkit2gtk' 'json-glib' 'libnotify' 'rest' 'libsecret' 'telepathy-glib' 'krb5' 'gcr')
+makedepends=('intltool' 'libxslt' 'gobject-introspection' 'docbook-xsl')
+optdepends=('gvfs-goa: Virtual file systems (e.g. OwnCloud)'
+            'gvfs-google: Google Drive')
+install=$pkgname.install
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+sha256sums=('ca0a9c58ea5ac08437ed68fea9e8c3de69a8804e670ccf5a578c6786096ecfac')
+
+depends=('json-glib' 'libnotify' 'rest' 'krb5')
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+build() {
+  cd $pkgname-$pkgver
+
+  sed -i 's| examples| |g' ./src/Makefile.in
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  ./configure --prefix=/usr/local/${dstdir} --libexecdir=/usr/local/${dstdir}/lib/$pkgname --disable-static \
+   --disable-backend --disable-inspector
+
+
+   #--disable-lastfm --disable-exchange --disable-flickr --disable-foursquare --disable-google \
+   #--disable-media-server --disable-owncloud --disable-facebook --disable-windows-live --disable-telepathy --disable-pocket
+    
+  # --enable-media-server --enable-kerberos --enable-lastfm
+
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make -j1 DESTDIR="$pkgdir" install
+}
+
+# vim:set ts=2 sw=2 et:

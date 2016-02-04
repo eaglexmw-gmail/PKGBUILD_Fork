@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer : Biru Ionut <ionut@archlinux.ro>
+# Contributor: Roman Kyrylych <Roman.Kyrylych@gmail.com>
+# Contributor: William Rea <sillywilly@gmail.com>
+pkgname=nautilus-open-terminal
+pkgver=0.20
+pkgrel=2
+pkgdesc="A nautilus plugin for opening terminals in arbitrary local paths"
+arch=('i686' 'x86_64')
+url="http://ftp.gnome.org/pub/GNOME/sources/nautilus-open-terminal"
+license=('GPL')
+depends=('nautilus' 'gconf')
+makedepends=('pkgconfig' 'gettext' 'intltool')
+install=nautilus-open-terminal.install
+source=(ftp://ftp.gnome.org/pub/GNOME/sources/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.xz)
+options=('!emptydirs')
+sha256sums=('84905e98a13990ef73ce698144bdf0ad9adb1346c22a7d7381a3d65f17a364f0')
+
+depends=()
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --disable-static
+
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1 DESTDIR="${pkgdir}" install
+
+  # install -dm755 "${pkgdir}/usr/share/gconf/schemas"
+  # gconf-merge-schema "${pkgdir}/usr/share/gconf/schemas/${pkgname}.schemas" --domain ${pkgname} "${pkgdir}"/etc/gconf/schemas/*.schemas
+  # rm -rf "${pkgdir}"/etc/gconf/schemas
+}

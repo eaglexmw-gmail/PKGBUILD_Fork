@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+
+pkgname=yelp
+pkgver=3.18.1
+pkgrel=1
+pkgdesc="A help browser for GNOME"
+arch=('i686' 'x86_64')
+depends=('webkit2gtk' 'yelp-xsl' 'libxslt' 'hicolor-icon-theme' 'xz' 'bzip2'
+         'desktop-file-utils' 'dconf')
+makedepends=('intltool' 'gtk-doc' 'itstool')
+groups=('gnome')
+license=('GPL')
+options=('!emptydirs')
+url="http://www.gnome.org"
+install=yelp.install
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+sha256sums=('ba3a4eb4717c0ecf4a2e40eff0963fcd12c700c4fb80b83ecaad8b7032256880')
+
+depends=('libxslt' 'hicolor-icon-theme' 'xz' 'bzip2'
+         'desktop-file-utils' 'dconf')
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PKG_CONFIG_PATH="/usr/local/webkit/lib/pkgconfig:$PKG_CONFIG_PATH"
+  export LD_LIBRARY_PATH="/usr/local/webkit/lib:$LD_LIBRARY_PATH"
+  export XDG_DATA_DIRS="/usr/local/webkit/share:/usr/share"
+
+  ./configure --prefix=/usr/local/yelp --sysconfdir=/usr/local/yelp/etc \
+      --localstatedir=/var --disable-static
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

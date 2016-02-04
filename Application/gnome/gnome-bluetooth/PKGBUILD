@@ -1,0 +1,55 @@
+# $Id$
+# Maintainer: Ionut Biru <ibiru@archlinux.org>
+# Contributor: Roman Kyrylych <roman@archlinux.org>
+
+pkgname=gnome-bluetooth
+pkgver=3.18.1
+pkgrel=1
+pkgdesc="The GNOME Bluetooth Subsystem"
+arch=(i686 x86_64)
+url="http://live.gnome.org/GnomeBluetooth"
+license=(GPL LGPL)
+depends=(gtk3 libnotify bluez libcanberra)
+makedepends=(intltool gobject-introspection itstool docbook-xsl)
+options=(!emptydirs)
+install=gnome-bluetooth.install
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz
+        61-gnome-bluetooth-rfkill.rules)
+sha256sums=('c51d5b896d32845a2b5bb6ccd48926c88c8e9ef0915c32d3c56cb7e7974d4a49'
+            '8dd2d3637f380a89e72f65e6c8021e994ccbdc645f1a1b1dbffe74ac9f061f53')
+
+depends=(gtk3 libnotify)
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  ./configure --prefix=/usr/local/${dstdir} \
+    --sysconfdir=/usr/local/${dstdir}/etc \
+    --localstatedir=/var \
+    --disable-desktop-update \
+    --disable-icon-update \
+    --disable-schemas-compile
+
+  # https://bugzilla.gnome.org/show_bug.cgi?id=655517
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+
+  install -m644 -D ../61-gnome-bluetooth-rfkill.rules \
+      "$pkgdir/usr/lib/udev/rules.d//61-gnome-bluetooth-rfkill.rules"
+}

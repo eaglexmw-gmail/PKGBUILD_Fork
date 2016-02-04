@@ -1,0 +1,10 @@
+
+depends:
+libpulse fribidi smbclient libva libcdio yajl libmariadbclient glew libssh libmicrohttpd sdl_mixer sdl_image python2 libass libmpeg2 libmad libmodplug rtmpdump mesa-demos libbluray libnfs afpfs-ng libshairport bluez-libs tinyxml
+
+depends dep:
+json-c 
+
+
+make depends:
+boost cmake gperf nasm libcec doxygen swig java-environment

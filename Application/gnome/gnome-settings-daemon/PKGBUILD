@@ -1,0 +1,50 @@
+# $Id$
+# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+
+pkgname=gnome-settings-daemon
+pkgver=3.18.2
+pkgrel=1
+pkgdesc="The GNOME Settings daemon"
+arch=(i686 x86_64)
+license=(GPL)
+depends=(dconf gnome-desktop gsettings-desktop-schemas libcanberra-pulse
+         libnotify libsystemd libwacom pulseaudio pulseaudio-alsa upower librsvg libgweather
+         geocode-glib geoclue2 nss libgudev)
+makedepends=(intltool xf86-input-wacom libxslt docbook-xsl python2)
+options=('!emptydirs')
+install=gnome-settings-daemon.install
+url="http://www.gnome.org"
+groups=(gnome)
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+sha256sums=('3071c7258f22684f7f64b7f735821e4cb25f59fc4665eb08e8d86b560e72fc6f')
+
+depends=(dconf gsettings-desktop-schemas
+         libnotify libsystemd upower librsvg
+         nss libgudev)
+makedepends=(intltool xf86-input-wacom libxslt docbook-xsl python2)
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PKG_CONFIG_PATH=/usr/local/${dstdir}/lib/pkgconfig/:${PKG_CONFIG_PATH}
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var \
+      --libexecdir=/usr/local/${dstdir}/lib/$pkgname --disable-static
+
+  #https://bugzilla.gnome.org/show_bug.cgi?id=656231
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

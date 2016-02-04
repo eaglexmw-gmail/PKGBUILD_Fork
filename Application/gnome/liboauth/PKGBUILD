@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Jan "heftig" Steffens <jan.steffens@gmail.com>
+# Contributor: Kaiting Chen <kaitocracy@gmail.com>
+# Contributor: Martin Häger <martin.haeger@gmail.com>
+
+pkgname=liboauth
+pkgver=1.0.3
+pkgrel=1
+pkgdesc='C library implementing OAuth Core RFC 5849'
+arch=('i686' 'x86_64')
+url='http://sourceforge.net/projects/liboauth'
+license=('MIT')
+depends=('curl')
+source=("$url/files/$pkgname-$pkgver.tar.gz")
+sha256sums=('0df60157b052f0e774ade8a8bac59d6e8d4b464058cc55f9208d72e41156811f')
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  ./configure --prefix=/usr/local/${dstdir} --disable-static
+  make
+
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
+  install -Dm644 COPYING.MIT "$pkgdir/usr/local/${dstdir}/share/licenses/$pkgname/COPYING"
+}

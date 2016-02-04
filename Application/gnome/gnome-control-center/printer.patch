@@ -1,0 +1,121 @@
+diff -Nur gnome-control-center-3.18.2/panels/printers/pp-new-printer-dialog.c gnome-control-center-3.18.2_new/panels/printers/pp-new-printer-dialog.c
+--- gnome-control-center-3.18.2/panels/printers/pp-new-printer-dialog.c	2015-09-21 14:59:31.000000000 +0000
++++ gnome-control-center-3.18.2_new/panels/printers/pp-new-printer-dialog.c	2016-01-09 09:42:41.563803136 +0000
+@@ -34,7 +34,9 @@
+ #include "pp-utils.h"
+ #include "pp-host.h"
+ #include "pp-cups.h"
++#ifdef HAVE_SMBCLIENT
+ #include "pp-samba.h"
++#endif
+ #include "pp-new-printer.h"
+ 
+ #include <gdk/gdkx.h>
+@@ -127,7 +129,9 @@
+   PpHost  *socket_host;
+   PpHost  *lpd_host;
+   PpHost  *remote_cups_host;
++#ifdef HAVE_SMBCLIENT
+   PpSamba *samba_host;
++#endif
+   guint    host_search_timeout_id;
+ };
+ 
+@@ -248,6 +252,7 @@
+   gpointer  dialog;
+ } AuthSMBData;
+ 
++#ifdef HAVE_SMBCLIENT
+ static void
+ get_authenticated_samba_devices_cb (GObject      *source_object,
+                                     GAsyncResult *res,
+@@ -367,6 +372,7 @@
+         }
+     }
+ }
++#endif
+ 
+ static void
+ pp_new_printer_dialog_init (PpNewPrinterDialog *dialog)
+@@ -416,7 +422,9 @@
+   g_signal_connect (widget, "search-changed", G_CALLBACK (search_entry_changed_cb), dialog);
+ 
+   widget = WID ("authenticate-button");
++#ifdef HAVE_SMBCLIENT
+   g_signal_connect (widget, "clicked", G_CALLBACK (authenticate_samba_server), dialog);
++#endif
+ 
+   /* Set junctions */
+   widget = WID ("scrolledwindow1");
+@@ -721,7 +729,9 @@
+               priv->snmp_host != NULL ||
+               priv->socket_host != NULL ||
+               priv->lpd_host != NULL ||
++#ifdef HAVE_SMBCLIENT
+               priv->samba_host != NULL ||
++#endif
+               priv->samba_authenticated_searching ||
+               priv->samba_searching;
+ 
+@@ -1142,6 +1152,7 @@
+     }
+ }
+ 
++#ifdef HAVE_SMBCLIENT
+ static void
+ get_samba_host_devices_cb (GObject      *source_object,
+                            GAsyncResult *res,
+@@ -1235,6 +1246,7 @@
+       g_error_free (error);
+     }
+ }
++#endif
+ 
+ static void
+ get_jetdirect_devices_cb (GObject      *source_object,
+@@ -1446,8 +1458,10 @@
+         g_object_set (priv->lpd_host, "port", data->host_port, NULL);
+     }
+ 
++#ifdef HAVE_SMBCLIENT
+   priv->samba_host = pp_samba_new (GTK_WINDOW (priv->dialog),
+                                    data->host_name);
++#endif
+ 
+   update_dialog_state (data->dialog);
+ 
+@@ -1471,11 +1485,13 @@
+                                  get_lpd_devices_cb,
+                                  data->dialog);
+ 
++#ifdef HAVE_SMBCLIENT
+   pp_samba_get_devices_async (priv->samba_host,
+                               TRUE,
+                               priv->remote_host_cancellable,
+                               get_samba_host_devices_cb,
+                               data->dialog);
++#endif
+ 
+   priv->host_search_timeout_id = 0;
+ 
+@@ -1894,7 +1910,9 @@
+ {
+   PpNewPrinterDialogPrivate *priv = dialog->priv;
+   GtkTreeViewColumn         *column;
++#ifdef HAVE_SMBCLIENT
+   PpSamba                   *samba;
++#endif
+   GEmblem                   *emblem;
+   PpCups                    *cups;
+   GIcon                     *icon, *emblem_icon;
+@@ -1944,8 +1962,10 @@
+   priv->samba_searching = TRUE;
+   update_dialog_state (dialog);
+ 
++#ifdef HAVE_SMBCLIENT
+   samba = pp_samba_new (GTK_WINDOW (priv->dialog), NULL);
+   pp_samba_get_devices_async (samba, FALSE, priv->cancellable, get_samba_devices_cb, dialog);
++#endif
+ }
+ 
+ static void

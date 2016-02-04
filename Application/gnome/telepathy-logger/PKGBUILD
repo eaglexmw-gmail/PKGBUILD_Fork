@@ -1,0 +1,54 @@
+# $Id$
+# Maintainer: Ionut Biru <ibiru@archlinux.org>
+pkgname=telepathy-logger
+pkgver=0.8.2
+pkgrel=1
+pkgdesc="Telepathy framework logging daemon"
+arch=(i686 x86_64)
+url="http://telepathy.freedesktop.org/wiki/Logger"
+license=('LGPL2.1')
+depends=('telepathy-glib' 'sqlite' 'libxml2' 'dconf')
+makedepends=('intltool' 'gobject-introspection' 'libxslt')
+install=telepathy-logger.install
+source=(http://telepathy.freedesktop.org/releases/$pkgname/$pkgname-$pkgver.tar.bz2{,.asc})
+md5sums=('c2f6a31c76cbdf8790500cf4f872ba71'
+         'SKIP')
+validpgpkeys=('5113B855236702158C41C366432705FACDD40325')
+
+depends=('sqlite' 'libxml2' 'dconf')
+source=(http://telepathy.freedesktop.org/releases/$pkgname/$pkgname-$pkgver.tar.bz2)
+md5sums=('c2f6a31c76cbdf8790500cf4f872ba71')
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  export PKG_CONFIG_PATH=/usr/local/${dstdir}/lib/pkgconfig/:${PKG_CONFIG_PATH}
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+#  sed -i 's|xrange|range|g' ./tools/xincludator.py
+#  sed -i 's|stdout.write(xml)|print xml|g' ./tools/xincludator.py
+#  sed -i 's|/usr/bin/python|/usr/bin/python2|g' ./tools/xincludator.py
+
+  ./configure --prefix=/usr/local/${dstdir} \
+    --sysconfdir=/usr/local/${dstdir}/etc \
+    --libexecdir=/usr/local/${dstdir}/lib/telepathy \
+    --enable-call \
+    --disable-static \
+    --disable-scrollkeeper \
+    --disable-schemas-compile
+  make
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  make DESTDIR="$pkgdir/" install
+}
+
+# vim:set ts=2 sw=2 et:

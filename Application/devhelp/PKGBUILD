@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+# Contributor: Link Dupont <link@subpop.net>
+
+pkgname=devhelp
+pkgver=3.18.1
+pkgrel=1
+pkgdesc="API documentation browser for GNOME"
+arch=(i686 x86_64)
+license=(GPL)
+url="https://wiki.gnome.org/Apps/Devhelp"
+depends=(webkit2gtk)
+makedepends=(pkgconfig intltool python)
+options=('!emptydirs')
+install=devhelp.install
+groups=('gnome-extra')
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+sha256sums=('303a162ad294dc6f9984898e501a06dc5d2aa9812b06801c2e39b250d8c51aef')
+
+depends=()
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PKG_CONFIG_PATH="/usr/local/webkit/lib/pkgconfig:$PKG_CONFIG_PATH"
+  export LD_LIBRARY_PATH="/usr/local/webkit/lib:$LD_LIBRARY_PATH"
+  export XDG_DATA_DIRS="/usr/local/webkit/share:/usr/share"
+
+  ./configure --prefix=/usr/local/devhelp --sysconfdir=/usr/local/devhelp/etc \
+      --localstatedir=/var --disable-static
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="${pkgdir}" install
+}

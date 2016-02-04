@@ -1,0 +1,2 @@
+# then, we need first change /usr/lib/pkg-config/harfbuzz.pc add /usr/local/include/harfbuzz in it
+# or copy /usr/local/lib/pkgconfig/harfbuzz_static.pc to /usr/local/lib/pkgconfig/harfbuzz.pc

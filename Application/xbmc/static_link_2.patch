@@ -1,0 +1,134 @@
+diff -Nur xbmc-12.3-Frodo_bak/lib/DllLibbluray.h xbmc-12.3-Frodo/lib/DllLibbluray.h
+--- xbmc-12.3-Frodo_bak/lib/DllLibbluray.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/lib/DllLibbluray.h	2014-01-04 10:09:50.901152710 +0800
+@@ -79,6 +79,7 @@
+   virtual int      bd_menu_call                 (BLURAY *bd, int64_t pts)=0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibbluray : public DllDynamic, DllLibblurayInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibbluray, DLL_PATH_LIBBLURAY)
+@@ -176,5 +177,6 @@
+   static BD_DIR_H *dir_open(const char* dirname);
+   static void      bluray_logger(const char* msg);
+ };
++#include "def_shared_so_method.h"
+ 
+ #endif
+diff -Nur xbmc-12.3-Frodo_bak/lib/DllLibFlac.h xbmc-12.3-Frodo/lib/DllLibFlac.h
+--- xbmc-12.3-Frodo_bak/lib/DllLibFlac.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/lib/DllLibFlac.h	2014-01-04 10:13:55.179829338 +0800
+@@ -73,6 +73,7 @@
+     virtual FLAC__bool FLAC__stream_decoder_seek_absolute(FLAC__StreamDecoder *decoder, FLAC__uint64 sample)=0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibFlac : public DllDynamic, DllLibFlacInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibFlac, DLL_PATH_FLAC_CODEC)
+@@ -146,4 +147,5 @@
+     RESOLVE_METHOD(FLAC__stream_decoder_seek_absolute)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+ 
+diff -Nur xbmc-12.3-Frodo_bak/lib/DllModplug.h xbmc-12.3-Frodo/lib/DllModplug.h
+--- xbmc-12.3-Frodo_bak/lib/DllModplug.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/lib/DllModplug.h	2014-01-04 10:20:01.204513079 +0800
+@@ -66,6 +66,7 @@
+ */
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllModplug : public DllDynamic, DllModplugInterface
+ {
+   DECLARE_DLL_WRAPPER(DllModplug, DLL_PATH_MODPLUG_CODEC)
+@@ -126,4 +127,5 @@
+ */
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+ 
+diff -Nur xbmc-12.3-Frodo_bak/lib/DllVorbisfile.h xbmc-12.3-Frodo/lib/DllVorbisfile.h
+--- xbmc-12.3-Frodo_bak/lib/DllVorbisfile.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/lib/DllVorbisfile.h	2014-01-04 10:25:31.506057015 +0800
+@@ -72,6 +72,7 @@
+                          int bigendianp,int word,int sgned,int *bitstream)=0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllVorbisfile : public DllDynamic, DllVorbisfileInterface
+ {
+   DECLARE_DLL_WRAPPER(DllVorbisfile, DLL_PATH_OGG_CODEC)
+@@ -129,4 +130,5 @@
+     RESOLVE_METHOD(ov_read)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+ 
+diff -Nur xbmc-12.3-Frodo_bak/xbmc/cores/dvdplayer/DVDCodecs/Video/CrystalHD.cpp xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Video/CrystalHD.cpp
+--- xbmc-12.3-Frodo_bak/xbmc/cores/dvdplayer/DVDCodecs/Video/CrystalHD.cpp	2014-01-04 09:27:02.255068260 +0800
++++ xbmc-12.3-Frodo/xbmc/cores/dvdplayer/DVDCodecs/Video/CrystalHD.cpp	2014-01-04 09:44:10.222832613 +0800
+@@ -150,16 +150,17 @@
+   {
+ #if (HAVE_LIBCRYSTALHD == 2)
+     int rtn;
+-    rtn  = m_dll->ResolveExport("DtsGetVersion",       (void**)&m_DtsGetVersion_ptr, false);
+-    rtn &= m_dll->ResolveExport("DtsSetInputFormat",   (void**)&m_DtsSetInputFormat_ptr, false);
+-    rtn &= m_dll->ResolveExport("DtsGetColorPrimaries",(void**)&m_DtsGetColorPrimaries_ptr, false);
+-    rtn &= m_dll->ResolveExport("DtsSetColorSpace",    (void**)&m_DtsSetColorSpace_ptr, false);
+-    rtn &= m_dll->ResolveExport("DtsGetCapabilities",  (void**)&m_DtsGetCapabilities_ptr, false);
+-    rtn &= m_dll->ResolveExport("DtsSetScaleParams",   (void**)&m_DtsSetScaleParams_ptr, false);
+-    rtn &= m_dll->ResolveExport("DtsIsEndOfStream",    (void**)&m_DtsIsEndOfStream_ptr, false);
+-    rtn &= m_dll->ResolveExport("DtsCrystalHDVersion", (void**)&m_DtsCrystalHDVersion_ptr, false);
+-    rtn &= m_dll->ResolveExport("DtsSetInputFormat",   (void**)&m_DtsSetInputFormat_ptr, false);
+-    return(rtn == 1);
++    //rtn  = m_dll->ResolveExport("DtsGetVersion",       (void**)&m_DtsGetVersion_ptr, false);
++    //rtn &= m_dll->ResolveExport("DtsSetInputFormat",   (void**)&m_DtsSetInputFormat_ptr, false);
++    //rtn &= m_dll->ResolveExport("DtsGetColorPrimaries",(void**)&m_DtsGetColorPrimaries_ptr, false);
++    //rtn &= m_dll->ResolveExport("DtsSetColorSpace",    (void**)&m_DtsSetColorSpace_ptr, false);
++    //rtn &= m_dll->ResolveExport("DtsGetCapabilities",  (void**)&m_DtsGetCapabilities_ptr, false);
++    //rtn &= m_dll->ResolveExport("DtsSetScaleParams",   (void**)&m_DtsSetScaleParams_ptr, false);
++    //rtn &= m_dll->ResolveExport("DtsIsEndOfStream",    (void**)&m_DtsIsEndOfStream_ptr, false);
++    //rtn &= m_dll->ResolveExport("DtsCrystalHDVersion", (void**)&m_DtsCrystalHDVersion_ptr, false);
++    //rtn &= m_dll->ResolveExport("DtsSetInputFormat",   (void**)&m_DtsSetInputFormat_ptr, false);
++    //return(rtn == 1);
++    return true;
+ #else
+     return false;
+ #endif
+diff -Nur xbmc-12.3-Frodo_bak/xbmc/filesystem/DllLibAfp.h xbmc-12.3-Frodo/xbmc/filesystem/DllLibAfp.h
+--- xbmc-12.3-Frodo_bak/xbmc/filesystem/DllLibAfp.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/filesystem/DllLibAfp.h	2014-01-04 10:07:12.618676866 +0800
+@@ -120,6 +120,7 @@
+ 
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibAfp : public DllDynamic, DllLibAfpInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibAfp, DLL_PATH_LIBAFP)
+@@ -212,3 +213,5 @@
+ #endif
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
++
+diff -Nur xbmc-12.3-Frodo_bak/xbmc/network/DllLibPlist.h xbmc-12.3-Frodo/xbmc/network/DllLibPlist.h
+--- xbmc-12.3-Frodo_bak/xbmc/network/DllLibPlist.h	2013-12-13 05:47:49.000000000 +0800
++++ xbmc-12.3-Frodo/xbmc/network/DllLibPlist.h	2014-01-04 10:28:54.941621577 +0800
+@@ -42,6 +42,7 @@
+ 
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibPlist : public DllDynamic, DllLibPlistInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibPlist, DLL_PATH_LIBPLIST)
+@@ -71,4 +72,5 @@
+ 
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
+ 

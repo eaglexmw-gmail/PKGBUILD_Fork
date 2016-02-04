@@ -6,9 +6,9 @@
 # Contributor: Jason Chu <jason@archlinux.org>
 
 pkgname=python
-pkgver=3.4.2
-pkgrel=2
-_pybasever=3.4
+pkgver=3.5.1
+pkgrel=1
+_pybasever=3.5
 pkgdesc="Next generation of the python high-level scripting language"
 arch=('i686' 'x86_64')
 license=('custom')
@@ -27,8 +27,10 @@ optdepends=('python-setuptools'
 options=('!makeflags')
 provides=('python3')
 replaces=('python3')
-source=(http://www.python.org/ftp/python/${pkgver%rc*}/Python-${pkgver}.tar.xz)
-sha1sums=('0727d8a8498733baabe6f51632b9bab0cbaa9ada')
+source=("http://www.python.org/ftp/python/${pkgver%rc*}/Python-${pkgver}.tar.xz"
+        dont-make-libpython-readonly.patch)
+sha1sums=('0186da436db76776196612b98bb9c2f76acfe90e'
+          'c22b24324b8e53326702de439c401d97927ee3f2')
 options=('staticlibs')
 
 prepare() {

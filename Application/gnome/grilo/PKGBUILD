@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+
+pkgname=grilo
+pkgver=0.2.15
+pkgrel=1
+pkgdesc="Framework that provides access to various sources of multimedia content"
+url="http://www.gnome.org"
+arch=('i686' 'x86_64')
+license=('LGPL')
+depends=('gtk3' 'libxml2' 'libsoup' 'liboauth' 'totem-plparser')
+makedepends=('gobject-introspection' 'gtk-doc' 'vala' 'intltool')
+optdepends=('grilo-plugins: Plugins for grilo')
+options=('!emptydirs')
+source=(http://ftp.gnome.org/pub/gnome/sources/${pkgname}/${pkgver:0:3}/${pkgname}-${pkgver}.tar.xz)
+sha256sums=('6f5d2583250a68e76d281edaa08adb880d5a78ed46f9ecd22ae4715f1dd66815')
+
+depends=('gtk3' 'libxml2' 'libsoup')
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --disable-static --disable-debug \
+    --libdir=/usr/local/${dstdir}/lib
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

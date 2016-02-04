@@ -9,7 +9,7 @@ pkgdesc="Virtual Terminal Emulator widget for use with GTK3"
 arch=('i686' 'x86_64')
 license=('LGPL')
 options=('!emptydirs' 'staticlibs')
-# makedepends=('intltool' 'gobject-introspection' 'gtk3' 'vala')
+makedepends=('intltool' 'gobject-introspection' 'gtk3' 'vala')
 makedepends=('intltool' 'gtk3' 'vala')
 url="http://www.gnome.org"
 source=(http://download.gnome.org/sources/vte/${pkgver::4}/vte-$pkgver.tar.xz)
@@ -22,7 +22,7 @@ build() {
       --localstatedir=/var --enable-static \
       --enable-introspection --enable-gnome-pty-helper --datadir=/usr/local/share --disable-test-application
 
-  sed -i 's|/etc/termcap|/usr/local/share/vte/termcap-0.0/xterm|g' src/vtetc.c
+  # sed -i 's|/etc/termcap|/usr/local/share/vte/termcap-0.0/xterm|g' src/vtetc.c
 
   make
 }
