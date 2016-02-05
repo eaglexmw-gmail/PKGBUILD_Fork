@@ -13,14 +13,25 @@ url='https://libgit2.github.com/'
 depends=(zlib openssl libssh2)
 #makedepends=(cmake python)
 license=('GPL2')
-options=('staticlibs')
+# options=('staticlibs')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/libgit2/libgit2/archive/v${pkgver}.tar.gz")
 sha1sums=('02ff3374da7fdf116984adf41749db7b4d0a5877')
+
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
 
 build() {
   cd $pkgname-$pkgver
   export LANG=en_US.UTF-8
-  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DTHREADSAFE=ON -DBUILD_SHARED_LIBS=OFF
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/${dstdir} -DTHREADSAFE=ON -DBUILD_SHARED_LIBS=ON
   make
 }
 

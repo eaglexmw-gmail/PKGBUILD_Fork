@@ -1,0 +1,81 @@
+# $Id$
+# Maintainer: Maxime Gauduin <alucryd@archlinux.org>
+# Contributor: Stefan Husmann <stefan-husmann@t-online.de>
+# Contributor: Cristian Maureira <saint@archlinux.cl>
+# Contributor: Dr.Egg <rwhite@archlinux.us>
+
+pkgname=musescore
+pkgver=2.0.1
+pkgrel=1
+pkgdesc='Create, play and print beautiful sheet music'
+arch=('i686' 'x86_64')
+url='http://musescore.org/'
+license=('GPL')
+#depends=('libpulse' 'portaudio' 'qt5-quick1' 'qt5-svg' 'qt5-tools')
+#makedepends=('cmake' 'doxygen' 'lame' 'qt5-script' 'texlive-core')
+makedepends=('cmake')
+optdepends=('lame: MP3 export')
+install='musescore.install'
+source=("musescore-${pkgver}.tar.gz::https://github.com/musescore/MuseScore/archive/v${pkgver}.tar.gz")
+sha256sums=('3c16cbf70eca6da87aad7e247a9926305276db0c58e21f5913b8bd27cb989d58')
+
+build() {
+  cd MuseScore-${pkgver}
+
+  sed -i '21 a set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/local/qt/qt5.4.0/lib/cmake/")' CMakeLists.txt
+  sed -i 's|BUILD_PCH true|BUILD_PCH false|g' CMakeLists.txt
+  sed -i '107 a #include <QtPlugin>' ./mscore/musescore.cpp
+  sed -i '109 a Q_IMPORT_PLUGIN(QXcbIntegrationPlugin);' ./mscore/musescore.cpp
+  sed -i '110 a Q_IMPORT_PLUGIN(QSQLiteDriverPlugin);' ./mscore/musescore.cpp
+
+  #make PREFIX='/usr/local/musescore' release
+  export REVISION=3543170
+  # export PREFIX='/usr/local/musescore'
+  export VERSION=2.0.1
+  export BINPATH=${PATH}
+  if test ! -d build.release; then mkdir build.release; fi;
+  cd build.release;
+  cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX="/usr/local/musescore" ..
+  make cmake_check_build_system
+
+  sed -i 's| -licui18n | /usr/local/lib/libicui18n.so.54 |g' ./bww2mxml/CMakeFiles/bww2mxml.dir/link.txt
+  sed -i 's| -licuuc | /usr/local/lib/libicuuc.so.54 |g'     ./bww2mxml/CMakeFiles/bww2mxml.dir/link.txt
+  sed -i 's| -licudata | /usr/local/lib/libicudata.so.54 |g' ./bww2mxml/CMakeFiles/bww2mxml.dir/link.txt
+
+  sed -i 's|/bin/c++ |& -Wl,--allow-multiple-definition |g' ./mscore/CMakeFiles/mscore.dir/link.txt
+  sed -i 's|libpulse.a |&  -L/usr/local/lib/pulseaudio -lpulsecommon-5.99 -ldbus-1 -ljson-c -lxcb -lsystemd |g' ./mscore/CMakeFiles/mscore.dir/link.txt
+  sed -i 's|libQt5Qml.a |&  -L/usr/local/qt/qt5.4.0/lib/qt/plugins/qmltooling -lqmldbg_tcp |g' ./mscore/CMakeFiles/mscore.dir/link.txt
+  sed -i 's|libQt5Core.a |&  -L/usr/local/qt/qt5.4.0/lib/qt/plugins/platforms/ -lqxcb  -lX11-xcb -lXi -lSM -lICE -lxcb -lfontconfig -lfreetype -lglib-2.0 -lXrender -lX11 -lGL -lQt5PlatformSupport -L/usr/local/qt/qt5.4.0/lib/ -lQt5DBus -lxcb-static -L/usr/local/qt/qt5.4.0/lib/qt/plugins/sqldrivers/ -lqsqlite -lsqlite3 |g' ./mscore/CMakeFiles/mscore.dir/link.txt
+
+  sed -i 's| -licui18n | /usr/local/lib/libicui18n.so.54 |g' ./mscore/CMakeFiles/mscore.dir/link.txt
+  sed -i 's| -licuuc | /usr/local/lib/libicuuc.so.54 |g'     ./mscore/CMakeFiles/mscore.dir/link.txt
+  sed -i 's| -licudata | /usr/local/lib/libicudata.so.54 |g' ./mscore/CMakeFiles/mscore.dir/link.txt
+
+  sed -i 's| -licui18n | /usr/local/lib/libicui18n.so.54 |g' ./fonttools/CMakeFiles/genft.dir/link.txt
+  sed -i 's| -licuuc | /usr/local/lib/libicuuc.so.54 |g'     ./fonttools/CMakeFiles/genft.dir/link.txt
+  sed -i 's| -licudata | /usr/local/lib/libicudata.so.54 |g' ./fonttools/CMakeFiles/genft.dir/link.txt
+
+  sed -i 's| -licui18n | /usr/local/lib/libicui18n.so.54 |g' ./miditools/CMakeFiles/smf2xml.dir/link.txt
+  sed -i 's| -licuuc | /usr/local/lib/libicuuc.so.54 |g'     ./miditools/CMakeFiles/smf2xml.dir/link.txt
+  sed -i 's| -licudata | /usr/local/lib/libicudata.so.54 |g' ./miditools/CMakeFiles/smf2xml.dir/link.txt
+
+  sed -i 's| -licui18n | /usr/local/lib/libicui18n.so.54 |g' ./manual/CMakeFiles/genManual.dir/link.txt
+  sed -i 's| -licuuc | /usr/local/lib/libicuuc.so.54 |g'     ./manual/CMakeFiles/genManual.dir/link.txt
+  sed -i 's| -licudata | /usr/local/lib/libicudata.so.54 |g' ./manual/CMakeFiles/genManual.dir/link.txt
+
+  sed -i 's| -licui18n | /usr/local/lib/libicui18n.so.54 |g' ./miditools/CMakeFiles/xml2smf.dir/link.txt
+  sed -i 's| -licuuc | /usr/local/lib/libicuuc.so.54 |g'     ./miditools/CMakeFiles/xml2smf.dir/link.txt
+  sed -i 's| -licudata | /usr/local/lib/libicudata.so.54 |g' ./miditools/CMakeFiles/xml2smf.dir/link.txt
+
+  make lrelease
+  make
+}
+
+package() {
+  cd MuseScore-${pkgver}/build.release
+
+  make DESTDIR="${pkgdir}" install
+  install -m 644 ../assets/musescore-icon-round-512.png "${pkgdir}"/usr/local/musescore/share/pixmaps/mscore.png
+}
+
+# vim: ts=2 sw=2 et:

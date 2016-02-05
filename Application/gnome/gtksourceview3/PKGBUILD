@@ -12,15 +12,26 @@ depends=('gtk3' 'libxml2')
 #makedepends=('intltool' 'gobject-introspection' 'glade' 'vala' 'python2')
 makedepends=('intltool' 'gobject-introspection' 'vala' 'python2')
 url="http://www.gnome.org"
-options=('staticlibs')
+# options=('staticlibs')
 source=(http://ftp.gnome.org/pub/gnome/sources/$_pkgbasename/${pkgver:0:4}/$_pkgbasename-$pkgver.tar.xz)
 sha256sums=('60f75a9f0039e13a2281fc595b5ef7344afa06732cc53b57d13234bfb0a5b7b2')
 
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=gnome3_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+fi
+
 build() {
   cd "$_pkgbasename-$pkgver"
-  ./configure --prefix=/usr --sysconfdir=/etc \
-      --localstatedir=/var --enable-static \
-      --disable-glade-catalog --disable-shared
+
+  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+
+  ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc \
+      --localstatedir=/var --enable-shared \
+      --disable-glade-catalog --disable-static
   make
 }
 

@@ -34,8 +34,7 @@ prepare() {
   # already gcc_5
   sed -i 's|__GNUC__ >= 4|__GNUC__ >  4 ) //|g' configure
 
-  sed -i '69 a #define GMutexLocker WTF::GMutexLocker' Source/WTF/wtf/gobject/GMutexLocker.h
-
+  #sed -i '69 a #define GMutexLocker WTF::GMutexLocker' Source/WTF/wtf/gobject/GMutexLocker.h
   # sed -i '55 a #define GMutexLocker WTF::GMutexLocker' ./Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp
   # sed -i '42 a #define GMutexLocker WTF::GMutexLocker' ./Source/WebCore/platform/graphics/gstreamer/VideoSinkGStreamer.cpp
   # sed -i '51 a #define GMutexLocker WTF::GMutexLocker' ./Source/WebCore/platform/graphics/gstreamer/WebKitWebSourceGStreamer.cpp
