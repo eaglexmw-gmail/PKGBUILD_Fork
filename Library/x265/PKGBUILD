@@ -26,6 +26,11 @@ prepare() {
 build() {
   cd multicoreware-x265-*/build/linux
   [[ $CARCH == x86_64 ]] && LDFLAGS+=',-z,noexecstack'
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/usr ../../source
   make
 }

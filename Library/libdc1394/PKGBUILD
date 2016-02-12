@@ -15,6 +15,15 @@ md5sums=('5c4b78bb8265d6dc971433ec1da381ab')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
+if [ "$CARCH" = "x86_64" ]; then
+  sed -i 's|-lraw1394|& -L/usr/local/lib64|g' ./configure
+fi
+
   ./configure --prefix=/usr --enable-static --disable-shared --disable-examples
   make
 }

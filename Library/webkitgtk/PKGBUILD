@@ -21,6 +21,12 @@ source=(http://webkitgtk.org/releases/$pkgbase-${pkgver}.tar.xz
 sha256sums=('afdf29e7828816cad0be2604cf19421e96d96bf493987328ffc8813bb20ac564'
             '56316228bbbf0b7ebcbe210a35120f4e72cb9c1b680dd82cc2bde0f4549245e6')
 
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=webkit_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=webkit
+fi
+
 prepare() {
   mkdir build-gtk{,2} path
 
@@ -45,8 +51,8 @@ _build() (
   _ver="$1"; shift
   cd build-${_ver}
 
-  ../$pkgbase-$pkgver/configure --prefix=/usr/local/webkit \
-    --libexecdir=/usr/local/webkit/lib/webkit${_ver} \
+  ../$pkgbase-$pkgver/configure --prefix=/usr/local/$dstdir \
+    --libexecdir=/usr/local/$dstdir/lib/webkit${_ver} \
     --disable-webkit2 \
     --disable-gtk-doc \
     --disable-static --enable-shared --disable-glibtest \
@@ -90,7 +96,7 @@ package_webkitgtk() {
 
   make -C build-gtk -j1 DESTDIR="$pkgdir" install
   install -Dm644 $pkgbase-$pkgver/Source/WebKit/LICENSE \
-    "$pkgdir/usr/local/webkit/share/licenses/webkitgtk/LICENSE"
+    "$pkgdir/usr/local/$dstdir/share/licenses/webkitgtk/LICENSE"
 }
 
 package_webkitgtk2() {
@@ -102,5 +108,5 @@ package_webkitgtk2() {
 
   make -C build-gtk2 -j1 DESTDIR="$pkgdir" install
   install -Dm644 $pkgbase-$pkgver/Source/WebKit/LICENSE \
-    "$pkgdir/usr/local/webkit/share/licenses/webkitgtk2/LICENSE"
+    "$pkgdir/usr/local/$dstdir/share/licenses/webkitgtk2/LICENSE"
 }

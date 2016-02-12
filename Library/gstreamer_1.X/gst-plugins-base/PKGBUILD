@@ -18,6 +18,10 @@ sha256sums=('77bd8199e7a312d3d71de9b7ddf761a3b78560a2c2a80829d0815ca39cbd551d')
 build() {
   cd $pkgbase-$pkgver
 
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   export PATH=$PATH:/usr/local/python2/bin/
   export PYTHON=python2_spec
 

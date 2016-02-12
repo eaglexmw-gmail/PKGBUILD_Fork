@@ -14,10 +14,17 @@ optdepends=('gnome-keyring: key storage service (or use any other service implem
 source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz)
 sha256sums=('0c73aa762dbd1e38ba7b03de350e23ce818cb810b0784375e95ef61e004b02e3')
 
+options=('staticlibs')
+
 build() {
   cd "$pkgname-$pkgver"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --sysconfdir=/etc \
-      --localstatedir=/var --disable-static
+      --localstatedir=/var --disable-shared --enable-static
   make
 }
 

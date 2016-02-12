@@ -9,7 +9,7 @@ pkgdesc="A library for playing SID music files."
 arch=('i686' 'x86_64')
 url="http://critical.ch/distfiles/"
 license=('GPL')
-options=('staticlibs')
+
 #source=(http://critical.ch/distfiles/${pkgname}-${pkgver}.tgz libsidplay-1.36.59-gcc43.patch)
 source=(http://mirrors.163.com/debian/pool/main/libs/libsidplay/libsidplay_1.36.59.orig.tar.gz libsidplay-1.36.59-gcc43.patch)
 md5sums=('37c51ba4bd57164b1b0bb7b43b9adece' 'c24d7bca2639f4fee03c40c7dcaadfee')
@@ -19,8 +19,15 @@ prepare() {
   patch -Np1 -i $srcdir/libsidplay-1.36.59-gcc43.patch
 }
 
+options=('staticlibs')
+
 build() {
   cd ${srcdir}/${pkgname}-${pkgver}
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --disable-shared --enable-static
   make
 }

@@ -2,7 +2,8 @@
 # Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
 
 pkgbase=gstreamer-vaapi
-pkgname=(gst-vaapi gstreamer0.10-vaapi)
+# pkgname=(gst-vaapi gstreamer0.10-vaapi)
+pkgname=(gstreamer0.10-vaapi)
 pkgver=0.5.9
 pkgrel=1
 pkgdesc="GStreamer Multimedia Framework VA Plugins"
@@ -21,10 +22,16 @@ sha1sums=('14f476f834a15422ecfa6a472df1b18ac2a0e50f')
 prepare() {
   mkdir build build-0.10
   sed -i "s| tests | |g" ./gstreamer-vaapi-0.5.9/Makefile.am
+  cd $pkgbase-$pkgver/
+  autoreconf
+
+  export OLD_PKG_CONFIG_PATH=${PKG_CONFIG_PATH}
 }
 
 _build() (
-  cd "$1"; shift
+  cd $pkgbase-$pkgver
+  autoreconf
+  cd ../"$1"; shift
   ../$pkgbase-$pkgver/configure --prefix=/usr \
     --enable-static \
     --disable-builtin-libvpx --disable-gtk-doc --disable-shared \
@@ -35,7 +42,7 @@ _build() (
 )
 
 build() {
-  _build build
+  # _build build
   _build build-0.10 --with-gstreamer-api=0.10 --disable-wayland
 }
 

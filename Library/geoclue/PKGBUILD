@@ -20,8 +20,13 @@ md5sums=('779245045bfeeec4853da8baaa3a18e6')
 
 build() {
   cd $pkgname-$pkgver
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
-    --libexecdir=/usr/lib/$pkgname --enable-static
+    --libexecdir=/usr/lib/$pkgname --enable-static --enable-networkmanager=no
   make
 }
 

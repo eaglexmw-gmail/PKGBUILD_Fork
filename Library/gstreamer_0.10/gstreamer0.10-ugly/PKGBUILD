@@ -27,6 +27,11 @@ prepare() {
 build() {
   cd gst-plugins-ugly
   NOCONFIGURE=1 ./autogen.sh
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   sed -i 's|-ldvdread|-ldvdread -ldl|g' configure
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
     --enable-static --enable-experimental --disable-gtk-doc \

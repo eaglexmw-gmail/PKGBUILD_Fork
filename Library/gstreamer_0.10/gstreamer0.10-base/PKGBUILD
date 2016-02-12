@@ -43,6 +43,10 @@ build() {
   #sed -i 's|AC_CHECK_HEADERS\(\[xmmintrin.h emmintrin.h\]\)| |g' ./configure.ac
   sed -i '217 d' configure.ac
 
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   NOCONFIGURE=1 ./autogen.sh
   #sed -i 's|||g' ./gst-libs/gst/interfaces/Makefile.am
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \

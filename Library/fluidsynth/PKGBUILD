@@ -26,6 +26,10 @@ md5sums=('ae5aca6de824b4173667cbd3a310b263'
 build() {
   cd "$srcdir/$pkgname-$pkgver"
 
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   cmake . -DCMAKE_INSTALL_PREFIX=/usr \
           -DCMAKE_BUILD_TYPE=Release \
           -Denable-ladspa=ON -Denable-pulseaudio=OFF \

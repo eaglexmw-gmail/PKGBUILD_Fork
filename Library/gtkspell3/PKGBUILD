@@ -19,7 +19,12 @@ md5sums=('f15a7c29b71d6ae343c783af3571c8d2')
 
 build() {
   cd $pkgname-$pkgver
-  ./configure --prefix=/usr --enable-static
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
+  ./configure --prefix=/usr --enable-static --enable-gtk2
   make
 }
 

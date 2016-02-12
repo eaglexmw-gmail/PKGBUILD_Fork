@@ -18,6 +18,11 @@ sha256sums=('b093008ecd65f7d55c80517589509698ff15ad41f664b11a3eb88ff461b1454e')
 
 build() {
   cd $pkgname-$pkgver
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-static --disable-gtk-doc --disable-shared
 
   # https://bugzilla.gnome.org/show_bug.cgi?id=655517

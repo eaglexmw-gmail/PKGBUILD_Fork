@@ -21,6 +21,11 @@ options=('staticlibs')
 
 build() {
   cd $pkgname-soft-$pkgver/build
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   cmake -D CMAKE_INSTALL_PREFIX=/usr -D CMAKE_BUILD_TYPE=Release -D ALSOFT_EXAMPLES=OFF -D LIBTYPE=STATIC ..
   make
 }

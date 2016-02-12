@@ -1,0 +1,31 @@
+#$Id$
+#Maintainer: Jan de Groot <jgc@archlinux.org>
+
+pkgname=libmms
+pkgver=0.6.4
+pkgrel=1
+pkgdesc="MMS stream protocol library"
+arch=(i686 x86_64)
+url="http://sourceforge.net/projects/libmms/"
+license=(LGPL)
+depends=('glibc')
+source=(http://download.sourceforge.net/libmms/${pkgname}-${pkgver}.tar.gz)
+md5sums=('d6b665b335a6360e000976e770da7691')
+
+options=('staticlibs')
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
+  ./configure --prefix=/usr --enable-static --disable-shared
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

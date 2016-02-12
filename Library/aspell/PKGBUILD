@@ -23,6 +23,11 @@ sha1sums=('ff1190db8de279f950c242c6f4c5d5cdc2cbdc49')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --sysconfdir=/etc --disable-shared --enable-static
   make
 }

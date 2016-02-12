@@ -22,6 +22,11 @@ build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
   patch -Np1 -i "${srcdir}/01-cddb-bufferoverflow.patch"
   patch -Np1 -i "${srcdir}/02-cddb-bufferoverflow.patch"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --enable-static --disable-shared
   make
 }

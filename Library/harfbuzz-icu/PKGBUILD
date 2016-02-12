@@ -17,6 +17,11 @@ sha256sums=('255f3b3842dead16863d1d0c216643d97b80bfa087aaa8fc5926da24ac120207')
 
 build() {
   cd $pkgbase-$pkgver
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   PYTHON=/usr/local/python2/bin/python2 ./configure --prefix=/usr \
     --with-glib --with-freetype --with-cairo --with-icu --with-graphite2 \
     --with-gobject --disable-shared --enable-static

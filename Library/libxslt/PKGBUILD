@@ -19,6 +19,11 @@ md5sums=('9667bf6f9310b957254fdcf6596600b7')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   sed -e 's|/usr/bin/python -u|/usr/bin/python2 -u|g' -e 's|/usr/bin/python$|/usr/bin/python2|g' -i python/tests/*.py
   ./configure --prefix=/usr --with-python=/usr/bin/python2 --disable-shared
   make

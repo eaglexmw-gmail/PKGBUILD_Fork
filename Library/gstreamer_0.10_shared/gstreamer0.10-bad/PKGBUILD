@@ -30,6 +30,11 @@ prepare() {
   sed -i 's| tests | |g' Makefile.am
   patch -Np1 -i ../disable-assrender-test.patch
   patch -Np1 -i ../disable-camerabin-test.patch
+if [ "$CARCH" = "x86_64" ]; then
+  sed -i 's| -lcdaudio|& -L/usr/local/lib64 |g' ext/cdaudio/Makefile.am
+  sed -i 's|libgstmodplug_la_CXXFLAGS = |& -I/usr/local/include/libmodplug |g' ext/modplug/Makefile.am
+  sed -i 's|_la_LDFLAGS = |& -L/usr/local/lib64 |g' sys/vdpau/gstvdp/Makefile.am
+fi
 }
 
 build() {
@@ -37,6 +42,10 @@ build() {
   NOCONFIGURE=1 ./autogen.sh
 
   export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
+
+if [ "$CARCH" = "x86_64" ]; then
+  export LDFLAGS="-L/usr/local/lib64"
+fi
 
   ./configure --prefix=/usr/local/gstreamer/${dstdir} --sysconfdir=/usr/local/gstreamer/${dstdir}/etc --localstatedir=/var \
     --disable-static --enable-experimental --disable-gtk-doc \

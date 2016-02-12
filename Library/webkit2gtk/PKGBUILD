@@ -22,6 +22,12 @@ source=(http://webkitgtk.org/releases/webkitgtk-${pkgver}.tar.xz
 sha256sums=('0b77abcc72a274e8f11e9d9f0f6b116dadeeb8b9d5f22b17b6604ed9ae3fe83c'
             '56316228bbbf0b7ebcbe210a35120f4e72cb9c1b680dd82cc2bde0f4549245e6')
 
+if [ "$CARCH" = "x86_64" ]; then
+  dstdir=webkit_64
+elif [ "$CARCH" = "i686" ]; then
+  dstdir=webkit
+fi
+
 prepare() {
   mkdir build
 
@@ -47,10 +53,24 @@ prepare() {
 
 build() {
   cd build
+
+if [ "$CARCH" = "x86_64" ]; then
+  export LDFLAGS="-L/usr/local/lib64"
+fi
+
+if [ "$CARCH" = "x86_64" ]; then
+  export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig/:${PKG_CONFIG_PATH}
+elif [ "$CARCH" = "i686" ]; then
   export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/:${PKG_CONFIG_PATH}
+fi
+
+#if [ "$CARCH" = "x86_64" ]; then
+  # sed -i 's|(HYPHEN_LIBRARIES NAMES hyphen hnj|& HINTS "/usr/local/lib64"|g' ../webkitgtk-$pkgver/Source/cmake/FindHyphen.cmake
+#fi
+
   cmake -DPORT=GTK -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_SKIP_RPATH=ON -DCMAKE_INSTALL_PREFIX=/usr/local/webkit \
-        -DLIB_INSTALL_DIR=/usr/local/webkit/lib -DLIBEXEC_INSTALL_DIR=/usr/local/webkit/lib/webkit2gtk-4.0 \
+        -DCMAKE_SKIP_RPATH=ON -DCMAKE_INSTALL_PREFIX=/usr/local/$dstdir \
+        -DLIB_INSTALL_DIR=/usr/local/$dstdir/lib -DLIBEXEC_INSTALL_DIR=/usr/local/$dstdir/lib/webkit2gtk-4.0 \
         -DENABLE_GTKDOC=OFF ../webkitgtk-$pkgver
 
   make cmake_check_build_system
@@ -79,8 +99,21 @@ build() {
   #sed -i '165,168 d' ./Source/WebKit2/cmake_install.cmake
   #sed -i '150,153 d' ./Source/WebKit2/cmake_install.cmake
 
-  sed -i 's|libharfbuzz.a |libharfbuzz.a -lgraphite2 |g' ./Source/WebKit2/CMakeFiles/WebKit2.dir/link.txt
+  sed -i 's|libharfbuzz.a |libharfbuzz.a -L/usr/lib -L/usr/lib64 -L/usr/local/lib -lgraphite2 |g' ./Source/WebKit2/CMakeFiles/WebKit2.dir/link.txt
   sed -i 's|libgstaudio-1.0.a |libgstaudio-1.0.a -lorc-0.4 -lX11 -lXcomposite -lXdamage |g' ./Source/WebKit2/CMakeFiles/WebKit2.dir/link.txt
+
+if [ "$CARCH" = "x86_64" ]; then
+  sed -i 's|-lharfbuzz |& -Wl,-Bdynamic -lgraphite2 -Wl,-Bstatic |g' ./Source/WebKit2/CMakeFiles/DatabaseProcess.dir/link.txt
+  sed -i 's|-lharfbuzz |& -Wl,-Bdynamic -lgraphite2 -Wl,-Bstatic |g' ./Source/WebKit2/CMakeFiles/NetworkProcess.dir/link.txt
+  sed -i 's|-lharfbuzz |& -Wl,-Bdynamic -lgraphite2 -Wl,-Bstatic |g' ./Source/WebKit2/CMakeFiles/PluginProcess.dir/link.txt
+  sed -i 's|-lharfbuzz |& -Wl,-Bdynamic -lgraphite2 -Wl,-Bstatic |g' ./Source/WebKit2/CMakeFiles/WebKitPluginProcess2.dir/link.txt
+  sed -i 's|-lharfbuzz |& -Wl,-Bdynamic -lgraphite2 -Wl,-Bstatic |g' ./Source/WebKit2/CMakeFiles/WebProcess.dir/link.txt
+
+  sed -i 's|-lgstaudio-1.0 |-lgstaudio-1.0 -Wl,-Bdynamic -lorc-0.4 -lX11 -lXcomposite -lXdamage -Wl,-Bstatic |g' ./Source/WebKit2/CMakeFiles/WebKitPluginProcess2.dir/link.txt
+
+  sed -i 's|-lharfbuzz |& -Wl,-Bdynamic -lgraphite2 -Wl,-Bstatic |g' ./Source/WebKit2/CMakeFiles/WebKit2.dir/link.txt
+  sed -i 's|-lgstaudio-1.0 |-lgstaudio-1.0  -Wl,-Bdynamic -lorc-0.4 -lX11 -lXcomposite -lXdamage -Wl,-Bstatic |g' ./Source/WebKit2/CMakeFiles/WebKit2.dir/link.txt
+fi
 
   make
 }
@@ -89,13 +122,13 @@ package() {
   cd build
   make DESTDIR="$pkgdir" install
 
-  cp -f ./lib/*.a $pkgdir/usr/local/webkit/lib/
+  cp -f ./lib/*.a $pkgdir/usr/local/$dstdir/lib/
 
-  install -m755 -d "$pkgdir/usr/local/webkit/share/licenses/webkit2gtk"
+  install -m755 -d "$pkgdir/usr/local/$dstdir/share/licenses/webkit2gtk"
   cd "$srcdir/webkitgtk-$pkgver/Source"
   for f in $(find -name 'COPYING*' -or -name 'LICENSE*'); do
-    echo $f >> "$pkgdir/usr/local/webkit/share/licenses/webkit2gtk/LICENSE"
-    cat $f >> "$pkgdir/usr/local/webkit/share/licenses/webkit2gtk/LICENSE"
-    echo "" >> "$pkgdir/usr/local/webkit/share/licenses/webkit2gtk/LICENSE"
+    echo $f >> "$pkgdir/usr/local/$dstdir/share/licenses/webkit2gtk/LICENSE"
+    cat $f >> "$pkgdir/usr/local/$dstdir/share/licenses/webkit2gtk/LICENSE"
+    echo "" >> "$pkgdir/usr/local/$dstdir/share/licenses/webkit2gtk/LICENSE"
   done
 }

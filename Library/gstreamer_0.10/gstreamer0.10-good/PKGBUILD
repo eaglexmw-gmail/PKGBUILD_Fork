@@ -30,6 +30,11 @@ build() {
   cd gst-plugins-good
   NOCONFIGURE=1 ./autogen.sh
   sed -i 's|-lrom1394|-lrom1394 -lm|g' configure
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
     --enable-static --enable-experimental \
     --disable-schemas-install \

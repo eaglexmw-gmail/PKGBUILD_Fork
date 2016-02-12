@@ -28,6 +28,11 @@ prepare() {
   patch -Np0 -i ../opencore-amr.patch
   patch -Np1 -i ../cdio-cd-text-api.patch
   sed -e 's/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/' -i configure.ac
+
+if [ "$CARCH" = "x86_64" ]; then
+  sed -i 's|libgstx264_la_LDFLAGS = |& -L/usr/local/lib64 |g' ext/x264/Makefile.am
+fi
+
 }
 
 build() {
@@ -35,6 +40,11 @@ build() {
   NOCONFIGURE=1 ./autogen.sh
   export PKG_CONFIG_PATH=/usr/local/gstreamer/${dstdir}/lib/pkgconfig:${PKG_CONFIG_PATH}
   sed -i 's|-ldvdread|-ldvdread -ldl|g' configure
+
+if [ "$CARCH" = "x86_64" ]; then
+  export LDFLAGS="-L/usr/local/lib64"
+fi
+
   ./configure --prefix=/usr/local/gstreamer/${dstdir} --sysconfdir=/usr/local/gstreamer/${dstdir}/etc --localstatedir=/var \
     --disable-static --enable-experimental --disable-gtk-doc \
     --with-package-name="GStreamer Ugly Plugins (Archlinux)" \

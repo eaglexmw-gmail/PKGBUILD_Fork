@@ -18,6 +18,10 @@ md5sums=('4113d8aa80194459b45b83d4dbde8ddb')
 build() {
   cd "$srcdir/$pkgname-$pkgver"
 
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr \
               --enable-static --disable-shared
   make

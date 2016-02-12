@@ -17,6 +17,11 @@ sha256sums=('0b3126d8158d156de9da2ff4d861c47857acc4318a7ac260258015a22071964f')
 
 build() {
    cd "${srcdir}/${pkgname}-${pkgver}"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
    ./configure --prefix=/usr --enable-static --disable-shared
    make
 }

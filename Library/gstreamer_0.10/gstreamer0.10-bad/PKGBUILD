@@ -24,6 +24,9 @@ prepare() {
   sed -i 's| tests | |g' Makefile.am
   patch -Np1 -i ../disable-assrender-test.patch
   patch -Np1 -i ../disable-camerabin-test.patch
+if [ "$CARCH" = "x86_64" ]; then
+  sed -i 's|libgstmodplug_la_CXXFLAGS = |& -I/usr/local/include/libmodplug |g' ext/modplug/Makefile.am
+fi
 }
 
 build() {

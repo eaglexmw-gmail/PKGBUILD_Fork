@@ -17,12 +17,18 @@ options=(staticlibs)
 source=("http://downloads.webmproject.org/releases/webp/$pkgname-$pkgver.tar.gz")
 sha256sums=('14d825d7c2ef7d49621bcb6b83466be455585e671ae0a2ebc1f2e07775a1722d')
 
+makedepends=(mesa glu)
+
 prepare() {
   cd "$srcdir/$pkgname-$pkgver"
 }
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
 
   ./configure --prefix=/usr \
      --enable-swap-16bit-csp \

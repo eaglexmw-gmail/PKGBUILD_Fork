@@ -17,6 +17,11 @@ md5sums=('4967da60b23413604c9e563beacc63b4')
 
 build() {
   cd "$srcdir/hunspell-$pkgver"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --enable-static \
 	--with-ui --with-readline --with-experimental
   make

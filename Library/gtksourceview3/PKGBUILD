@@ -18,6 +18,11 @@ sha256sums=('60f75a9f0039e13a2281fc595b5ef7344afa06732cc53b57d13234bfb0a5b7b2')
 
 build() {
   cd "$_pkgbasename-$pkgver"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --sysconfdir=/etc \
       --localstatedir=/var --enable-static \
       --disable-glade-catalog --disable-shared

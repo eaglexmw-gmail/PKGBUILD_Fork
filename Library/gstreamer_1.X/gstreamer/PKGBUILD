@@ -19,6 +19,10 @@ sha256sums=('40801aa7f979024526258a0e94707ba42b8ab6f7d2206e56adbc4433155cb0ae')
 build() {
   cd "${srcdir}/gstreamer-${pkgver}"
 
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   sed -i '143 a printf(\"no such element factory \\\"%s\\\"\", name);' ./gst/gstelementfactory.c
   export PATH=$PATH:/usr/local/python2/bin/
 

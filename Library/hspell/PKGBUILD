@@ -11,12 +11,19 @@ url="http://www.ivrix.org.il/projects/spell-checker/"
 makedepends=('glibc' 'zlib' 'perl' 'hunspell' 'gawk')
 options=('!makeflags')
 options=('staticlibs')
-source=(http://hspell.ivrix.org.il/${pkgname}-${pkgver}.tar.gz{,.sig})
+source=(http://hspell.ivrix.org.il/${pkgname}-${pkgver}.tar.gz)
 md5sums=('32fbc1a71e86ab46bf7870c6eec9a6be'
-         '858120037dd52ae823788518329ee7d3')
+         )
+
+makedepends=('glibc' 'zlib' 'perl' 'gawk')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --mandir=/usr/share/man \
       --enable-linginfo --enable-fatverb --enable-shared
   make 

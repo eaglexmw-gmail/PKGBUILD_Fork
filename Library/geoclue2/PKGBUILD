@@ -20,6 +20,11 @@ md5sums=('aaa6c7a2a48a8fa74838345722d80e9f')
 
 build() {
   cd geoclue-$pkgver
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
     --libexecdir=/usr/lib/$pkgname --enable-static
   make

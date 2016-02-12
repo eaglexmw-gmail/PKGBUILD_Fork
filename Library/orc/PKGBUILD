@@ -9,12 +9,17 @@ license=('custom')
 url="http://code.entropywave.com/projects/orc/"
 depends=('glibc')
 options=('staticlibs')
-makedepends=('valgrind')
+# makedepends=('valgrind')
 source=(http://gstreamer.freedesktop.org/data/src/orc/orc-${pkgver}.tar.xz)
 md5sums=('72e0612ace54d77aa2f7a006348ee81a')
 
 build () {
     cd $pkgname-$pkgver
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
     ./configure --prefix=/usr --enable-static --disable-shared
     make
 }

@@ -24,7 +24,7 @@ depends=('libxslt' 'hicolor-icon-theme' 'xz' 'bzip2'
 build() {
   cd $pkgname-$pkgver
 
-  export PKG_CONFIG_PATH="/usr/local/webkit/lib/pkgconfig:$PKG_CONFIG_PATH"
+  export PKG_CONFIG_PATH="/usr/local/webkit/lib/pkgconfig:/usr/local/yelp/lib/pkgconfig:$PKG_CONFIG_PATH"
   export LD_LIBRARY_PATH="/usr/local/webkit/lib:$LD_LIBRARY_PATH"
   export XDG_DATA_DIRS="/usr/local/webkit/share:/usr/share"
 

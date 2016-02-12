@@ -19,6 +19,10 @@ build() {
 
   sed -i 's|include examples test_suite|include|g' Makefile.in
 
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr  --enable-static --disable-shared
   make
 }

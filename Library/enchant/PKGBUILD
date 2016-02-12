@@ -15,8 +15,15 @@ depends=('aspell' 'dbus-glib' 'hunspell' 'hspell')
 source=("http://www.abisource.com/downloads/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.gz")
 md5sums=('de11011aff801dc61042828041fb59c7')
 
+depends=('dbus-glib')
+
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr \
     --enable-static \
     --disable-ispell \

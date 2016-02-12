@@ -32,6 +32,11 @@ prepare() {
 build() {
   cd gstreamer
   NOCONFIGURE=1 ./autogen.sh
+
+  export CFLAGS="-fPIC"
+  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC"
+
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libexecdir=/usr/lib \
     --with-package-name="GStreamer (Archlinux)" \
     --with-package-origin="http://www.archlinux.org/" \
