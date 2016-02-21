@@ -5,30 +5,33 @@
 # Contributor: Stefan Husmann <stefan-husmann@t-online.de>
 
 pkgname=codeblocks
-pkgver=13.12
+pkgver=16.01
 pkgrel=2
 pkgdesc='Open source and cross-platform C/C++ IDE'
 arch=('i686' 'x86_64')
 url='http://www.codeblocks.org'
 license=('GPL3')
-#depends=('boost-libs' 'bzip2' 'desktop-file-utils' 'gamin' 'gtk-update-icon-cache'
-#         'hicolor-icon-theme' 'hunspell' 'shared-mime-info' 'wxgtk2.8' 'libsm')
-depends=('bzip2' 'desktop-file-utils' 'gamin' 'gtk-update-icon-cache'
+depends=('boost-libs' 'bzip2' 'desktop-file-utils' 'gamin' 'gtk-update-icon-cache'
+         'hicolor-icon-theme' 'hunspell' 'shared-mime-info' 'wxgtk2.8' 'libsm')
+depends=('bzip2' 'desktop-file-utils' 'gtk-update-icon-cache'
          'hicolor-icon-theme' 'hunspell' 'shared-mime-info' 'libsm')
 #makedepends=('boost' 'zip')
 makedepends=('zip')
 install=codeblocks.install
-source=(http://download.berlios.de/$pkgname/${pkgname}_${pkgver}-1.tar.gz)
-md5sums=('4b450f620d9f1875ecf6882ab3c11402')
+source=("http://sourceforge.net/projects/codeblocks/files/Sources/$pkgver/codeblocks_$pkgver.tar.gz")
+sha256sums=('30fb9d206df4ab3c2e2fec2451a0a7c9723bfed9a673cc9be71e881c529d5a03')
 
 build() {
-  cd $pkgname-$pkgver
+  cd "$pkgname-$pkgver.release"
   export WX_CONFIG_PATH=/usr/local/bin/wx-config
+  # automake --add-missing
+  # autoreconf -f
+  ./bootstrap
   ./configure --prefix=/usr/local/codeblocks --with-contrib-plugins=all
   make 
 }
 
 package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="$pkgdir" install
+  # cd "$pkgname-$pkgver.release"
+  make -C "$pkgname-$pkgver.release" DESTDIR="$pkgdir" install
 }
