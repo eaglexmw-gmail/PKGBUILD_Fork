@@ -2,7 +2,7 @@
 # Maintainer: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=gnome-online-accounts
-pkgver=3.18.2.1
+pkgver=3.20.1
 pkgrel=1
 pkgdesc="GNOME service to access online accounts"
 arch=(i686 x86_64)
@@ -14,7 +14,7 @@ optdepends=('gvfs-goa: Virtual file systems (e.g. OwnCloud)'
             'gvfs-google: Google Drive')
 install=$pkgname.install
 source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
-sha256sums=('ca0a9c58ea5ac08437ed68fea9e8c3de69a8804e670ccf5a578c6786096ecfac')
+sha256sums=('c37aebc1e12f31f5516d33a354181e4d202a07da4f7d3a95b0da8cf0028c0c93')
 
 depends=('json-glib' 'libnotify' 'rest' 'krb5')
 if [ "$CARCH" = "x86_64" ]; then
@@ -40,6 +40,8 @@ build() {
    #--disable-media-server --disable-owncloud --disable-facebook --disable-windows-live --disable-telepathy --disable-pocket
     
   # --enable-media-server --enable-kerberos --enable-lastfm
+
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 
   make
 }

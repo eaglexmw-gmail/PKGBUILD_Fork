@@ -3,7 +3,7 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gnome-control-center
-pkgver=3.18.2
+pkgver=3.20.1
 pkgrel=1
 pkgdesc="The Control Center for GNOME"
 license=(GPL)
@@ -25,7 +25,7 @@ install=gnome-control-center.install
 options=('!emptydirs')
 source=(http://download.gnome.org/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz
         g_drop_goa.patch drop_colord.patch drop_smbclient.patch)
-sha256sums=('36fe6157247d2b7c8a98dbb3dbcde1c3a6f9e5e8fcc9ccf357e2b2417578f8ad'
+sha256sums=('ce6474fc60f78ed3cfaf555e55a52ec3ebb6437fa184e08ad6077bbec380a1ed'
             'SKIP' 'SKIP' 'SKIP')
 
 depends=(accountsservice

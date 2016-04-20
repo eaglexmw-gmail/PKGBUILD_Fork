@@ -4,7 +4,7 @@
 # Contributor: Michael Kanis <mkanis_at_gmx_dot_de>
 
 pkgname=mutter
-pkgver=3.18.2
+pkgver=3.20.1
 pkgrel=1
 pkgdesc="A window manager for GNOME"
 arch=(i686 x86_64)
@@ -18,7 +18,7 @@ groups=('gnome')
 options=('!emptydirs')
 install=mutter.install
 source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
-sha256sums=('8a69326f216c7575ed6cd53938b9cfc49b3b359cde95d3b6a7ed46c837261181')
+sha256sums=('6a4903b9e2b0699c95195c36d1f31a789571c63f2ee3cfe2475e2955e7dca21c')
 
 depends=('dconf' 'gobject-introspection-runtime' 'gsettings-desktop-schemas' 'startup-notification' 'libsm' 'upower' 'libgudev')
 makedepends=('intltool' 'gobject-introspection')

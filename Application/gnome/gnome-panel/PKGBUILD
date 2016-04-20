@@ -3,19 +3,23 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gnome-panel
-pkgver=3.18.1
-pkgrel=2
+pkgver=3.18.2
+pkgrel=3
 pkgdesc="Panel of GNOME Flashback"
 arch=('i686' 'x86_64')
 url="https://wiki.gnome.org/Projects/GnomePanel"
 license=('GPL')
 # depends=('evolution-data-server' 'gnome-desktop' 'gnome-menus' 'libwnck3')
-makedepends=('intltool' 'itstool' 'gobject-introspection')
+#makedepends=('intltool' 'itstool' 'gobject-introspection')
+makedepends=('intltool' 'itstool' 'gobject-introspection' 'gtk-doc' 'autoconf-archive')
 optdepends=('alacarte: Main menu editor'
             'gnome-applets: Extra applets for the panel')
 install=$pkgname.install
-source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
-sha256sums=('c62518031fe86cd36a2385686363a7e5eb0a94f2fc6a8a48cf56d94654540377')
+#source=(https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+source=(https://git.gnome.org/browse/gnome-panel/snapshot/gnome-panel-9814d539d3a858e4de831a9451cda66f0f947209.tar.xz
+        0001-Theme-set-font-settings-directly-on-label.patch)
+#sha256sums=('e2d8a51a2b9b3a4aa948647992f6fee23c3e69ec5639f2a824383e8a61fbac29')
+sha256sums=('6a3d2128a7963b1beeff284b1d5376bc3d227390b6cec15b271003809ee33598' SKIP)
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gnome3_64
@@ -23,8 +27,18 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
 
+prepare() {
+  cd $pkgname-*
+
+  # Theme: set font settings directly on label
+  # https://bugzilla.gnome.org/show_bug.cgi?id=764867
+  patch -Np1 -i ../0001-Theme-set-font-settings-directly-on-label.patch
+
+  NOCONFIGURE=1 ./autogen.sh
+}
+
 build() {
-  cd $pkgname-$pkgver
+  cd $pkgname-*
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -32,10 +46,14 @@ build() {
 
   ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var --libexecdir=/usr/local/${dstdir}/lib/$pkgname \
               --disable-schemas-compile
+
+  #https://bugzilla.gnome.org/show_bug.cgi?id=656231
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
   make
 }
 
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname-*
   make DESTDIR="$pkgdir" install
 }

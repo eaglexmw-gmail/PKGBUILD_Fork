@@ -5,7 +5,7 @@
 # Contributor: Patrick Melo <patrick@patrickmelo.eti.br>
 
 pkgname=geany-plugins
-pkgver=1.25
+pkgver=1.27.0
 pkgrel=2
 pkgdesc='Plugins for Geany'
 arch=('x86_64' 'i686')
@@ -16,8 +16,8 @@ license=('GPL')
 # makedepends=('intltool' 'vala' 'gdb' 'cppcheck' 'libgit2')
 optdepends=('hspell: hebrew spell checker')
 install="$pkgname.install"
-source=("http://plugins.geany.org/$pkgname/$pkgname-$pkgver.tar.bz2")
-sha256sums=('5c13ac1e173284462248ed2faae389a72364c5aa1538de628d2aaa7d286e244b')
+source=("http://plugins.geany.org/$pkgname/$pkgname-$pkgver.tar.gz")
+sha256sums=('a347be468775f4ee8c6e8e6dda3b175194d92adec40549726ecfc65a54bb9d75')
 
 build() {
   cd "$pkgname-$pkgver"
@@ -26,7 +26,9 @@ build() {
   #export PYTHON=python2_spec
   export PYTHON_VERSION=2_spec
 
-  ./configure \
+    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/geany/lib/pkgconfig/
+
+  ./autogen.sh \
     --prefix=/usr/local/geany \
     --libexecdir=/usr/local/geany/lib  --enable-debugger --enable-scope --disable-devhelp --disable-webhelper --disable-markdown
 

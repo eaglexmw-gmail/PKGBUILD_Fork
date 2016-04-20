@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+
+pkgname=gnome-music
+pkgver=3.18.2
+pkgrel=1
+pkgdesc="Music player and management application"
+arch=(i686 x86_64)
+license=('GPL')
+url="https://wiki.gnome.org/Apps/Music"
+depends=(grilo grilo-plugins tracker libdmapsharing python-dbus dbus-glib gnome-themes-standard gtk3 gvfs python-gobject python-cairo gst-plugins-base python-requests)
+makedepends=(intltool itstool python2 gobject-introspection)
+optdepends=('gst-plugins-good: Extra media codecs'
+            'gst-plugins-ugly: Extra media codecs'
+            'gst-plugins-bad: Extra media codecs'
+            'gst-libav: Extra media codecs')
+groups=('gnome-extra')
+install=gnome-music.install
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+sha256sums=('81b6ae8b4193774a1dc05e77c59ad8ff5e7debc0aea30ce2ecd13b2ceda10bff')
+
+depends=(dbus-glib gtk3)
+makedepends=(intltool itstool gobject-introspection)
+
+build() {
+  cd $pkgname-$pkgver
+
+  export PKG_CONFIG_PATH=/usr/local/gnome3/lib/pkgconfig/:/usr/local/gstreamer/gstreamer_1.x/lib/pkgconfig/:${PKG_CONFIG_PATH}
+  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/gnome3/share
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/gnome3/lib
+
+  ./configure --prefix=/usr/local/gnome-music --disable-schemas-compile
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make -j1 DESTDIR="${pkgdir}" install
+}
