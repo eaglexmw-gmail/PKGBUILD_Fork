@@ -4,7 +4,7 @@
 # Contributor: Ner0
 
 pkgname=muffin
-pkgver=2.8.5
+pkgver=3.0.0
 pkgrel=1
 pkgdesc="Cinnamon window manager based on Mutter"
 arch=('i686' 'x86_64')
@@ -19,7 +19,7 @@ makedepends=('intltool' 'gnome-common' 'gobject-introspection')
 options=('!emptydirs')
 install=$pkgname.install
 source=("$pkgname-$pkgver.tar.gz::https://github.com/linuxmint/muffin/archive/$pkgver.tar.gz")
-sha256sums=('0ae19de74111f222b44f7bf8d159437a83c6ae2e7ce70b327c0296365d69aba4')
+sha256sums=('ddd514d9447576ec1dd9fd9a9ea7166109af44a08b8e5a962b49b4ec7d080b60')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
