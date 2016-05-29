@@ -1,0 +1,44 @@
+diff -Nur old/src/Makefile new/src/Makefile
+--- old/src/Makefile	2014-02-02 10:58:11.000000000 +0000
++++ new/src/Makefile	2016-05-29 10:16:01.296255555 +0000
+@@ -1,8 +1,8 @@
+ # remove -fno-exceptions  if it causes problems with stdio library on some platforms (ARM)
+ 
+-DATADIR=/usr/share/espeak-data
++DATADIR=/usr/local/espeak/share/espeak-data
+ 
+-PREFIX=/usr
++PREFIX=/usr/local/espeak
+ BINDIR=$(PREFIX)/bin
+ INCDIR=$(PREFIX)/include/espeak
+ LIBDIR=$(PREFIX)/lib
+@@ -45,7 +45,7 @@
+ else
+ ifeq ($(AUDIO),portaudio)
+ WAVE=wave.cpp
+-LIB_AUDIO=-lportaudio
++LIB_AUDIO=-lportaudio -lasound -ljack
+ USE_AUDIO=-DUSE_PORTAUDIO
+ else
+ ifeq ($(AUDIO),portaudio0)
+diff -Nur old/src/tr_languages.cpp new/src/tr_languages.cpp
+--- old/src/tr_languages.cpp	2014-03-04 16:47:15.000000000 +0000
++++ new/src/tr_languages.cpp	2016-05-29 10:02:13.406243000 +0000
+@@ -198,7 +198,7 @@
+ 	0x200d,  1, // zero width joiner
+ 	0, 0 };
+ 
+-const char string_ordinal[] = {0xc2,0xba,0};  // masculine ordinal character, UTF-8
++const unsigned char string_ordinal[] = {0xc2, 0xba,0};  // masculine ordinal character, UTF-8
+ 
+ 
+ static Translator* NewTranslator(void)
+@@ -758,7 +758,7 @@
+ 				tr->langopts.stress_flags = S_FINAL_SPANISH | S_FINAL_DIM_ONLY | S_FINAL_NO_2;
+ 				tr->langopts.numbers = NUM_SINGLE_STRESS | NUM_DECIMAL_COMMA | NUM_AND_UNITS | NUM_OMIT_1_HUNDRED | NUM_OMIT_1_THOUSAND | NUM_ROMAN | NUM_ROMAN_ORDINAL;
+ 				tr->langopts.numbers2 = NUM2_ORDINAL_NO_AND;
+-				tr->langopts.roman_suffix = string_ordinal;
++				tr->langopts.roman_suffix = (const char*)string_ordinal;
+ 			}
+ 			else
+ 			if(name2 == L_pap)

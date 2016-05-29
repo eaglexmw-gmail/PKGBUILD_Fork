@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Alexander F Rødseth <xyproto@archlinux.org>
+# Contributor: Mateusz Herych <heniekk@gmail.com>
+# Contributor: Christoph Siegenthaler <csi@gmx.ch>
+
+pkgname=espeak
+pkgver=1.48.04
+pkgrel=2
+pkgdesc='Text to Speech engine for English, with support for other languages'
+arch=('x86_64' 'i686')
+url='http://espeak.sourceforge.net/'
+license=('GPL')
+#depends=('portaudio' 'libpulse')
+options=('!emptydirs')
+source=("http://downloads.sourceforge.net/$pkgname/$pkgname-$pkgver-source.zip"
+        tr_language.patch)
+sha256sums=('bf9a17673adffcc28ff7ea18764f06136547e97bbd9edf2ec612f09b207f0659'
+            'SKIP')
+
+build() {
+  cd "$pkgname-$pkgver-source/src"
+
+  patch -p2 -i ../../tr_language.patch
+
+  cp portaudio19.h portaudio.h
+  make CXXFLAGS="$CXXFLAGS" # AUDIO=pulseaudio
+}
+
+package() {
+  cd "$pkgname-$pkgver-source/src"
+
+  make DESTDIR="$pkgdir" install
+  chmod 644 "$pkgdir/usr/local/espeak/lib/libespeak.a"
+}
+
+# vim:set ts=2 sw=2 et:
