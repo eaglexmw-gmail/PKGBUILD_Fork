@@ -11,7 +11,7 @@
 #
 
 pkgname=codelite
-pkgver=9.1
+pkgver=9.2
 pkgrel=1
 pkgdesc="Open-source, cross platform IDE for the C/C++ programming languages"
 arch=('i686' 'x86_64')
@@ -22,10 +22,10 @@ makedepends=('pkgconfig' 'cmake')
 optdepends=('graphviz: callgraph visualization')
 
 source=(https://github.com/eranif/${pkgname}/archive/${pkgver//_/-}.tar.gz
-	http://repos.codelite.org/wxCrafterLibs/wxgui.zip)
+	http://repos.codelite.org/wxCrafterLibs/wxgui.zip wxstring.patch)
 
-md5sums=('e1ae35b6e6b63e774a75fe7d02892055'
-         '093485fcae62073ca8d0ba6ff3a5cb69')
+md5sums=('77f24e8c39160222ec23f7794a1fc64b'
+         '093485fcae62073ca8d0ba6ff3a5cb69' 'SKIP')
 
 #if [[ "$CARCH" == 'i686' ]]; then
 #  source+=(http://repos.codelite.org/wxCrafterLibs/ArchLinux/32/wxCrafter.so)
@@ -45,6 +45,8 @@ pkg_name_ver="${pkgname}-${pkgver//_/-}"
 
 build() {
     cd "${srcdir}/${pkg_name_ver}"
+
+    patch -Np1 -i ../wxstring.patch
 
     CXXFLAGS="${CXXFLAGS} -fno-devirtualize"
 

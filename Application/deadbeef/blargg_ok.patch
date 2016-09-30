@@ -1,0 +1,13 @@
+diff -Nur deadbeef-0.6.2_old/plugins/gme/game-music-emu-0.6pre/gme/blargg_common.h deadbeef-0.6.2/plugins/gme/game-music-emu-0.6pre/gme/blargg_common.h
+--- deadbeef-0.6.2_old/plugins/gme/game-music-emu-0.6pre/gme/blargg_common.h	2013-12-07 20:31:59.000000000 +0000
++++ deadbeef-0.6.2/plugins/gme/game-music-emu-0.6pre/gme/blargg_common.h	2016-09-29 09:11:21.833871000 +0000
+@@ -12,7 +12,8 @@
+ typedef const char* blargg_err_t; // 0 on success, otherwise error string
+ 
+ // Success; no error
+-int const blargg_ok = 0;
++//int const blargg_ok = 0;
++#define blargg_ok 0
+ 
+ // BLARGG_RESTRICT: equivalent to C99's restrict, where supported
+ #if __GNUC__ >= 3 || _MSC_VER >= 1100

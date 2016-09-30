@@ -1,0 +1,62 @@
+# $Id$
+# Maintainer: Lukas Fleischer <archlinux at cryptocrack dot de>
+# Contributor: Alexey Yakovenko <waker@users.sourceforge.net>
+
+pkgname=deadbeef
+pkgver=0.7.0
+pkgrel=1
+pkgdesc='A GTK+ audio player for GNU/Linux.'
+arch=('i686' 'x86_64')
+url='http://deadbeef.sourceforge.net'
+license=('GPL2')
+depends=('alsa-lib' 'hicolor-icon-theme' 'desktop-file-utils')
+makedepends=('libvorbis' 'libmad' 'flac' 'curl' 'imlib2' 'wavpack' 'libsndfile' 'libcdio' 'libcddb'
+             'libx11' 'faad2' 'zlib' 'intltool' 'pkgconfig' 'libpulse' 'libzip' 'libsamplerate'
+             'yasm' 'ffmpeg' 'gtk2' 'gtk3')
+makedepends=('libvorbis' 'curl' 'libsndfile' 'libx11' 'zlib' 'intltool' 'pkgconfig' 'libsamplerate' 'yasm')
+optdepends=('gtk2: for the GTK2 interface'
+            'gtk3: for the GTK3 interface'
+            'libsamplerate: for Resampler plugin'
+            'libvorbis: for Ogg Vorbis playback'
+            'libmad: for MP1/MP2/MP3 playback'
+            'flac: for FLAC playback'
+            'curl: for Last.fm scrobbler, SHOUTcast, Icecast, Podcast support'
+            'imlib2: for artwork plugin'
+            'wavpack: for WavPack playback'
+            'libsndfile: for Wave playback'
+            'libcdio: audio cd plugin'
+            'libcddb: audio cd plugin'
+            'faad2: for AAC/MP4 support'
+            'dbus: for OSD notifications support'
+            'pulseaudio: for PulseAudio output plugin'
+            'libx11: for global hotkeys plugin'
+            'zlib: for Audio Overload plugin'
+            'libzip: for vfs_zip plugin'
+            'ffmpeg: for ffmpeg plugin')
+install='deadbeef.install'
+source=("http://downloads.sourceforge.net/project/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+        plugins_vfs_zip_vfs_zip_c.patch blargg_ok.patch)
+md5sums=('d5450785139757a016dcd4dfc66479c7'
+         '710ac295ba30cad843b9239a178b7ee7' 'SKIP')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  # patch -Np0 -i ../plugins_vfs_zip_vfs_zip_c.patch
+  # patch -Np1 -i ../blargg_ok.patch
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  export CXXFLAGS="-Wno-narrowing"
+
+  ./configure  --prefix=/usr/local/deadbeef --disable-ffmpeg --enable-gtk2 --enable-gtk3 --enable-portable --disable-static
+  make
+}
+
+package () {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  make prefix="${pkgdir}/usr/local/deadbeef" install
+}

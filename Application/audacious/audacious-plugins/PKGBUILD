@@ -5,7 +5,7 @@
 # Contributor: William Rea <sillywilly@gmail.com>
 
 pkgname=audacious-plugins
-pkgver=3.6.2
+pkgver=3.7.2
 pkgrel=1
 pkgdesc="Plugins for Audacious"
 arch=('i686' 'x86_64')
@@ -46,10 +46,14 @@ optdepends=('alsa-lib: Advanced Linux Sound Arch. output'
             'libcue: CUE playlist format')
 
 source=(http://distfiles.audacious-media-player.org/$pkgname-$pkgver.tar.bz2)
-sha256sums=('e7798936249e1601177503d148a3dd59edd289579f3f1667351eb0ba463642e8')
+sha256sums=('fcf7488f01781c8f51e0af5cabacdd582b22537a0085f26aa5ca636373f8e1ff')
+
+makedepends=()
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
+
+  export PATH=$PATH:/usr/local/python2/bin
 
   export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/audacious/lib/pkgconfig
 

@@ -2,8 +2,8 @@
 # Maintainer: Eric Bélanger <eric@archlinux.org>
 
 pkgname=audacity
-pkgver=2.1.0
-pkgrel=1
+pkgver=2.1.2
+pkgrel=3
 pkgdesc="A program that lets you manipulate digital audio waveforms"
 arch=('i686' 'x86_64')
 url="http://audacity.sourceforge.net/"
@@ -14,19 +14,21 @@ depends=('desktop-file-utils')
 makedepends=('cmake' 'python2')
 options=('!makeflags')
 install=audacity.install
-source=(http://downloads.sourceforge.net/project/audacity/audacity/${pkgver}/${pkgname}-minsrc-${pkgver}.tar.xz
-        audacity-ffmpeg.patch)
-sha1sums=('a53bce0276240bb56f2e3fd1bf235a4ef688caa3'
-          '5f1733a3802bcec7d9b54cb3ec8d7d81fc38fc61')
+source=(https://github.com/audacity/audacity/archive/Audacity-${pkgver}.zip
+        audacity-ffmpeg.patch wxstring.patch std_patch.patch)
+sha1sums=('ced07f7401bef12d7ec0bc033409c9baa956c5c5'
+          '5f1733a3802bcec7d9b54cb3ec8d7d81fc38fc61' 'SKIP' 'SKIP')
 
 prepare() {
-  cd ${pkgname}-minsrc-${pkgver}
+  cd audacity-Audacity-${pkgver}
   # patch -p1 -i "${srcdir}/audacity-ffmpeg.patch"
+  patch -p1 -i "${srcdir}/wxstring.patch"
+  patch -p1 -i "${srcdir}/std_patch.patch"
 }
 
 build() {
-  cd ${pkgname}-minsrc-${pkgver}
-  WX_CONFIG=/usr/local/bin/wx-config-2.8 ./configure --prefix=/usr/local/audacity --with-libsamplerate
+  cd audacity-Audacity-${pkgver}
+  WX_CONFIG=/usr/local/bin/wx-config-3.0 ./configure --prefix=/usr/local/audacity --with-libsamplerate
 
   sed -i 's|-lFLAC++|& -lFLAC|g' src/Makefile
 
@@ -34,6 +36,6 @@ build() {
 }
 
 package() {
-  cd ${pkgname}-minsrc-${pkgver}
+  cd audacity-Audacity-${pkgver}
   make DESTDIR="${pkgdir}" install
 }

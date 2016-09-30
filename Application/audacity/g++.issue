@@ -1,0 +1,19 @@
+[eaglexmw@Xiaomw widgets]$ nm -D /usr/local/lib/libwx_gtk2u_core-3.0.so.0.0.0 | grep OnGetRowHeight
+00410f20 T _ZNK10wxVListBox14OnGetRowHeightEj
+00412e20 T _ZNK25wxVarVScrollLegacyAdaptor14OnGetRowHeightEj
+00410f50 T _ZThn352_NK10wxVListBox14OnGetRowHeightEj
+[eaglexmw@Xiaomw widgets]$ nm -g audacity-KeyView.o | grep OnGetRowHeight | c++filt 
+         U wxVListBox::OnGetRowHeight(unsigned int) const
+         U non-virtual thunk to wxVListBox::OnGetRowHeight(unsigned int) const
+[eaglexmw@Xiaomw widgets]$ nm -g audacity-KeyView.o | grep OnGetRowHeight
+         U _ZNK10wxVListBox14OnGetRowHeightEj
+         U _ZThn396_NK10wxVListBox14OnGetRowHeightEj
+[eaglexmw@Xiaomw widgets]$ cd ../ 
+[eaglexmw@Xiaomw src]$ nm -g audacity-Lyrics.o | grep GetNumberOfLines
+         U _ZNK10wxTextCtrl16GetNumberOfLinesEv
+         U _ZThn444_NK10wxTextCtrl16GetNumberOfLinesEv
+[eaglexmw@Xiaomw src]$ nm -D /usr/local/lib/libwx_gtk2u_core-3.0.so.0.0.0 | grep GetNumberOfLines
+00241290 T _ZNK10wxTextCtrl16GetNumberOfLinesEv
+003f6050 T _ZNK12wxSearchCtrl16GetNumberOfLinesEv
+003f6070 T _ZThn364_NK12wxSearchCtrl16GetNumberOfLinesEv
+002412d0 T _ZThn380_NK10wxTextCtrl16GetNumberOfLinesEv
