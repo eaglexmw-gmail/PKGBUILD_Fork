@@ -1,0 +1,13 @@
+
+depends:
+
+a52dec libdvbpsi libdca libproxy sdl_image libdvdnav libtiger lua libmatroska zvbi libmpcdec ffmpeg faad2 libupnp libshout libmad libmpeg2 xcb-util-keysyms libtar
+
+chg depends:
+a52dec libdvbpsi libdca libproxy sdl_image libdvdnav libtiger lua libmatroska zvbi libmpcdec faad2 libupnp libshout libmad libmpeg2 xcb-util-keysyms libtar
+
+make depends:
+live-media libbluray libdc1394 libavc1394 lirc-utils libcaca portaudio libgme xosd projectm twolame aalib libmtp libdvdcss gnome-vfs libgoom2 vcdimager opus
+
+chg make depends
+live-media libbluray libdc1394 libavc1394 lirc-utils libcaca portaudio libgme xosd projectm twolame aalib libmtp libdvdcss libgoom2 vcdimager opus

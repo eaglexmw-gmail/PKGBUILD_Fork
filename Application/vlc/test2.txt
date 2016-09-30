@@ -1,0 +1,43 @@
+  -> a52dec               +
+  -> faad2                +
+  -> ffmpeg               + 
+     ==> gsm lame libass libbluray libmodplug libtheora libva libvpx opencore-amr opus rtmpdump schroedinger ==> orc,  speex x264 xvidcore
+  -> libdca               +
+  -> libdvbpsi            +
+  -> libdvdnav            +  ==> libdvdread ==> libdvdcss
+  -> libmad               +
+  -> libmatroska          +  ==> libebml
+  -> libmpcdec            +
+  -> libmpeg2             +
+  -> libproxy             +
+  -> libshout             +  ==> libtheora, speex
+  -> libtar               +
+  -> libtiger             +
+  -> libupnp              +
+  -> lua                  -
+  -> sdl_image            +
+  -> xcb-util-keysyms     +
+  -> zvbi                 +
+
+  -> aalib
+  -> libavc1394
+  -> libbluray
+  -> libcaca
+  -> libdc1394
+  -> libdvdcss
+  -> libgme
+  -> libgoom2
+  -> libmtp
+  -> lirc-utils
+  -> live-media
+  -> opus
+  -> portaudio
+  -> projectm
+  -> twolame
+  -> vcdimager
+  -> xosd
+
+
+options=('staticlibs')
+
+

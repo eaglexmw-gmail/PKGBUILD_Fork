@@ -1,0 +1,121 @@
+# $Id$
+# Maintainer: Giovanni Scafora <giovanni@archlinux.org>
+# Contributor: Sarah Hay <sarahhay@mb.sympatico.ca>
+# Contributor: Martin Sandsmark <martin.sandsmark@kde.org>
+
+pkgname=vlc
+pkgver=2.1.2
+pkgrel=1
+pkgdesc="A multi-platform MPEG, VCD/DVD, and DivX player"
+arch=('i686' 'x86_64')
+url="http://www.videolan.org/vlc/"
+license=('LGPL2.1' 'GPL2')
+depends=('a52dec' 'libdvbpsi' 'libxpm' 'libdca' 'qt4' 'libproxy' 
+         'sdl_image' 'libdvdnav' 'libtiger' 'lua' 'libmatroska' 
+         'zvbi' 'taglib' 'libmpcdec' 'ffmpeg' 'faad2' 'libupnp' 
+         'libshout' 'libmad' 'libmpeg2' 'xcb-util-keysyms' 'libtar' 
+         'libxinerama')
+makedepends=('live-media' 'libnotify' 'libbluray' 'flac' 'kdelibs'
+             'libdc1394' 'libavc1394' 'lirc-utils' 'libcaca' 
+             'librsvg' 'portaudio' 'libgme' 'xosd' 'projectm' 
+             'twolame' 'aalib' 'libmtp' 'libdvdcss' 'gnome-vfs' 
+             'libgoom2' 'vcdimager' 'opus' 'libssh2' 'mesa')
+optdepends=('avahi: for service discovery using bonjour protocol'
+            'libnotify: for notification plugin'
+            'ncurses: for ncurses interface support'
+            'libdvdcss: for decoding encrypted DVDs'
+            'lirc-utils: for lirc plugin'
+            'libavc1394: for devices using the 1394ta AV/C'
+            'libdc1394: for IEEE 1394 plugin'
+            'kdelibs: KDE Solid hardware integration'
+            'libva-vdpau-driver: vdpau back-end for nvidia'
+            'libva-intel-driver: back-end for intel cards'
+            'libbluray: for Blu-Ray support'
+            'flac: for Free Lossless Audio Codec plugin'
+            'portaudio: for portaudio support'
+            'twolame: for TwoLAME mpeg2 encoder plugin'
+            'projectm: for ProjectM visualisation plugin'
+            'libcaca: for colored ASCII art video output'
+            'libgme: for libgme plugin'
+            'librsvg: for SVG plugin'
+            'gnome-vfs: for GNOME Virtual File System support'
+            'libgoom2: for libgoom plugin'
+            'vcdimager: navigate VCD with libvcdinfo'
+            'aalib: for ASCII art plugin'
+            'libmtp: for MTP devices support'
+            'smbclient: for SMB access plugin'
+            'libcdio: for audio CD playback support'
+            'ttf-freefont: for subtitle font '
+            'ttf-dejavu: for subtitle font'
+            'opus: for opus support'
+            'libssh2: for sftp support'
+            'lua-socket: for http interface')
+conflicts=('vlc-plugin')
+replaces=('vlc-plugin')
+backup=('usr/share/vlc/lua/http/.hosts'
+        'usr/share/vlc/lua/http/dialogs/.hosts')
+options=('!emptydirs')
+install=vlc.install
+source=("http://download.videolan.org/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+        'vlc-2.0.7-vaapi-compat.patch' bluray.patch)
+md5sums=('fb6787ad749aadcfaeab3471939b3426'
+         '6df10774bb7acf20e09d6139e5c7839e' 'SKIP')
+
+depends=()
+makedepends=()
+
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  patch -Np1 -i "${srcdir}/vlc-2.0.7-vaapi-compat.patch"
+  patch -Np1 -i "${srcdir}/bluray.patch"
+
+  sed -i -e 's:truetype/freefont:TTF:g' modules/text_renderer/freetype.c
+  sed -i -e 's:truetype/ttf-dejavu:TTF:g' modules/visualization/projectm.cpp
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver/.a}"
+
+  CFLAGS+="-I/usr/include/samba-4.0" CPPFLAGS+="-I/usr/include/samba-4.0" \
+  sed -i 's|-lfaad|-lfaad -lm |g' configure
+  ./configure --prefix=/usr/local/vlc \
+              --sysconfdir=/usr/local/vlc/etc \
+              --disable-rpath \
+              --enable-faad \
+              --enable-nls \
+              --enable-lirc \
+              --enable-ncurses \
+              --enable-realrtsp \
+              --enable-aa \
+              --enable-vcdx \
+              --enable-upnp \
+              --enable-opus \
+              --enable-sftp \
+              LUAC=/usr/local/lua/bin/luac  LUA_LIBS="`pkg-config --libs lua`"
+
+  #sed -i 's|/usr/bin/rcc-qt4|/home/eaglexmw/qt-static/bin/rcc|g' ./modules/gui/Makefile
+  #sed -i 's|/usr/bin/rcc-qt4|/home/eaglexmw/qt-static/bin/rcc|g' ./modules/gui/qt4/Makefile
+  #sed -i 's|-I/home/eaglexmw/qt-static/include/QtGui |-I/home/eaglexmw/qt-static/include/ -I/home/eaglexmw/qt-static/include/QtGui |g' ./modules/gui/qt4/Makefile
+  sed -i 's|<freetype/ftsynth.h>|<freetype2/ftsynth.h>|g' ./modules/text_renderer/freetype.c
+
+  sed -i 's|libavcodec_plugin_la_LIBADD = $(AM_LIBADD) $(LIBS_avcodec)|libavcodec_plugin_la_LIBADD = $(AM_LIBADD) $(LIBS_avcodec) -L/usr/local/lib -lorc-0.4 -lm -lrt -lpthread -lvpx -lm|g' modules/codec/Makefile
+  sed -i 's|libavformat_plugin_la_LIBADD = $(AM_LIBADD) $(AVFORMAT_LIBS) |libavformat_plugin_la_LIBADD = $(AM_LIBADD) $(AVFORMAT_LIBS) -L/usr/local/lib -lorc-0.4 -lm -lrt -lpthread -lvpx -lm -lxml2 -lstdc++ |g' modules/demux/Makefile
+  sed -i 's|libaccess_avio_plugin_la_LIBADD = $(AM_LIBADD) $(LIBS_access_avio)|libaccess_avio_plugin_la_LIBADD = $(AM_LIBADD) $(LIBS_access_avio) -L/usr/local/lib -lorc-0.4 -lm -lrt -lpthread -lvpx -lm -lxml2 -lstdc++ |g' modules/access/Makefile
+
+  sed -i 's|libvaapi_plugin_la_LIBADD = $(AM_LIBADD) $(LIBVA_LIBS)|libvaapi_plugin_la_LIBADD = $(AM_LIBADD) $(LIBVA_LIBS) -ldrm |g' modules/codec/Makefile
+
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver/.a}"
+
+  make DESTDIR="${pkgdir}" install
+
+  for res in 16 32 48 128; do
+    install -D -m644 "${srcdir}/vlc-${pkgver/.a}/share/icons/${res}x${res}/vlc.png" \
+        "${pkgdir}/usr/local/vlc/share/icons/hicolor/${res}x${res}/apps/vlc.png"
+  done
+}

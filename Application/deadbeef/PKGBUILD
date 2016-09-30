@@ -3,7 +3,7 @@
 # Contributor: Alexey Yakovenko <waker@users.sourceforge.net>
 
 pkgname=deadbeef
-pkgver=0.7.0
+pkgver=0.7.2
 pkgrel=1
 pkgdesc='A GTK+ audio player for GNU/Linux.'
 arch=('i686' 'x86_64')
@@ -36,7 +36,7 @@ optdepends=('gtk2: for the GTK2 interface'
 install='deadbeef.install'
 source=("http://downloads.sourceforge.net/project/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
         plugins_vfs_zip_vfs_zip_c.patch blargg_ok.patch)
-md5sums=('d5450785139757a016dcd4dfc66479c7'
+md5sums=('f8f5353e7c201fce316f8b082ab408bb'
          '710ac295ba30cad843b9239a178b7ee7' 'SKIP')
 
 prepare() {

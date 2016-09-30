@@ -1,0 +1,13 @@
+diff -Nur vlc-2.1.2_old/modules/access/bluray.c vlc-2.1.2/modules/access/bluray.c
+--- vlc-2.1.2_old/modules/access/bluray.c	2013-09-02 15:48:14.000000000 +0000
++++ vlc-2.1.2/modules/access/bluray.c	2016-09-30 05:51:20.225459000 +0000
+@@ -741,7 +741,8 @@
+         return;
+     }
+     /* two references: vout + demux */
+-    p_sys->p_overlays[ov->plane]->released_once = ATOMIC_FLAG_INIT;
++    //p_sys->p_overlays[ov->plane]->released_once = ATOMIC_FLAG_INIT;
++    atomic_flag_clear(&(p_sys->p_overlays[ov->plane]->released_once));
+ 
+     p_upd_sys->p_overlay = p_sys->p_overlays[ov->plane];
+     subpicture_updater_t updater = {
