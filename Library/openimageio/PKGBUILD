@@ -3,8 +3,8 @@
 # Maintainer: Sven-Hendrik Haase <sh@lutzhaase.com>
 
 pkgname=openimageio
-pkgver=1.4.16
-pkgrel=4
+pkgver=1.6.14
+pkgrel=3
 pkgdesc="A library for reading and writing images, including classes, utilities, and applications"
 arch=(i686 x86_64)
 url="http://www.openimageio.org/"
@@ -24,14 +24,14 @@ md5sums=('SKIP'
 prepare() {
   cd oiio
 
-  patch -Np1 < $srcdir/stdmath.patch
+  #patch -Np1 < $srcdir/stdmath.patch
 
   #sed -i '54 a add_definitions ("-Wunused-variable")' ./CMakeLists.txt
 
   sed -i 's|BUILDSTATIC OFF|BUILDSTATIC ON|g'  ./CMakeLists.txt
   sed -i 's|LINKSTATIC OFF|LINKSTATIC ON|g'  ./CMakeLists.txt
 
-  sed -i '85 a bool __oiio_ptex_half_init() {return PtexHalfInitialized;}' ./src/ptex.imageio/ptex/PtexHalf.cpp
+  #sed -i '85 a bool __oiio_ptex_half_init() {return PtexHalfInitialized;}' ./src/ptex.imageio/ptex/PtexHalf.cpp
 }
 
 build() {
@@ -43,14 +43,16 @@ build() {
   cmake \
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DUSE_EXTERNAL_TBB=ON \
-      -DOIIO_BUILD_TESTS=OFF \
+      -DOIIO_BUILD_TESTS=OFF -DOIIO_BUILD_TOOLS=OFF \
       ..
 
 #      -DPYLIB_INSTALL_DIR=lib/python2.7/site-packages \
 
-  make cmake_check_build_system
-  sed -i 's|libOpenColorIO.a|&  -lyaml-cpp -ltinyxml |g' src/maketx/CMakeFiles/maketx.dir/link.txt
-  sed -i 's|libOpenColorIO.a|&  -lyaml-cpp -ltinyxml |g' src/oiiotool/CMakeFiles/oiiotool.dir/link.txt
+  #make cmake_check_build_system
+  #sed -i 's|libOpenColorIO.a|&  -lyaml-cpp -ltinyxml |g' src/maketx/CMakeFiles/maketx.dir/link.txt
+  #sed -i 's|libOpenColorIO.a|&  -lyaml-cpp -ltinyxml |g' src/oiiotool/CMakeFiles/oiiotool.dir/link.txt
+
+  # sed -i 's|/usr/local/lib/libavformat.a |& -lbz2 -lgnutls -L/usr/local/lib -lavcodec |g'  src/oiio/build/src/iconvert/CMakeFiles/iconvert.dir/link.txt
 
   make
 }

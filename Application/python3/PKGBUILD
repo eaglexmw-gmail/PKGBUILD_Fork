@@ -6,18 +6,18 @@
 # Contributor: Jason Chu <jason@archlinux.org>
 
 pkgname=python
-pkgver=3.4.2
-pkgrel=3
-_pybasever=3.4
+pkgver=3.5.2
+pkgrel=1
+_pybasever=3.5
 pkgdesc="Next generation of the python high-level scripting language"
 arch=('i686' 'x86_64')
 license=('custom')
 url="http://www.python.org/"
-#depends=('expat' 'bzip2' 'gdbm' 'openssl' 'libffi' 'zlib')
+depends=('expat' 'bzip2' 'gdbm' 'openssl' 'libffi' 'zlib')
 depends=('expat' 'bzip2' 'gdbm' 'openssl' 'zlib')
-#makedepends=('tk' 'sqlite' 'valgrind' 'bluez-libs' 'mpdecimal' 'hardening-wrapper')
-makedepends=('sqlite' 'valgrind')
-#checkdepends=('gdb')
+makedepends=('tk' 'sqlite' 'bluez-libs' 'mpdecimal')
+makedepends=('sqlite' 'mpdecimal')
+#checkdepends=('gdb' 'xorg-server-xvfb')
 optdepends=('python-setuptools'
             'python-pip'
             'sqlite'
@@ -27,14 +27,18 @@ optdepends=('python-setuptools'
 options=('!makeflags')
 provides=('python3')
 replaces=('python3')
-source=("http://www.python.org/ftp/python/${pkgver%rc*}/Python-${pkgver}.tar.xz"
+source=("https://www.python.org/ftp/python/${pkgver%rc*}/Python-${pkgver}.tar.xz" # {,.asc}
         dont-make-libpython-readonly.patch)
-sha1sums=('0186da436db76776196612b98bb9c2f76acfe90e'
+sha1sums=('4843aabacec5bc0cdd3e1f778faa926e532794d2'
+          # 'SKIP'
           'c22b24324b8e53326702de439c401d97927ee3f2')
-options=('staticlibs')
+# validpgpkeys=('97FC712E4C024BBEA48A61ED3A5CA953F73C700D')  # Larry Hastings <larry@hastings.org>
 
 prepare() {
   cd Python-${pkgver}
+
+  # FS#45809
+  patch -p1 -i ../dont-make-libpython-readonly.patch
 
   # FS#23997
   sed -i -e "s|^#.* /usr/local/bin/python|#!/usr/bin/python|" Lib/cgi.py
@@ -51,12 +55,11 @@ build() {
   cd Python-${pkgver}
 
   # Disable bundled pip & setuptools
-  ./configure --prefix=/usr/local/python3 \
+  ./configure --prefix=/usr/local/python3.5 \
               --enable-shared \
               --with-threads \
               --with-computed-gotos \
               --enable-ipv6 \
-              --with-valgrind \
               --with-system-expat \
               --with-dbmliborder=gdbm:ndbm \
               --with-system-ffi \
@@ -64,38 +67,49 @@ build() {
               --enable-loadable-sqlite-extensions \
               --without-ensurepip
 
-  make
+  make EXTRA_CFLAGS="$CFLAGS"
 }
 
 check() {
-  # test_site: http://bugs.python.org/issue21535
-  # test_urllib2_localnet: domain "blackhole.snakebite.net" not exist ?!
-  # test_socket: domain "испытание.python.org" could not be resolved.
+  # Failures:
+  # test_distutils: because of our EXTRA_CFLAGS
+  # test_socket
 
-  #cd Python-${pkgver}
+  # Hacks:
+  # test_tk: xvfb-run
+  # test_unicode_file: LC_CTYPE=en_US.utf-8
+  # test_gdb: SHELL=/bin/sh
+
+  cd Python-${pkgver}
+  SHELL=/bin/sh \
   LD_LIBRARY_PATH="${srcdir}/Python-${pkgver}":${LD_LIBRARY_PATH} \
-  #TERM=screen \
-  #  "${srcdir}/Python-${pkgver}/python" -m test.regrtest -uall -x test_posixpath test_uuid test_site test_urllib2_localnet test_socket test_gdb
+  LC_CTYPE=en_US.utf-8 xvfb-run \
+    "${srcdir}/Python-${pkgver}/python" -m test.regrtest -v -uall || warning "Expected failure"
 }
 
 package() {
   cd Python-${pkgver}
-  make DESTDIR="${pkgdir}" install maninstall
+  make DESTDIR="${pkgdir}" EXTRA_CFLAGS="$CFLAGS" install maninstall
 
   # Why are these not done by default...
-  ln -s python3               "${pkgdir}"/usr/local/python3/bin/python
-  ln -s python3-config        "${pkgdir}"/usr/local/python3/bin/python-config
-  ln -s idle3                 "${pkgdir}"/usr/local/python3/bin/idle
-  ln -s pydoc3                "${pkgdir}"/usr/local/python3/bin/pydoc
-  ln -s python${_pybasever}.1 "${pkgdir}"/usr/local/python3/share/man/man1/python.1
+  ln -s python3               "${pkgdir}"/usr/local/python3.5/bin/python
+  ln -s python3-config        "${pkgdir}"/usr/local/python3.5/bin/python-config
+  ln -s idle3                 "${pkgdir}"/usr/local/python3.5/bin/idle
+  ln -s pydoc3                "${pkgdir}"/usr/local/python3.5/bin/pydoc
+  ln -s python${_pybasever}.1 "${pkgdir}"/usr/local/python3.5/share/man/man1/python.1
 
   # Fix FS#22552
   ln -sf ../../libpython${_pybasever}m.so \
-    "${pkgdir}/usr/local/python3/lib/python${_pybasever}/config-${_pybasever}m/libpython${_pybasever}m.so"
+    "${pkgdir}/usr/local/python3.5/lib/python${_pybasever}/config-${_pybasever}m/libpython${_pybasever}m.so"
+
+  # some useful "stuff" FS#46146
+  install -dm755 "${pkgdir}"/usr/local/python3.5/lib/python${_pybasever}/Tools/{i18n,scripts}
+  install -m755 Tools/i18n/{msgfmt,pygettext}.py "${pkgdir}"/usr/local/python3.5/lib/python${_pybasever}/Tools/i18n/
+  install -m755 Tools/scripts/{README,*py} "${pkgdir}"/usr/local/python3.5/lib/python${_pybasever}/Tools/scripts/
 
   # Clean-up reference to build directory
-  sed -i "s|$srcdir/Python-${pkgver}:||" "$pkgdir/usr/local/python3/lib/python${_pybasever}/config-${_pybasever}m/Makefile"
+  sed -i "s|$srcdir/Python-${pkgver}:||" "$pkgdir/usr/local/python3.5/lib/python${_pybasever}/config-${_pybasever}m/Makefile"
 
   # License
-  install -Dm644 LICENSE "${pkgdir}/usr/local/python3/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 LICENSE "${pkgdir}/usr/local/python3.5/share/licenses/${pkgname}/LICENSE"
 }
