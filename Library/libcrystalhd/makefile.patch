@@ -1,0 +1,14 @@
+diff -Nur crystalhd-0.0~git20110715.fdd2f19_old/linux_lib/libcrystalhd/Makefile crystalhd-0.0~git20110715.fdd2f19/linux_lib/libcrystalhd/Makefile
+--- crystalhd-0.0~git20110715.fdd2f19_old/linux_lib/libcrystalhd/Makefile	2011-07-16 13:46:49.000000000 +0000
++++ crystalhd-0.0~git20110715.fdd2f19/linux_lib/libcrystalhd/Makefile	2016-10-01 02:07:28.290034768 +0000
+@@ -63,10 +63,6 @@
+ 	chmod 0644 $(DESTDIR)/usr/include/libcrystalhd/bc_dts_types.h
+ 	cp $(ROOTDIR)/include/libcrystalhd_version.h $(DESTDIR)/usr/include/libcrystalhd/
+ 	chmod 0644 $(DESTDIR)/usr/include/libcrystalhd/libcrystalhd_version.h
+-	cp $(ROOTDIR)/firmware/fwbin/70012/bcm70012fw.bin $(DESTDIR)/lib/firmware/
+-	chmod 0644 $(DESTDIR)/lib/firmware/bcm70012fw.bin
+-	cp $(ROOTDIR)/firmware/fwbin/70015/bcm70015fw.bin $(DESTDIR)/lib/firmware/
+-	chmod 0644 $(DESTDIR)/lib/firmware/bcm70015fw.bin
+ 	install -m 755 $(BCLIB) $(DESTDIR)$(LIBDIR)
+ 	(cd $(DESTDIR)$(LIBDIR); ln -sf $(BCLIB) $(BCLIB_NAME))
+ 	(cd $(DESTDIR)$(LIBDIR); ln -sf $(BCLIB) $(BCLIB_SL))

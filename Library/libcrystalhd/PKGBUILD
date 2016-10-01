@@ -1,16 +1,19 @@
 pkgname=libcrystalhd
-pkgver=20100703
-_intver=07032010
-pkgrel=4
+pkgver=20100715
+_intver=crystalhd-0.0~git20110715.fdd2f19
+pkgrel=1
 pkgdesc="Broadcom Crystal HD library"
 arch=('i686' 'x86_64')
 url="https://github.com/agx/libcrystalhd"
 license=('GPL2')
-source=("http://www.broadcom.com/docs/support/crystalhd/crystalhd_linux_${pkgver}.zip")
-md5sums=('f14c0e418b36ea14f8d25f9a7d6f7507')
+source=("http://http.debian.net/debian/pool/main/c/crystalhd/crystalhd_0.0~git20110715.fdd2f19.orig.tar.gz"
+        "makefile.patch")
+md5sums=('c48042d163dd81bf2fb003f8da134dfd' 'SKIP')
 
 prepare() {
-  tar -xzf crystalhd_${_intver}.tbz2
+  tar -xzf crystalhd_0.0~git20110715.fdd2f19.orig.tar.gz
+  cd "${_intver}"
+  patch -Np1 -i ../makefile.patch
 }
 
 options=('staticlibs')
@@ -18,7 +21,7 @@ options=('staticlibs')
 build() {
   cd "${_intver}/linux_lib/libcrystalhd"
   make
-  ar cru libcrystalhd.a libcrystalhd_fwcmds.o libcrystalhd_fwdiag_if.o libcrystalhd_fwload_if.o libcrystalhd_if.o libcrystalhd_int_if.o libcrystalhd_parser.o libcrystalhd_priv.o
+  ar cru libcrystalhd.a libcrystalhd_if.o libcrystalhd_int_if.o libcrystalhd_fwcmds.o libcrystalhd_priv.o libcrystalhd_fwdiag_if.o libcrystalhd_fwload_if.o libcrystalhd_parser.o
 }
 
 package() {
