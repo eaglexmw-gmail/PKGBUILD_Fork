@@ -1,0 +1,20 @@
+diff -Nur xbmc-16.1-Jarvis_old/tools/depends/native/TexturePacker/src/Makefile.am xbmc-16.1-Jarvis/tools/depends/native/TexturePacker/src/Makefile.am
+--- xbmc-16.1-Jarvis_old/tools/depends/native/TexturePacker/src/Makefile.am	2016-04-24 06:48:30.000000000 +0000
++++ xbmc-16.1-Jarvis/tools/depends/native/TexturePacker/src/Makefile.am	2016-10-01 07:26:23.620005454 +0000
+@@ -13,7 +13,7 @@
+   -I@KODI_SRC_DIR@/xbmc/linux \
+   @CPPFLAGS@
+ 
+-AM_LDFLAGS = @LIBS@ @STATIC_FLAG@
++AM_LDFLAGS = -L/usr/lib/ -L/usr/local/lib @LIBS@ @STATIC_FLAG@ -shared
+ 
+ 
+ bin_PROGRAMS = TexturePacker
+@@ -27,5 +27,7 @@
+   decoder/GIFDecoder.cpp \
+   XBTF.cpp
+ 
++TexturePacker_LDADD = -L/usr/lib/ -L/usr/local/lib
++
+ XBTF.cpp:
+ 	@cp @KODI_SRC_DIR@/xbmc/guilib/XBTF.cpp .

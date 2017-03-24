@@ -7,31 +7,30 @@
 # Contributor: Valentine Sinitsyn <e_val@inbox.ru>
 
 pkgbase=networkmanager
-pkgname=(networkmanager libnm-glib)
-pkgver=1.0.10
-pkgrel=1
-pkgdesc="Network Management daemon"
+pkgname=(networkmanager libnm libnm-glib)
+pkgver=1.6.2
+pkgrel=3
+pkgdesc="Network connection manager and user applications"
 arch=(i686 x86_64)
 license=(GPL2 LGPL2.1)
-url="http://www.gnome.org/projects/NetworkManager/"
+url="https://wiki.gnome.org/Projects/NetworkManager"
 _pppver=2.4.7
-makedepends=(intltool dhclient iptables gobject-introspection gtk-doc "ppp=$_pppver"
-             modemmanager dbus-glib iproute2 libnl nss polkit wpa_supplicant libsoup
-             systemd libgudev libmm-glib rp-pppoe libnewt libndp libteam vala perl-yaml
-             python2-gobject)
-makedepends=(intltool dhclient iptables gobject-introspection gtk-doc "ppp=$_pppver"
-             dbus-glib iproute2 libnl nss polkit wpa_supplicant libsoup
-             systemd libgudev rp-pppoe vala perl-yaml
-             python2-gobject)
-checkdepends=(libx11 python2-dbus)
-checkdepends=(libx11)
-#_commit=ba46efd07777350be737dbdac9df9becb86e8f77
-#source=("git://anongit.freedesktop.org/NetworkManager/NetworkManager#commit=$_commit"
-source=(http://ftp.gnome.org/pub/gnome/sources/NetworkManager/${pkgver:0:3}/NetworkManager-$pkgver.tar.xz
-        NetworkManager.conf disable_set_hostname.patch)
-sha256sums=('1bcfce8441dfd9f432a100d06b54f3831a2275cccc3b74b1b4c09a011e179fbc'
-            '2c6a647b5aec9f3c356d5d95251976a21297c6e64bd8d2a59339f8450a86cb3b'
-            '25056837ea92e559f09563ed817e3e0cd9333be861b8914e45f62ceaae2e0460')
+makedepends=(intltool dhclient iptables gobject-introspection gtk-doc "ppp=$_pppver" modemmanager
+             dbus-glib iproute2 nss polkit wpa_supplicant libsoup systemd libgudev libmm-glib
+             libnewt libndp libteam vala perl-yaml python-gobject git vala jansson bluez-libs
+             glib2-docs)
+
+_commit=037a12f96eff09aa48481fda7ea602a3388afc74  # tags/1.6.2^0
+source=("git+https://anongit.freedesktop.org/git/NetworkManager/NetworkManager#commit=$_commit"
+        NetworkManager.conf 20-connectivity.conf)
+sha256sums=('SKIP'
+            'dd2d3a9c8a08ce961e263e1847453890f1b24c72a806d8c83a5b69b227a5ccec'
+            '477d609aefd991c48aca93dc7ea5a77ebebf46e0481184530cceda4c0d8d72c6')
+
+makedepends=(intltool dhclient iptables gobject-introspection gtk-doc "ppp=$_pppver" 
+             dbus-glib iproute2 nss polkit wpa_supplicant libsoup systemd libgudev 
+             libnewt vala python-gobject git vala
+             glib2-docs)
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gnome3_64
@@ -39,98 +38,168 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
 
-prepare() {
-  mkdir path
-  ln -s /usr/bin/python2 path/python
 
-  cd NetworkManager-$pkgver
-  patch -Np1 -i ../disable_set_hostname.patch
+prepare() {
+  mkdir -p libnm{,-glib}/usr/{include,lib/{girepository-1.0,pkgconfig},share/{gir-1.0,gtk-doc/html,vala/vapi}}
+
+  cd NetworkManager
   NOCONFIGURE=1 ./autogen.sh
 }
 
+pkgver() {
+  cd NetworkManager
+  git describe | sed 's/-dev/dev/;s/-/+/g'
+}
+
 build() {
+  cd NetworkManager
+
   export PATH="$srcdir/path:$PATH"
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
 
-  cd NetworkManager-$pkgver
   ./configure --prefix=/usr/local/${dstdir} \
     --sysconfdir=/usr/local/${dstdir}/etc \
     --localstatedir=/var \
+    runstatedir=/run \
     --sbindir=/usr/local/${dstdir}/bin \
-    --libexecdir=/usr/local/${dstdir}/lib/networkmanager \
+    --libexecdir=/usr/local/${dstdir}/lib/NetworkManager \
+    --disable-ifcfg-rh \
+    --disable-ifcfg-suse \
+    --disable-ifnet \
+    --disable-ifupdown \
+    --disable-lto \
+    --disable-more-warnings \
+    --disable-static \
+    --disable-bluez5-dun \
+    --enable-concheck \
+    --enable-config-plugin-ibft \
+    --enable-gtk-doc \
+    --enable-introspection \
+    --disable-json-validation \
+    --enable-ld-gc \
+    --enable-modify-system \
+    --enable-polkit \
+    --enable-polkit-agent \
+    --disable-teamdctl \
+    --enable-wifi \
+    --with-config-dhcp-default=dhclient \
+    --with-config-dns-rc-manager-default=resolvconf \
+    --with-config-logging-backend-default=journal \
+    --with-config-plugins-default=keyfile,ibft \
     --with-crypto=nss \
+    --with-dbus-sys-dir=/usr/share/dbus-1/system.d \
     --with-dhclient=/usr/bin/dhclient \
-    --without-dhcpcd \
+    --with-dist-version="$pkgver-$pkgrel, Arch Linux" \
     --with-dnsmasq=/usr/bin/dnsmasq \
+    --with-dnssec-trigger=/usr/lib/dnssec-trigger \
+    --with-hostname-persist=default \
     --with-iptables=/usr/bin/iptables \
+    --with-kernel-firmware-dir=/usr/lib/firmware \
+    --with-libnm-glib \
+    --with-libsoup \
+    --without-modem-manager-1 \
+    --with-nmcli \
+    --with-nmtui \
+    --with-pppd-plugin-dir=/usr/lib/pppd/$_pppver \
+    --with-pppd=/usr/bin/pppd \
+    --with-resolvconf=/usr/bin/resolvconf \
+    --with-session-tracking=systemd \
+    --with-suspend-resume=systemd \
+    --with-system-ca-path=/etc/ssl/certs \
+    --with-systemd-journal \
+    --with-systemd-logind \
     --with-systemdsystemunitdir=/usr/lib/systemd/system \
     --with-udev-dir=/usr/lib/udev \
-    --with-resolvconf=/usr/bin/resolvconf \
-    --with-pppd=/usr/bin/pppd \
-    --with-pppd-plugin-dir=/usr/lib/pppd/$_pppver \
-    --with-pppoe=/usr/bin/pppoe \
-    --with-kernel-firmware-dir=/usr/lib/firmware \
-    --with-session-tracking=systemd \
-    --without-modem-manager-1 \
-    --disable-static \
-    --enable-more-warnings=no \
-    --disable-wimax \
-    --enable-modify-system \
-    --enable-doc \
-    --enable-gtk-doc
+    --with-wext \
+    --without-consolekit \
+    --without-dhcpcd \
+    --without-libaudit \
+    --without-netconfig \
+    --without-ofono \
+    --without-selinux
+
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 
   make
 }
 
-check() {
-  export PATH="$srcdir/path:$PATH"
-  cd NetworkManager-$pkgver
-  # make -k check
-}
-
 package_networkmanager() {
-  depends=(libnm-glib iproute2 libnl polkit wpa_supplicant dhclient libsoup
-           libmm-glib libnewt libndp libteam libgudev)
+  depends=(libnm-glib iproute2 polkit wpa_supplicant libsoup libmm-glib libnewt libndp libteam
+           bluez-libs)
   optdepends=('dnsmasq: connection sharing'
               'bluez: Bluetooth support'
               'openresolv: resolvconf support'
               'ppp: dialup connection support'
-              'rp-pppoe: ADSL support'
+              'dhclient: External DHCP client'
               'modemmanager: cellular network support')
-  install=networkmanager.install
   backup=('etc/NetworkManager/NetworkManager.conf')
 
-  cd NetworkManager-$pkgver
+  cd NetworkManager
   make DESTDIR="$pkgdir" install
-  make DESTDIR="$pkgdir" -C libnm uninstall
-  make DESTDIR="$pkgdir" -C libnm-glib uninstall
-  make DESTDIR="$pkgdir" -C libnm-util uninstall
-  make DESTDIR="$pkgdir" -C vapi uninstall
 
-  # Some stuff to move is left over
-  mv "$pkgdir/usr/local/${dstdir}/include" ..
-  mv "$pkgdir/usr/local/${dstdir}/lib/pkgconfig" ..
-
+  install -dm700 "$pkgdir/usr/local/${dstdir}/etc/NetworkManager/system-connections"
+  install -d "$pkgdir"/usr/local/${dstdir}/etc/NetworkManager/{conf,dnsmasq}.d
   install -m644 ../NetworkManager.conf "$pkgdir/usr/local/${dstdir}/etc/NetworkManager/"
-  install -m755 -d "$pkgdir/usr/local/${dstdir}/etc/NetworkManager/dnsmasq.d"
+  install -Dm644 ../20-connectivity.conf \
+    "$pkgdir/usr/local/${dstdir}/lib/NetworkManager/conf.d/20-connectivity.conf"
 
-  rm -r "$pkgdir/var/run"
+### Split libnm
+
+  mkdir -p ../libnm/usr/local/${dstdir}/include
+  mkdir -p ../libnm/usr/local/${dstdir}/lib/girepository-1.0
+  mkdir -p ../libnm/usr/local/${dstdir}/lib
+  mkdir -p ../libnm/usr/local/${dstdir}/lib/pkgconfig
+  mkdir -p ../libnm/usr/local/${dstdir}/lib
+  mkdir -p ../libnm/usr/local/${dstdir}/share/gir-1.0
+  mkdir -p ../libnm/usr/local/${dstdir}/share/gtk-doc/html
+  mkdir -p ../libnm/usr/local/${dstdir}/share/vala/vapi
+
+  mkdir -p ../libnm-glib/usr/local/${dstdir}/include
+  mkdir -p ../libnm-glib/usr/local/${dstdir}/lib/girepository-1.0
+  mkdir -p ../libnm-glib/usr/local/${dstdir}/lib
+  mkdir -p ../libnm-glib/usr/local/${dstdir}/lib/pkgconfig
+  mkdir -p ../libnm-glib/usr/local/${dstdir}/lib
+  mkdir -p ../libnm-glib/usr/local/${dstdir}/share/gir-1.0
+  mkdir -p ../libnm-glib/usr/local/${dstdir}/share/gtk-doc/html
+  mkdir -p ../libnm-glib/usr/local/${dstdir}/share/vala/vapi
+
+  cd ../libnm
+  mv "$pkgdir"/usr/local/${dstdir}/include/libnm usr/local/${dstdir}/include
+  mv "$pkgdir"/usr/local/${dstdir}/lib/girepository-1.0/NM-* usr/local/${dstdir}/lib/girepository-1.0
+  mv "$pkgdir"/usr/local/${dstdir}/lib/libnm.* usr/local/${dstdir}/lib
+  mv "$pkgdir"/usr/local/${dstdir}/lib/pkgconfig/libnm.pc usr/local/${dstdir}/lib/pkgconfig
+  mv "$pkgdir"/usr/local/${dstdir}/share/gir-1.0/NM-* usr/local/${dstdir}/share/gir-1.0
+  mv "$pkgdir"/usr/local/${dstdir}/share/gtk-doc/html/libnm usr/local/${dstdir}/share/gtk-doc/html
+  mv "$pkgdir"/usr/local/${dstdir}/share/vala/vapi/libnm.* usr/local/${dstdir}/share/vala/vapi
+
+### Split libnm-glib
+
+  cd ../libnm-glib
+  mv "$pkgdir"/usr/local/${dstdir}/include/* usr/local/${dstdir}/include
+  mv "$pkgdir"/usr/local/${dstdir}/lib/girepository-1.0/* usr/local/${dstdir}/lib/girepository-1.0
+  mv "$pkgdir"/usr/local/${dstdir}/lib/libnm-* usr/local/${dstdir}/lib
+  mv "$pkgdir"/usr/local/${dstdir}/lib/pkgconfig/* usr/local/${dstdir}/lib/pkgconfig
+  mv "$pkgdir"/usr/local/${dstdir}/share/gir-1.0/* usr/local/${dstdir}/share/gir-1.0
+  mv "$pkgdir"/usr/local/${dstdir}/share/gtk-doc/html/libnm-* usr/local/${dstdir}/share/gtk-doc/html
+  mv "$pkgdir"/usr/local/${dstdir}/share/vala/vapi/* usr/local/${dstdir}/share/vala/vapi
+
+  rmdir -p --ignore-fail-on-non-empty \
+    "$pkgdir"/usr/local/${dstdir}/include \
+    "$pkgdir"/usr/local/${dstdir}/lib/{girepository-1.0,pkgconfig} \
+    "$pkgdir"/usr/local/${dstdir}/share/{gir-1.0,vala/vapi}
+}
+
+package_libnm() {
+  pkgdesc="NetworkManager client library"
+  depends=(glib2 libgudev nss libutil-linux jansson)
+  mv libnm/* "$pkgdir"
 }
 
 package_libnm-glib() {
-  pkgdesc="NetworkManager library"
-  depends=(libgudev nss dbus-glib libutil-linux)
-
-  install -d "$pkgdir/usr/local/${dstdir}/lib"
-  mv include "$pkgdir/usr/local/${dstdir}"
-  mv pkgconfig "$pkgdir/usr/local/${dstdir}/lib"
-
-  cd NetworkManager-$pkgver
-  make DESTDIR="$pkgdir" -C libnm install
-  make DESTDIR="$pkgdir" -C libnm-util install
-  make DESTDIR="$pkgdir" -C libnm-glib install
-  make DESTDIR="$pkgdir" -C vapi install
+  pkgdesc="NetworkManager client library (legacy)"
+  depends=(libnm dbus-glib)
+  mv libnm-glib/* "$pkgdir"
 }

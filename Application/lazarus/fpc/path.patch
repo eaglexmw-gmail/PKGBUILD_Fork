@@ -1,0 +1,23 @@
+diff -Nur old/fpcsrc/compiler/options.pas new/fpcsrc/compiler/options.pas
+--- old/fpcsrc/compiler/options.pas	2015-10-17 16:37:28.000000000 +0000
++++ new/fpcsrc/compiler/options.pas	2016-06-09 15:10:53.011611538 +0000
+@@ -3134,6 +3134,9 @@
+        foundfn:='/etc/'+fn
+      else
+ {$endif}
++      if CfgFileExists('/usr/local/lazarus/etc/'+fn) then
++       foundfn:='/usr/local/lazarus/etc/'+fn
++     else
+       check_configfile:=false;
+    end;
+ end;
+@@ -3554,6 +3557,9 @@
+       if PathExists('/usr/local/lib/fpc/'+version_string,true) then
+         fpcdir:='/usr/local/lib/fpc/'+version_string+'/'
+       else
++      if PathExists('/usr/local/lazarus/lib/fpc/'+version_string,true) then
++        fpcdir:='/usr/local/lazarus/lib/fpc/'+version_string+'/'
++      else
+         fpcdir:='/usr/lib/fpc/'+version_string+'/';
+     end;
+ {$else unix}

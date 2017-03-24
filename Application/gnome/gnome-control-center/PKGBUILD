@@ -3,7 +3,7 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gnome-control-center
-pkgver=3.20.1
+pkgver=3.22.1
 pkgrel=1
 pkgdesc="The Control Center for GNOME"
 license=(GPL)
@@ -23,10 +23,14 @@ groups=(gnome)
 url="http://www.gnome.org"
 install=gnome-control-center.install
 options=('!emptydirs')
-source=(http://download.gnome.org/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz
-        g_drop_goa.patch drop_colord.patch drop_smbclient.patch)
-sha256sums=('ce6474fc60f78ed3cfaf555e55a52ec3ebb6437fa184e08ad6077bbec380a1ed'
-            'SKIP' 'SKIP' 'SKIP')
+_commit=e87e0361b117f055ace2aa47cdddd0dc62a852f9  # tags/GNOME_CONTROL_CENTER_3_22_1^0
+source=("git+https://git.gnome.org/browse/gnome-control-center#commit=$_commit"
+        "git+https://git.gnome.org/browse/libgnome-volume-control"
+        "git+https://git.gnome.org/browse/libgd" g_drop_goa.patch drop_smbclient.patch drop_colord.patch)
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP' 'SKIP' 'SKIP' 'SKIP')
+
 
 depends=(accountsservice
          gsettings-desktop-schemas gtk3
@@ -40,17 +44,29 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
 
-prepare() {
-  cd $pkgname-$pkgver
-  patch -p1 -i ../g_drop_goa.patch
-  patch -p1 -i ../drop_colord.patch
-  patch -p1 -i ../drop_smbclient.patch
-  ACLOCAL_FLAGS="-I libgd" NOCONFIGURE=1 srcdir=. gnome-autogen.sh
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^GNOME_CONTROL_CENTER_//;s/_/./g;s/-/+/g'
 }
 
+prepare() {
+  cd $pkgname
+
+  git submodule init
+  git config --local submodule."panels/sound/gvc".url "$srcdir/libgnome-volume-control"
+  git config --local submodule.libgd.url "$srcdir/libgd"
+  git submodule update
+
+  patch -Np1 -i ../g_drop_goa.patch
+  patch -Np1 -i ../drop_smbclient.patch
+  patch -Np1 -i ../drop_colord.patch
+  # patch -Np1 -i ../printer.patch
+
+  NOCONFIGURE=1 ./autogen.sh
+}
 
 build() {
-  cd $pkgname-$pkgver
+  cd $pkgname
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -66,7 +82,7 @@ build() {
 }
 
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname
 
   make DESTDIR="$pkgdir" install
 

@@ -5,7 +5,7 @@
 # Jan de Groot <jgc@archlinux.org>
 
 pkgname=cinnamon-control-center
-pkgver=3.0.0
+pkgver=3.2.1
 pkgrel=1
 pkgdesc="The Control Center for Cinnamon"
 arch=('i686' 'x86_64')
@@ -17,8 +17,9 @@ url="https://github.com/linuxmint/cinnamon-control-center"
 install=cinnamon-control-center.install
 license=('GPL')
 options=('!emptydirs')
-source=("$pkgname-$pkgver.tar.gz::https://github.com/linuxmint/cinnamon-control-center/archive/$pkgver.tar.gz")
-sha256sums=('9bdb53699d5863c32cdfc329eff0113b888a193c58d5c1ff786a2ba70d5068fb')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/linuxmint/cinnamon-control-center/archive/$pkgver.tar.gz"
+        custom.patch)
+sha256sums=('12a29a3293cde58ae6fd6fdbab7eef4a2119ac8f515ca9218e75cccc3aacd15c' 'SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
@@ -28,6 +29,8 @@ fi
 
 prepare() {
   cd $pkgname-$pkgver
+
+  patch -Np1 -i ../custom.patch
 }
 
 build() {
@@ -56,7 +59,7 @@ package() {
   # Remove unused stuff
   #make -C panels/sound DESTDIR="$pkgdir" uninstall
   #make -C panels/sound/data DESTDIR="$pkgdir" install
-  make -C shell DESTDIR="$pkgdir" uninstall-binPROGRAMS uninstall-directoryDATA uninstall-uiDATA
+  #make -C shell DESTDIR="$pkgdir" uninstall-binPROGRAMS uninstall-directoryDATA uninstall-uiDATA
   # rm "$pkgdir"/usr/local/${dstdir}/share/applications/cinnamon-{control-center,datetime-panel,region-panel,sound-panel}.desktop
   # rm -R "$pkgdir/usr/local/${dstdir}/etc"
 

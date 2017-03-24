@@ -2,7 +2,7 @@
 # Maintainer: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=gnome-online-accounts
-pkgver=3.20.1
+pkgver=3.22.4
 pkgrel=1
 pkgdesc="GNOME service to access online accounts"
 arch=(i686 x86_64)
@@ -13,8 +13,27 @@ makedepends=('intltool' 'libxslt' 'gobject-introspection' 'docbook-xsl')
 optdepends=('gvfs-goa: Virtual file systems (e.g. OwnCloud)'
             'gvfs-google: Google Drive')
 install=$pkgname.install
-source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
-sha256sums=('c37aebc1e12f31f5516d33a354181e4d202a07da4f7d3a95b0da8cf0028c0c93')
+_commit=9b02ee9436072d46eb54cd309ab1ff1b7c0dbcb6  # tags/3.22.4^0
+source=("git+https://git.gnome.org/browse/gnome-online-accounts#commit=$_commit"
+        "git+https://git.gnome.org/browse/telepathy-account-widgets")
+sha256sums=('SKIP'
+            'SKIP')
+
+prepare() {
+  cd $pkgname
+
+  git submodule init
+  git config --local submodule.telepathy-account-widgets.url "$srcdir/telepathy-account-widgets"
+  git submodule update
+
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/-/+/g'
+}
+
 
 depends=('json-glib' 'libnotify' 'rest' 'krb5')
 if [ "$CARCH" = "x86_64" ]; then
@@ -24,7 +43,7 @@ elif [ "$CARCH" = "i686" ]; then
 fi
 
 build() {
-  cd $pkgname-$pkgver
+  cd $pkgname
 
   sed -i 's| examples| |g' ./src/Makefile.in
 
@@ -47,7 +66,7 @@ build() {
 }
 
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   make -j1 DESTDIR="$pkgdir" install
 }
 

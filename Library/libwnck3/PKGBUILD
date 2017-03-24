@@ -3,20 +3,37 @@
 
 pkgname=libwnck3
 _pkgbasename=libwnck
-pkgver=3.14.0
-pkgrel=1
+pkgver=3.20.1
+pkgrel=2
 pkgdesc="Window Navigator Construction Kit (GTK+3)"
 arch=('i686' 'x86_64')
 license=('LGPL')
 depends=('gtk3' 'startup-notification' 'libxres')
 makedepends=('intltool' 'gobject-introspection' 'python2')
 url="http://www.gnome.org/"
-source=(http://ftp.gnome.org/pub/gnome/sources/$_pkgbasename/${pkgver%.*}/$_pkgbasename-$pkgver.tar.xz)
-sha256sums=('f5080076346609b4c36394b879f3a86b92ced3b90a37cb54c8e9a14f00e7921c')
+_commit=590b11f147fd31ef8e63187559e92358c8b28fc6  # tags/3.20.1^0
+source=("git+https://git.gnome.org/browse/libwnck#commit=$_commit")
+sha256sums=('SKIP')
+
 options=('staticlibs')
 
+pkgver() {
+  cd libwnck
+  git describe --tags | sed 's/-/+/g'
+}
+
+prepare() {
+  cd libwnck
+
+  # d-feet crash on Wayland
+  git cherry-pick -n 40856004e394305c880124f3d3b5f08fc1e9a16d
+  git cherry-pick -n c4cc2eb15f9da7a02ff584d5f517239b53a2c985
+
+  NOCONFIGURE=1 ./autogen.sh
+}
+
 build() {
-    cd "$_pkgbasename-$pkgver"
+    cd "libwnck"
 
   export CFLAGS="-fPIC"
   export CPPFLAGS="-fPIC"
@@ -28,6 +45,6 @@ build() {
 }
 
 package() {
-    cd "$_pkgbasename-$pkgver"
+    cd libwnck
     make DESTDIR="$pkgdir" install
 }

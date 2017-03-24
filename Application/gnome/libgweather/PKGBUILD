@@ -2,7 +2,7 @@
 # Maintainer: Jan de Groot  <jgc@archlinux.org>
 
 pkgname=libgweather
-pkgver=3.18.1
+pkgver=3.20.4
 pkgrel=1
 pkgdesc="Provides access to weather information from the net"
 arch=('i686' 'x86_64')
@@ -13,8 +13,9 @@ makedepends=('intltool' 'gobject-introspection' 'vala')
 options=('!emptydirs')
 url="http://www.gnome.org/"
 install=libgweather.install
-source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
-sha256sums=('94b2292f8f7616e2aa81b1516befd7b27682b20acecbd5d656b6954990ca7ad0')
+_commit=f66554b9fe3e59d95b8748dd78fb8dc57448bffa  # tags/3.20.4^0
+source=("git+https://git.gnome.org/browse/libgweather#commit=$_commit")
+sha256sums=('SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gnome3_64
@@ -22,8 +23,18 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
 
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+  NOCONFIGURE=1 ./autogen.sh
+}
+
 build() {
-    cd "$pkgname-$pkgver"
+    cd "$pkgname"
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -35,6 +46,6 @@ build() {
 }
 
 package() {
-    cd "$pkgname-$pkgver"
+    cd "$pkgname"
     make GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1 DESTDIR="$pkgdir" install
 }

@@ -2,18 +2,32 @@
 # Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
 
 pkgname=grilo
-pkgver=0.3.0
+pkgver=0.3.3
 pkgrel=1
 pkgdesc="Framework that provides access to various sources of multimedia content"
 url="http://www.gnome.org"
 arch=('i686' 'x86_64')
 license=('LGPL')
 depends=('gtk3' 'libxml2' 'libsoup' 'liboauth' 'totem-plparser')
-makedepends=('gobject-introspection' 'gtk-doc' 'vala' 'intltool')
+makedepends=('gobject-introspection' 'gtk-doc' 'vala' 'intltool' meson)
 optdepends=('grilo-plugins: Plugins for grilo')
 options=('!emptydirs')
-source=(http://ftp.gnome.org/pub/gnome/sources/${pkgname}/${pkgver:0:3}/${pkgname}-${pkgver}.tar.xz)
-sha256sums=('1fd1a87d606f56adb3086954baec3ea6e25d9ba3fb010f11d1d3ddc9ec66bc60')
+_commit=53b44b711a4558c0511dbe73d928971fd2c7bb30  # tags/grilo-0.3.3^0
+source=("git+https://git.gnome.org/browse/grilo#commit=$_commit"
+        0001-build-Improve-docs-and-introspection.patch)
+sha256sums=('SKIP'
+            '4857162520bacfa3742d039e781cc00a458bace6aead268bbfe5536bc6b8a13f')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^grilo-//;s/-/+/g'
+}
+
+prepare() {
+  mkdir build
+  cd $pkgname
+  patch -Np1 -i ../0001-build-Improve-docs-and-introspection.patch
+}
 
 depends=('gtk3' 'libxml2' 'libsoup')
 
@@ -24,19 +38,17 @@ elif [ "$CARCH" = "i686" ]; then
 fi
 
 build() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd build
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
 
-  ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --disable-static --disable-debug \
-    --libdir=/usr/local/${dstdir}/lib
-  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-  make
+  meson --prefix=/usr/local/${dstdir} --buildtype=plain -Denable-gtk-doc=true -Denable-grl-pls=false ../$pkgname
+  ninja
 }
 
 package() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-  make DESTDIR="${pkgdir}" install
+  cd build
+  DESTDIR="$pkgdir" ninja install
 }

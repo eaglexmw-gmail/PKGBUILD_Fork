@@ -1,10 +1,10 @@
 # $Id$
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 pkgbase=libmatemixer
 pkgname=(${pkgbase} ${pkgbase}-gtk3)
-pkgver=${_ver}.1
+pkgver=${_ver}.0
 pkgrel=1
 pkgdesc="Mixer library for MATE Desktop"
 url="http://mate-desktop.org"
@@ -12,9 +12,9 @@ arch=('i686' 'x86_64')
 license=('LGPL')
 #depends=('alsa-lib' 'libpulse')
 depends=('alsa-lib')
-makedepends=('mate-common')
+makedepends=('intltool')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgbase}-${pkgver}.tar.xz")
-sha1sums=('37c5b081e80db36210834e123643e2f7a12f176d')
+sha1sums=('72895e05834856c6ed3185ae152a9c8030ccdf54')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64
@@ -41,7 +41,7 @@ build() {
     ./configure \
         --prefix=/usr/local/${dstdir}/mate_gtk+3.0 \
         --with-gtk=3.0 \
-        --disable-static
+        --disable-static --disable-pulseaudio
     make
 }
 

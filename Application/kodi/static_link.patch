@@ -1,0 +1,476 @@
+diff -Nur old/lib/DllLibbluray.h new/lib/DllLibbluray.h
+--- old/lib/DllLibbluray.h	2016-04-24 06:48:30.000000000 +0000
++++ new/lib/DllLibbluray.h	2016-10-23 07:20:01.553464000 +0000
+@@ -82,6 +82,7 @@
+   virtual int      bd_mouse_select              (BLURAY *bd, int64_t pts, uint16_t x, uint16_t y)=0;
+ };
+ 
++#include "def_static_lib_method.h"
+ class DllLibbluray : public DllDynamic, DllLibblurayInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibbluray, DLL_PATH_LIBBLURAY)
+@@ -187,5 +188,6 @@
+   static BD_DIR_H *dir_open(const char* dirname);
+   static void      bluray_logger(const char* msg);
+ };
++#include "def_shared_so_method.h"
+ 
+ #endif
+diff -Nur old/xbmc/addons/DllLibCPluff.h new/xbmc/addons/DllLibCPluff.h
+--- old/xbmc/addons/DllLibCPluff.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/addons/DllLibCPluff.h	2016-10-23 12:46:23.107098225 +0000
+@@ -55,6 +55,8 @@
+   virtual cp_status_t uninstall_plugin(cp_context_t *ctx, const char *id)=0;
+ };
+ 
++//#include "def_static_lib_method.h"
++
+ class DllLibCPluff : public DllDynamic, DllLibCPluffInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibCPluff, DLL_PATH_CPLUFF)
+@@ -114,3 +116,6 @@
+     RESOLVE_METHOD_RENAME(cp_uninstall_plugin, uninstall_plugin)
+   END_METHOD_RESOLVE()
+ };
++//#include "def_shared_so_method.h"
++
++
+diff -Nur old/xbmc/cores/dvdplayer/DVDCodecs/Video/AMLCodec.cpp new/xbmc/cores/dvdplayer/DVDCodecs/Video/AMLCodec.cpp
+--- old/xbmc/cores/dvdplayer/DVDCodecs/Video/AMLCodec.cpp	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/cores/dvdplayer/DVDCodecs/Video/AMLCodec.cpp	2016-10-23 07:32:46.080170995 +0000
+@@ -98,6 +98,8 @@
+   virtual int codec_set_cntl_syncthresh(codec_para_t *pcodec, unsigned int syncthresh)=0;
+ };
+ 
++#include "def_static_lib_method.h"
++
+ class DllLibAmCodec : public DllDynamic, DllLibamCodecInterface
+ {
+   // libamcodec is static linked into libamplayer.so or libamcodec.so
+@@ -220,6 +222,8 @@
+ #endif
+   }
+ };
++#include "def_shared_so_method.h"
++
+ 
+ //-----------------------------------------------------------------------------------
+ //-----------------------------------------------------------------------------------
+diff -Nur old/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibMpeg2.h new/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibMpeg2.h
+--- old/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibMpeg2.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibMpeg2.h	2016-10-23 07:31:16.420166283 +0000
+@@ -52,6 +52,8 @@
+   virtual void mpeg2_skip(mpeg2dec_t * mpeg2dec, int skip)=0;
+ };
+ 
++#include "def_static_lib_method.h"
++
+ class DllLibMpeg2 : public DllDynamic, DllLibMpeg2Interface
+ {
+   DECLARE_DLL_WRAPPER(DllLibMpeg2, DLL_PATH_LIBMPEG2)
+@@ -82,3 +84,6 @@
+     RESOLVE_METHOD(mpeg2_skip)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
++
++
+diff -Nur old/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibStageFrightCodec.h new/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibStageFrightCodec.h
+--- old/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibStageFrightCodec.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/cores/dvdplayer/DVDCodecs/Video/DllLibStageFrightCodec.h	2016-10-23 07:33:25.190173050 +0000
+@@ -60,6 +60,8 @@
+   virtual void stf_ReleaseBuffer(void*, EGLImageKHR eglimg) = 0;
+ };
+ 
++#include "def_static_lib_method.h"
++
+ class DllLibStageFrightCodec : public DllDynamic, DllLibStageFrightCodecInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibStageFrightCodec, DLL_PATH_LIBSTAGEFRIGHTICS)
+@@ -90,3 +92,6 @@
+     RESOLVE_METHOD(stf_ReleaseBuffer)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
++
++
+diff -Nur old/xbmc/cores/dvdplayer/DVDCodecs/Video/OpenMax.cpp new/xbmc/cores/dvdplayer/DVDCodecs/Video/OpenMax.cpp
+--- old/xbmc/cores/dvdplayer/DVDCodecs/Video/OpenMax.cpp	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/cores/dvdplayer/DVDCodecs/Video/OpenMax.cpp	2016-10-23 07:31:58.863501851 +0000
+@@ -61,6 +61,8 @@
+   virtual OMX_ERRORTYPE OMX_ComponentNameEnum(OMX_STRING cComponentName, OMX_U32 nNameLength, OMX_U32 nIndex) = 0;
+ };
+ 
++#include "def_static_lib_method.h"
++
+ class DllLibOpenMax : public DllDynamic, DllLibOpenMaxInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibOpenMax, "libnvomx.so")
+@@ -82,6 +84,8 @@
+     RESOLVE_METHOD(OMX_ComponentNameEnum)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
++
+ 
+ ////////////////////////////////////////////////////////////////////////////////////////////
+ #define OMX_INIT_STRUCTURE(a) \
+diff -Nur old/xbmc/cores/dvdplayer/DVDInputStreams/DllDvdNav.h new/xbmc/cores/dvdplayer/DVDInputStreams/DllDvdNav.h
+--- old/xbmc/cores/dvdplayer/DVDInputStreams/DllDvdNav.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/cores/dvdplayer/DVDInputStreams/DllDvdNav.h	2016-10-23 12:14:57.160332424 +0000
+@@ -246,6 +246,8 @@
+ 
+ #else
+ 
++//#include "def_static_lib_method.h"
++
+ class DllDvdNav : public DllDynamic, DllDvdNavInterface
+ {
+   DECLARE_DLL_WRAPPER(DllDvdNav, DLL_PATH_LIBDVDNAV)
+@@ -372,8 +374,10 @@
+     RESOLVE_METHOD(dvdnav_get_title_string)
+     RESOLVE_METHOD(dvdnav_get_serial_string)
+     RESOLVE_METHOD(dvdnav_describe_title_chapters)
+-    RESOLVE_METHOD(dvdnav_free)
++    RESOLVE_METHOD_RENAME(dvdnav_free_dup, dvdnav_free)
+ END_METHOD_RESOLVE()
+ };
++//#include "def_shared_so_method.h"
++
+ 
+ #endif
+diff -Nur old/xbmc/cores/dvdplayer/DVDInputStreams/DllLibRTMP.h new/xbmc/cores/dvdplayer/DVDInputStreams/DllLibRTMP.h
+--- old/xbmc/cores/dvdplayer/DVDInputStreams/DllLibRTMP.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/cores/dvdplayer/DVDInputStreams/DllLibRTMP.h	2016-10-23 07:37:04.030184555 +0000
+@@ -44,6 +44,8 @@
+   virtual bool Pause(RTMP* r, bool DoPause)=0;
+ };
+ 
++#include "def_static_lib_method.h"
++
+ class DllLibRTMP : public DllDynamic, DllLibRTMPInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibRTMP, DLL_PATH_LIBRTMP)
+@@ -77,3 +79,6 @@
+   END_METHOD_RESOLVE()
+ };
+ 
++#include "def_shared_so_method.h"
++
++
+diff -Nur old/xbmc/cores/dvdplayer/DVDSubtitles/DllLibass.h new/xbmc/cores/dvdplayer/DVDSubtitles/DllLibass.h
+--- old/xbmc/cores/dvdplayer/DVDSubtitles/DllLibass.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/cores/dvdplayer/DVDSubtitles/DllLibass.h	2016-10-23 07:35:48.440180581 +0000
+@@ -66,6 +66,8 @@
+                                 , void *data)=0;
+ };
+ 
++#include "def_static_lib_method.h"
++
+ class DllLibass : public DllDynamic, DllLibassInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibass, DLL_PATH_LIBASS)
+@@ -116,3 +118,6 @@
+     RESOLVE_METHOD(ass_set_message_cb)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
++
++
+diff -Nur old/xbmc/def_shared_so_method.h new/xbmc/def_shared_so_method.h
+--- old/xbmc/def_shared_so_method.h	1970-01-01 00:00:00.000000000 +0000
++++ new/xbmc/def_shared_so_method.h	2016-10-23 07:09:17.266763000 +0000
+@@ -0,0 +1,45 @@
++#ifndef __DEF_SHARED_SO_METHOD_H__
++#define __DEF_SHARED_SO_METHOD_H__
++
++#undef DECLARE_DLL_WRAPPER
++#undef XDECLARE_DLL_WRAPPER
++#undef RESOLVE_METHOD
++#undef RESOLVE_METHOD_FP
++#undef RESOLVE_METHOD_OPTIONAL
++#undef RESOLVE_METHOD_OPTIONAL_FP
++#undef RESOLVE_METHOD_RENAME
++#undef RESOLVE_METHOD_RENAME_FP
++
++#define DECLARE_DLL_WRAPPER(classname, dllname) \
++XDECLARE_DLL_WRAPPER(classname,dllname)
++
++#define XDECLARE_DLL_WRAPPER(classname, dllname) \
++public: \
++  classname () : DllDynamic( dllname ) {}
++
++#define RESOLVE_METHOD(method) \
++  if (!m_dll->ResolveExport( #method , & m_##method##_ptr )) \
++    return false;
++
++#define RESOLVE_METHOD_FP(method) \
++  if (!m_dll->ResolveExport( #method , & method##_ptr )) \
++    return false;
++
++#define RESOLVE_METHOD_OPTIONAL(method) \
++   m_dll->ResolveExport( #method , & m_##method##_ptr );
++
++#define RESOLVE_METHOD_OPTIONAL_FP(method) \
++   method##_ptr = NULL; \
++   m_dll->ResolveExport( #method , & method##_ptr );
++
++#define RESOLVE_METHOD_RENAME(dllmethod, method) \
++  if (!m_dll->ResolveExport( #dllmethod , & m_##method##_ptr )) \
++    return false;
++
++#define RESOLVE_METHOD_RENAME_FP(dllmethod, method) \
++  if (!m_dll->ResolveExport( #dllmethod , & method##_ptr )) \
++    return false;
++
++#undef __DEF_STATIC_LIB_METHOD_H__
++
++#endif
+diff -Nur old/xbmc/def_static_lib_method.h new/xbmc/def_static_lib_method.h
+--- old/xbmc/def_static_lib_method.h	1970-01-01 00:00:00.000000000 +0000
++++ new/xbmc/def_static_lib_method.h	2016-10-23 10:47:55.793391301 +0000
+@@ -0,0 +1,42 @@
++#ifndef __DEF_STATIC_LIB_METHOD_H__
++#define __DEF_STATIC_LIB_METHOD_H__
++
++#undef DECLARE_DLL_WRAPPER
++#undef XDECLARE_DLL_WRAPPER
++#undef RESOLVE_METHOD
++#undef RESOLVE_METHOD_FP
++#undef RESOLVE_METHOD_OPTIONAL
++#undef RESOLVE_METHOD_OPTIONAL_FP
++#undef RESOLVE_METHOD_RENAME
++#undef RESOLVE_METHOD_RENAME_FP
++
++#define DECLARE_DLL_WRAPPER(classname, dllname) \
++XDECLARE_DLL_WRAPPER(classname,dllname)
++
++#define XDECLARE_DLL_WRAPPER(classname, dllname) \
++public: \
++  classname () : DllDynamic( dllname ) {} \
++  virtual bool Load() { if (m_dll) return true; m_dll = (LibraryLoader*)1; return ResolveExports(); }    \
++  virtual void Unload()  { m_dll = 0; }
++
++#define RESOLVE_METHOD(method) \
++  m_##method##_ptr = (void*) & :: method; 
++
++#define RESOLVE_METHOD_FP(method) \
++  method##_ptr = (void*) & :: method ;
++
++#define RESOLVE_METHOD_OPTIONAL(method) \
++  m_##method##_ptr = (void*) & :: method;
++
++#define RESOLVE_METHOD_OPTIONAL_FP(method) \
++  method##_ptr = (void*) & :: method ;
++
++#define RESOLVE_METHOD_RENAME(dllmethod, method) \
++  m_##method##_ptr = (void*) & :: dllmethod ;
++
++#define RESOLVE_METHOD_RENAME_FP(dllmethod, method) \
++  method##_ptr = (void*) & :: dllmethod ;
++
++#undef __DEF_SHARED_SO_METHOD_H__
++
++#endif
+diff -Nur old/xbmc/filesystem/DllLibCurl.cpp new/xbmc/filesystem/DllLibCurl.cpp
+--- old/xbmc/filesystem/DllLibCurl.cpp	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/filesystem/DllLibCurl.cpp	2016-10-23 14:21:11.714063909 +0000
+@@ -78,12 +78,12 @@
+ 
+   /* we handle this ourself */
+   DllDynamic::EnableDelayedUnload(false);
+-  if (!DllDynamic::Load())
++  if (!DllLibCurl::Load())
+     return false;
+ 
+   if (global_init(CURL_GLOBAL_ALL))
+   {
+-    DllDynamic::Unload();
++    DllLibCurl::Unload();
+     CLog::Log(LOGERROR, "Error initializing libcurl");
+     return false;
+   }
+@@ -125,7 +125,7 @@
+     delete[] m_sslLockArray;
+ #endif
+     
+-    DllDynamic::Unload();
++    DllLibCurl::Unload();
+   }
+ 
+   /* CheckIdle will clear this one up */
+diff -Nur old/xbmc/filesystem/DllLibCurl.h new/xbmc/filesystem/DllLibCurl.h
+--- old/xbmc/filesystem/DllLibCurl.h	2016-10-23 04:28:59.109381000 +0000
++++ new/xbmc/filesystem/DllLibCurl.h	2016-10-23 11:09:30.383459349 +0000
+@@ -57,6 +57,21 @@
+     virtual void  slist_free_all(struct curl_slist *)=0;
+   };
+ 
++#include "def_static_lib_method.h"
++
++#undef RESOLVE_METHOD
++#undef RESOLVE_METHOD_RENAME
++#undef RESOLVE_METHOD_RENAME_FP
++
++#define RESOLVE_METHOD(method) \
++  m_##method##_ptr = (void*) & method; 
++
++#define RESOLVE_METHOD_RENAME(dllmethod, method) \
++  m_##method##_ptr = (void*) &  dllmethod ;
++
++#define RESOLVE_METHOD_RENAME_FP(dllmethod, method) \
++  method##_ptr = (void*) & dllmethod ;
++
+   class DllLibCurl : public DllDynamic, DllLibCurlInterface
+   {
+     DECLARE_DLL_WRAPPER(DllLibCurl, DLL_PATH_LIBCURL)
+@@ -114,6 +129,7 @@
+     END_METHOD_RESOLVE()
+ 
+   };
++#include "def_shared_so_method.h"
+ 
+   class DllLibCurlGlobal : public DllLibCurl
+   {
+diff -Nur old/xbmc/filesystem/DllLibNfs.h new/xbmc/filesystem/DllLibNfs.h
+--- old/xbmc/filesystem/DllLibNfs.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/filesystem/DllLibNfs.h	2016-10-23 12:05:20.806968795 +0000
+@@ -87,6 +87,8 @@
+   virtual int nfs_lseek(struct nfs_context *nfs,     struct nfsfh *nfsfh,  uint64_t offset, int whence,   uint64_t *current_offset)=0;
+ };
+ 
++//#include "def_static_lib_method.h"
++
+ class DllLibNfs : public DllDynamic, DllLibNfsInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibNfs, DLL_PATH_LIBNFS)
+@@ -178,4 +180,6 @@
+     RESOLVE_METHOD_RENAME(nfs_link,      nfs_link)      
+   END_METHOD_RESOLVE()
+ };
++//#include "def_shared_so_method.h"
++
+ 
+diff -Nur old/xbmc/linux/DllBCM.h new/xbmc/linux/DllBCM.h
+--- old/xbmc/linux/DllBCM.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/linux/DllBCM.h	2016-10-23 07:22:55.490139951 +0000
+@@ -85,6 +85,7 @@
+                                                   EDID_AudioSampleRate fs, uint32_t bitrate) = 0;
+ };
+ 
++#include "def_static_lib_method.h"
+ #if defined(USE_EXTERNAL_LIBBCM_HOST)
+ class DllBcmHost : public DllDynamic, DllBcmHostInterface
+ {
+@@ -236,5 +237,6 @@
+   }
+ };
+ #endif
++#include "def_shared_so_method.h"
+ 
+ #endif
+diff -Nur old/xbmc/linux/DllOMX.h new/xbmc/linux/DllOMX.h
+--- old/xbmc/linux/DllOMX.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/linux/DllOMX.h	2016-10-23 07:22:06.273470698 +0000
+@@ -57,6 +57,7 @@
+ 
+ };
+ 
++#include "def_static_lib_method.h"
+ #if (defined USE_EXTERNAL_OMX)
+ class DllOMX : public DllDynamic, DllOMXInterface
+ {
+@@ -117,5 +118,6 @@
+   }
+ };
+ #endif
++#include "def_shared_so_method.h"
+ 
+ #endif
+diff -Nur old/xbmc/linux/sse4/DllLibSSE4.h new/xbmc/linux/sse4/DllLibSSE4.h
+--- old/xbmc/linux/sse4/DllLibSSE4.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/linux/sse4/DllLibSSE4.h	2016-10-23 09:40:42.197241152 +0000
+@@ -41,3 +41,5 @@
+     RESOLVE_METHOD(copy_frame)
+   END_METHOD_RESOLVE()
+ };
++
++
+diff -Nur old/xbmc/network/DllLibPlist.h new/xbmc/network/DllLibPlist.h
+--- old/xbmc/network/DllLibPlist.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/network/DllLibPlist.h	2016-10-23 07:38:19.943521878 +0000
+@@ -45,6 +45,8 @@
+ 
+ };
+ 
++#include "def_static_lib_method.h"
++
+ class DllLibPlist : public DllDynamic, DllLibPlistInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibPlist, DLL_PATH_LIBPLIST)
+@@ -81,3 +83,5 @@
+   END_METHOD_RESOLVE()
+ };
+ 
++#include "def_shared_so_method.h"
++
+diff -Nur old/xbmc/network/DllLibShairplay.h new/xbmc/network/DllLibShairplay.h
+--- old/xbmc/network/DllLibShairplay.h	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/network/DllLibShairplay.h	2016-10-23 07:39:05.250190927 +0000
+@@ -42,6 +42,8 @@
+   virtual void        raop_destroy(raop_t *raop)=0;  
+ };
+ 
++#include "def_static_lib_method.h"
++
+ class DllLibShairplay : public DllDynamic, DllLibShairplayInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibShairplay, DLL_PATH_LIBSHAIRPLAY)
+@@ -66,3 +68,5 @@
+   END_METHOD_RESOLVE()
+ };
+ 
++#include "def_shared_so_method.h"
++
+diff -Nur old/xbmc/peripherals/bus/virtual/PeripheralBusCEC.cpp new/xbmc/peripherals/bus/virtual/PeripheralBusCEC.cpp
+--- old/xbmc/peripherals/bus/virtual/PeripheralBusCEC.cpp	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/peripherals/bus/virtual/PeripheralBusCEC.cpp	2016-10-23 07:28:26.196824002 +0000
+@@ -37,6 +37,8 @@
+   virtual void*        CECDestroy(ICECAdapter *adapter)=0;
+ };
+ 
++#include "def_static_lib_method.h"
++
+ class PERIPHERALS::DllLibCEC : public DllDynamic, DllLibCECInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibCEC, DLL_PATH_LIBCEC)
+@@ -49,6 +51,8 @@
+     RESOLVE_METHOD_RENAME(CECDestroy, CECDestroy)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
++
+ 
+ CPeripheralBusCEC::CPeripheralBusCEC(CPeripherals *manager) :
+     CPeripheralBus("PeripBusCEC", manager, PERIPHERAL_BUS_CEC),
+diff -Nur old/xbmc/peripherals/devices/PeripheralCecAdapter.cpp new/xbmc/peripherals/devices/PeripheralCecAdapter.cpp
+--- old/xbmc/peripherals/devices/PeripheralCecAdapter.cpp	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/peripherals/devices/PeripheralCecAdapter.cpp	2016-10-23 07:27:46.326821904 +0000
+@@ -68,6 +68,8 @@
+   virtual void*        CECDestroy(ICECAdapter *adapter)=0;
+ };
+ 
++#include "def_static_lib_method.h"
++
+ class DllLibCEC : public DllDynamic, DllLibCECInterface
+ {
+   DECLARE_DLL_WRAPPER(DllLibCEC, DLL_PATH_LIBCEC)
+@@ -80,6 +82,8 @@
+     RESOLVE_METHOD_RENAME(CECDestroy, CECDestroy)
+   END_METHOD_RESOLVE()
+ };
++#include "def_shared_so_method.h"
++
+ 
+ CPeripheralCecAdapter::CPeripheralCecAdapter(const PeripheralScanResult& scanResult) :
+   CPeripheralHID(scanResult),

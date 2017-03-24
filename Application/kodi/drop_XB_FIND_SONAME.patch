@@ -1,0 +1,58 @@
+diff -Nur xbmc-16.1-Jarvis_old/configure.ac xbmc-16.1-Jarvis/configure.ac
+--- xbmc-16.1-Jarvis_old/configure.ac	2016-04-24 06:48:30.000000000 +0000
++++ xbmc-16.1-Jarvis/configure.ac	2016-09-30 10:11:37.836739372 +0000
+@@ -56,53 +56,7 @@
+ # check for library basenames
+ AC_DEFUN([XB_FIND_SONAME],
+ [
+-  if echo "$host" | grep -q freebsd ; then
+-    AC_MSG_CHECKING([for lib$2 soname])
+-    $1_SONAME=[`ldconfig -r | sed -n "s;.* \(/.*lib$2\.so.*\)$;\1;p" | head -n 1`]
+-    if test x$$1_SONAME != x ; then
+-      $1_SONAME=[`basename $$1_SONAME`]
+-    fi
+-  elif [[ "$host_vendor" != "apple" ]]; then
+-    AC_MSG_CHECKING([for lib$2 soname])
+-    $1_FILENAME=$($CC -nostdlib -o /dev/null $CFLAGS $LDFLAGS $4 -l$2 -Wl,-M 2>/dev/null | grep "^LOAD.*$2" | awk '{V=2; print $V}')
+-    if [[ -z $$1_FILENAME ]]; then
+-      #try gold linker syntax
+-      $1_FILENAME=$($CC -nostdlib -o /dev/null $CFLAGS $LDFLAGS $4 -l$2 -Wl,-t 3>&1 1>&2 2>&3 | grep "lib$2")
+-    fi
+-    if [[ ! -z $$1_FILENAME ]]; then
+-      $1_SONAME=$($OBJDUMP -p $$1_FILENAME | grep "SONAME.*$2" | awk '{V=2; print $V}')
+-    fi
+-  else
+-    AC_MSG_CHECKING([for lib$2 dylib])
+-    gcc_lib_path=[`$CC -print-search-dirs 2>/dev/null | fgrep libraries: | sed 's/[^=]*=\(.*\)/\1/' | sed 's/:/ /g'`]
+-    env_lib_path=[`echo $LDFLAGS | sed 's/-L[ ]*//g'`]
+-    if test "$cross_compiling" = yes; then
+-      host_lib_path=""
+-    else
+-      host_lib_path="/usr/lib /usr/local/lib"
+-    fi
+-    for path in $gcc_lib_path $env_lib_path $host_lib_path; do
+-      lib=[`ls -- $path/lib$2.dylib 2>/dev/null`]
+-      if test x$lib != x; then
+-        # we want the path/name that is embedded in the dylib 
+-        $1_FILENAME=[`otool -L $lib | grep -v lib$2.dylib | grep lib$2 | awk '{V=1; print $V}'`]
+-        $1_SONAME=[`basename $$1_FILENAME`]
+-      fi
+-    done
+-  fi
+-  if [[ -z "$$1_SONAME" ]]; then
+-    AC_MSG_RESULT([no])
+-    if test -z "$3" || test "x${$3}" = "xyes"; then
+-      AC_MSG_ERROR([Unable to determine soname of lib$2 library])
+-    else
+-      AC_MSG_WARN([Unable to determine soname of lib$2 library])
+-      $3=no
+-      AC_MSG_WARN([lib$2 support disabled])
+-    fi
+-  else
+-    AC_MSG_RESULT([$$1_SONAME])
+-    AC_SUBST($1_SONAME)
+-  fi
++  AC_MSG_NOTICE([SKIP check soname of lib$2 library])
+ ])
+ 
+ # Function to push and pop libs and includes for a command

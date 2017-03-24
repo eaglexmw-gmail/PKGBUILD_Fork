@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: BlackEagle <ike.devolder@gmail.com>>
+
+pkgname=kodi-platform
+_commit=c8188d8
+pkgver=20160516.c8188d8
+pkgrel=1
+pkgdesc="platform library for external kodi addons"
+arch=('i686' 'x86_64')
+url='https://github.com/xbmc/kodi-platform'
+license=('GPL')
+depends=('kodi' 'p8-platform')
+makedepends=('git' 'cmake')
+source=("$pkgname::git://github.com/xbmc/kodi-platform.git#commit=$_commit" p8-platform-config.cmake)
+sha256sums=('SKIP' 'SKIP')
+
+pkgver() {
+	cd "$pkgname"
+	git log -1 --date=short --format="%cd.%h" | tr -d '-'
+}
+
+depends=()
+build() {
+	cd "$pkgname"
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr/local/kodi \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DBUILD_SHARED_LIBS=1 \
+		-DUSE_LTO=1 -Dp8-platform_DIR=/usr/local/static_lib/p8-platform/p8-platform/
+	make
+}
+
+package() {
+	cd "$pkgname"
+	make DESTDIR="$pkgdir/" install
+}
+

@@ -4,8 +4,8 @@
 # Jan de Groot <jgc@archlinux.org>
 
 pkgname=cinnamon-screensaver
-pkgver=3.0.0
-pkgrel=1
+pkgver=3.2.13
+pkgrel=3
 pkgdesc="Screensaver designed to integrate well with the Cinnamon desktop."
 arch=('i686' 'x86_64')
 license=('GPL')
@@ -16,7 +16,7 @@ depends=('dbus-glib')
 makedepends=('intltool' 'gnome-common')
 source=($pkgname-$pkgver.tar.gz::https://github.com/linuxmint/cinnamon-screensaver/archive/$pkgver.tar.gz
        cinnamon-screensaver.pam)
-sha256sums=('eae81a1c26348e7e94b4925b7122624ff86ea5f4eec0541458a75073332622fc'
+sha256sums=('7b1a0c156cc0e1983d6ed4370426eac372a5cc3d5f6b8203ddc6913a58d972e9'
             'c34925177c883dc4935408a4679e984855b14ef18a208bb5c7c3e5be3817619a')
 
 if [ "$CARCH" = "x86_64" ]; then
@@ -28,10 +28,10 @@ fi
 prepare() {
   cd $pkgname-$pkgver
   # Python2 fix
-  sed -i 's@^#!.*python$@#!/usr/bin/python2@' data/screensavers/*/main
+  #sed -i 's@^#!.*python$@#!/usr/bin/python2@' data/screensavers/*/main
 
   # Support new libsystemd (which replaces libsystemd-login)
-  sed -i 's/libsystemd-login/libsystemd/' configure.ac
+  # sed -i 's/libsystemd-login/libsystemd/' configure.ac
 }
 
 build() {

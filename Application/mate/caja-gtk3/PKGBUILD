@@ -1,9 +1,9 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 _pkgbase=caja
 pkgname=${_pkgbase}-gtk3
-pkgver=${_ver}.6
+pkgver=${_ver}.2
 pkgrel=1
 pkgdesc="File manager for the MATE desktop (GTK3 version [EXPERIMENTAL])"
 url="http://mate-desktop.org"
@@ -14,14 +14,14 @@ depends=('dbus' 'desktop-file-utils' 'exempi' 'gtk3' 'gvfs' 'libexif'
          'startup-notification')
 depends=('dbus' 'desktop-file-utils' 'gtk3' 'libexif' 'libxt' 
          'startup-notification')
-makedepends=('gobject-introspection' 'mate-common' 'pangox-compat')
+makedepends=('gobject-introspection' 'intltool')
 optdepends=('gstreamer: automatic media playback when mouseover'
             'gvfs-smb: To connect to Samba/Windows shares')
 groups=('mate-gtk3')
 conflicts=("${_pkgbase}")
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz"
         module_patch.patch)
-sha1sums=('8e69164061fb8d21d2f887d1321b94d5225abe02'
+sha1sums=('7d4088e151435ccfea442f03b796a9e0f3f56a69'
           'SKIP')
 install=${_pkgbase}.install
 

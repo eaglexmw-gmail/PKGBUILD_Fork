@@ -1,9 +1,9 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 pkgbase=mate-system-monitor
 pkgname=(${pkgbase} ${pkgbase}-gtk3)
-pkgver=${_ver}.1
+pkgver=${_ver}.0
 pkgrel=1
 pkgdesc="A system monitor for MATE"
 url="http://mate-desktop.org"
@@ -13,10 +13,10 @@ license=('GPL')
 #         'libwnck3' 'librsvg')
 depends=('dconf' 'dbus-glib' 'libwnck'
          'librsvg')
-makedepends=('docbook2x' 'mate-common' 'yelp-tools')
+makedepends=('intltool' 'itstool')
 optdepends=('yelp: for reading MATE help documents')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgbase}-${pkgver}.tar.xz")
-sha1sums=('58fd0ab16ff76a1d0871053698c13cb28f407bf1')
+sha1sums=('4d0c2bca7690f52b1278b5e83ce3231bc75469e2')
 install=${pkgbase}.install
 
 

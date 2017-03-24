@@ -11,8 +11,7 @@ pkgname=('nemo-fileroller'
 	#'nemo-pastebin'
 	#'nemo-compare'
 	#'nemo-rabbitvcs'
-pkgver=2.8.0
-_pkgver=2.8.x
+pkgver=3.2.0
 pkgrel=1
 arch=('i686' 'x86_64')
 license=('GPL2')
@@ -22,12 +21,8 @@ url="https://github.com/linuxmint/nemo-extensions"
 #makedepends=(gconf gnome-common gtk-doc intltool gobject-introspection) # python2-distutils-extra
 makedepends=(gnome-common gtk-doc intltool gobject-introspection) # python2-distutils-extra
 options=('!emptydirs')
-source=("${pkgbase}-${pkgver}.tar.gz::https://github.com/linuxmint/nemo-extensions/archive/${_pkgver}.tar.gz"
-        "gpgversion.patch"
-        mod_path.patch)
-sha256sums=('21ecb2f197e17fba2046ef16493e1b4292a8cc0389c65e0ccc4562b1d0982fe5'
-            '187b9c1d684b81abac7ef3095882cfe859bd50570e554d45fcfdbf6e50455b86'
-            'SKIP')
+source=("${pkgbase}-${pkgver}.tar.gz::https://github.com/linuxmint/nemo-extensions/archive/${pkgver}.tar.gz")
+sha256sums=('1536fd828b2ee0a8f194155a9e13b8cce937b403b5c87d8e579d7b1ced8d6d14')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
@@ -36,7 +31,7 @@ elif [ "$CARCH" = "i686" ]; then
 fi
 
 prepare() {
-  cd ${pkgbase}-${_pkgver}
+  cd ${pkgbase}-${pkgver}
 
   # Python2 fix
   find -type f | xargs sed -i 's@^#!.*python$@#!/usr/bin/env python2@'
@@ -45,9 +40,9 @@ prepare() {
   # sed -i '/AM_GNU_GETTEXT/d' nemo-preview/configure.ac
 
   # GPG version in testing
-  patch -Np1 -i ../gpgversion.patch
+  # patch -Np1 -i ../gpgversion.patch
 
-  patch -Np1 -i ../mod_path.patch
+  # patch -Np1 -i ../mod_path.patch
 
   # Fix path for nemo-python
   sed -i 's|libdirsuffix="/i386-linux-gnu/"|libdirsuffix=""|' nemo-python/m4/python.m4
@@ -55,7 +50,7 @@ prepare() {
 }
 
 build() {
-  cd ${pkgbase}-${_pkgver}
+  cd ${pkgbase}-${pkgver}
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
 
@@ -77,7 +72,7 @@ _configure_pkgs="nemo-fileroller nemo-share"
   do
     pushd ${dir}
     ./autogen.sh --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var --libexecdir=/usr/local/${dstdir}/lib/${dir} \
-                 --disable-static --disable-schemas-compile
+                 --disable-static --disable-schemas-compile PYTHON=python2
     make
     popd
   done
@@ -103,7 +98,7 @@ package_nemo-fileroller(){
   pkgdesc="File archiver extension for Nemo"
   depends=(nemo file-roller)
 
-  cd ${pkgbase}-${_pkgver}/nemo-fileroller
+  cd ${pkgbase}-${pkgver}/nemo-fileroller
   make DESTDIR="${pkgdir}" install
 }
 
@@ -111,7 +106,7 @@ package_nemo-preview(){
   pkgdesc=("GtkClutter and Javascript-based quick previewer for Nemo")
   depends=(nemo cjs clutter-gtk clutter-gst2 libmusicbrainz5 evince gtksourceview3 webkitgtk)
 
-  cd ${pkgbase}-${_pkgver}/nemo-preview
+  cd ${pkgbase}-${pkgver}/nemo-preview
   make DESTDIR="${pkgdir}" install
 }
 
@@ -119,7 +114,7 @@ package_nemo-python() {
   pkgdesc="Python2 binding for Nemo components"
   depends=(nemo python2-gobject)
 
-  cd ${pkgbase}-${_pkgver}/nemo-python
+  cd ${pkgbase}-${pkgver}/nemo-python
   make DESTDIR="${pkgdir}" install
 }
 
@@ -127,7 +122,7 @@ package_nemo-seahorse(){
   pkgdesc="PGP encryption and signing extension for Nemo"
   depends=(nemo seahorse-nautilus)
 
-  cd ${pkgbase}-${_pkgver}/nemo-seahorse
+  cd ${pkgbase}-${pkgver}/nemo-seahorse
   make DESTDIR="${pkgdir}" install
 
   # seahorse-tool is already in seahorse-nautilus package
@@ -139,12 +134,12 @@ package_nemo-share(){
   pkgdesc="Samba extension for Nemo"
   depends=(nemo samba)
 
-  cd ${pkgbase}-${_pkgver}/nemo-share
+  cd ${pkgbase}-${pkgver}/nemo-share
   make DESTDIR="${pkgdir}" install
 }
 
 # package_nemo-media-columns(){
-# 	cd ${pkgbase}-${_pkgver}/nemo-media-columns
+# 	cd ${pkgbase}-${pkgver}/nemo-media-columns
 
 # 	pkgdesc=("A Nemo extension to display music/EXIF and PDF metadata info in the Nemo List View")
 # 	arch=(any)
@@ -155,7 +150,7 @@ package_nemo-share(){
 # }
 
 # package_nemo-pastebin(){
-# 	cd ${pkgbase}-${_pkgver}/nemo-pastebin
+# 	cd ${pkgbase}-${pkgver}/nemo-pastebin
 
 # 	pkgdesc="Nemo extension to send files to a pastebin"
 # 	arch=(any)
@@ -167,7 +162,7 @@ package_nemo-share(){
 # }
 
 # package_nemo-compare() {
-#   cd ${pkgbase}-${_pkgver}/nemo-compare
+#   cd ${pkgbase}-${pkgver}/nemo-compare
 
 #   pkgdesc="Context menu comparison extension for Nemo file manager"
 #   depends=(python2 python2-xdg meld nemo-python)
@@ -189,7 +184,7 @@ package_nemo-share(){
 # }
 
 # package_nemo-rabbitvcs(){
-# 	cd ${pkgbase}-${_pkgver}/nemo-rabbitvcs
+# 	cd ${pkgbase}-${pkgver}/nemo-rabbitvcs
 
 #   depends=(nemo-python python2-dbus)
 

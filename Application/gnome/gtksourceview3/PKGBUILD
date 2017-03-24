@@ -2,8 +2,7 @@
 # Maintainer: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=gtksourceview3
-_pkgbasename=gtksourceview
-pkgver=3.20.1
+pkgver=3.22.2
 pkgrel=1
 pkgdesc="A text widget adding syntax highlighting and more to GNOME"
 arch=('i686' 'x86_64')
@@ -13,8 +12,9 @@ depends=('gtk3' 'libxml2')
 makedepends=('intltool' 'gobject-introspection' 'vala' 'python2')
 url="http://www.gnome.org"
 # options=('staticlibs')
-source=(http://ftp.gnome.org/pub/gnome/sources/$_pkgbasename/${pkgver:0:4}/$_pkgbasename-$pkgver.tar.xz)
-sha256sums=('322d95c0eaba768a47956ccf1af732ea9377ab7a8afc145b1a34a04012ae8c4c')
+_commit=cd778788fd6b3aeb57d9185185683b0f51361a2b  # tags/3.22.2^0
+source=("git://git.gnome.org/gtksourceview#commit=$_commit")
+sha256sums=('SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gnome3_64
@@ -22,8 +22,18 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
 
+pkgver() {
+  cd gtksourceview
+  git describe --tags | sed 's/-/+/g'
+}
+
+prepare() {
+  cd gtksourceview
+  NOCONFIGURE=1 ./autogen.sh
+}
+
 build() {
-  cd "$_pkgbasename-$pkgver"
+  cd gtksourceview
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -36,6 +46,6 @@ build() {
 }
 
 package() {
-  cd "$_pkgbasename-$pkgver"
+  cd gtksourceview
   make DESTDIR="$pkgdir" install
 }

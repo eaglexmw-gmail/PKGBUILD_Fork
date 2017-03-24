@@ -1,0 +1,22 @@
+diff -Nur gnome-calendar/configure.ac gnome-calendar_new/configure.ac
+--- gnome-calendar/configure.ac	2017-02-26 03:22:12.320085422 +0000
++++ gnome-calendar_new/configure.ac	2017-02-26 03:24:48.870087744 +0000
+@@ -80,7 +80,7 @@
+ ECAL_REQUIRED=3.13.90
+ EDATASERVER_REQUIRED=3.17.1
+ EDATASERVERUI_REQUIRED=3.17.1
+-LIBICAL_REQUIRED=1.0
++LIBICAL_REQUIRED=2.0
+ GOA_MIN_VERSION=3.2.0
+ GSETTINGS_DESKTOP_SCHEMAS_REQUIRED=3.21.2
+ 
+@@ -96,9 +96,6 @@
+                   libical >= $LIBICAL_REQUIRED
+                   gsettings-desktop-schemas >= $GSETTINGS_DESKTOP_SCHEMAS_REQUIRED])
+ 
+-AC_CHECK_LIB([ical], [icaltime_days_in_year], [],
+-                [AC_MSG_ERROR([Error: icaltime_days_in_year() not found in libical!. Upgrade your libical library.])])
+-
+ AX_REQUIRE_DEFINED([APPSTREAM_XML])
+ APPSTREAM_XML
+ 

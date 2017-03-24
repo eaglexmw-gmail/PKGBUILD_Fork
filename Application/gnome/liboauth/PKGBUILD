@@ -4,15 +4,26 @@
 # Contributor: Martin Häger <martin.haeger@gmail.com>
 
 pkgname=liboauth
-pkgver=1.0.3
+pkgver=1.0.3+9+g11e9461
 pkgrel=1
 pkgdesc='C library implementing OAuth Core RFC 5849'
 arch=('i686' 'x86_64')
-url='http://sourceforge.net/projects/liboauth'
+url="https://github.com/x42/liboauth"
 license=('MIT')
 depends=('curl')
-source=("$url/files/$pkgname-$pkgver.tar.gz")
-sha256sums=('0df60157b052f0e774ade8a8bac59d6e8d4b464058cc55f9208d72e41156811f')
+_commit=11e9461fc433e3787198f9c01a0a565a8a1f90a9
+source=("git+$url#commit=$_commit")
+sha256sums=('SKIP')
+
+prepare() {
+  cd $pkgname
+  autoreconf -fvi
+}
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^v//;s/-/+/g'
+}
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gnome3_64
@@ -21,7 +32,7 @@ elif [ "$CARCH" = "i686" ]; then
 fi
 
 build() {
-  cd "$srcdir/$pkgname-$pkgver"
+  cd "$srcdir/$pkgname"
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -33,7 +44,7 @@ build() {
 }
 
 package() {
-  cd "$srcdir/$pkgname-$pkgver"
+  cd "$srcdir/$pkgname"
   make DESTDIR="$pkgdir" install
   install -Dm644 COPYING.MIT "$pkgdir/usr/local/${dstdir}/share/licenses/$pkgname/COPYING"
 }

@@ -1,10 +1,10 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 _pkgbase=pluma
 pkgname=${_pkgbase}-gtk3
-pkgver=${_ver}.1
-pkgrel=1
+pkgver=${_ver}.0
+pkgrel=3
 pkgdesc="A powerful text editor for MATE (GTK3 version [EXPERIMENTAL])"
 url="http://mate-desktop.org"
 arch=('i686' 'x86_64')
@@ -12,13 +12,13 @@ license=('GPL')
 #depends=('desktop-file-utils' 'enchant' 'gtk3' 'gtksourceview3' 'iso-codes'
 #         'libsm' 'mate-desktop-gtk3>=1.12' 'zenity')
 depends=('desktop-file-utils' 'gtk3' 'iso-codes' 'libsm')
-makedepends=('mate-common' 'yelp-tools' 'python2')
+makedepends=('intltool' 'itstool')
 optdepends=('yelp: for reading MATE help documents')
 groups=('mate-extra-gtk3')
 conflicts=("${_pkgbase}")
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
-sha1sums=('ef14595cf8e4123290bf2162ae994034fb5f177e')
-install=${_pkgbase}.install
+sha1sums=('14a0497fade1e3fd40a39eafb28390975abd12a6')
+
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64

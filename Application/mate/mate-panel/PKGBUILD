@@ -1,9 +1,9 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 _pkgbase=mate-panel
 pkgname=${_pkgbase}
-pkgver=${_ver}.2
+pkgver=${_ver}.1
 pkgrel=1
 pkgdesc="The MATE Panel (GTK2 version)"
 url="http://mate-desktop.org"
@@ -14,12 +14,12 @@ license=('GPL')
 #         'mate-menus>=1.10' 'mate-desktop>=1.10')
 depends=('dbus-glib' 'dconf' 'gtk2' 'libwnck' 'libice'
          'librsvg' 'libsm' 'libsoup' 'libxau')
-makedepends=('gobject-introspection' 'mate-common' 'yelp-tools')
+makedepends=('intltool' 'itstool' 'gobject-introspection')
 optdepends=('yelp: for reading MATE help documents')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
 groups=('mate')
 conflicts=("${_pkgbase}-gtk3")
-sha1sums=('1ae95690a76359d356e3bf2581452904036dc523')
+sha1sums=('799ef0b7d718e2120aa1ffdcae604c356213ef12')
 install=${_pkgbase}.install
 
 if [ "$CARCH" = "x86_64" ]; then

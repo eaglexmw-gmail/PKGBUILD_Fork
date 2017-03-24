@@ -1,9 +1,9 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 _pkgbase=mate-screensaver
 pkgname=(${_pkgbase})
-pkgver=${_ver}.0
+pkgver=${_ver}.1
 pkgrel=1
 pkgdesc='Screensaver for MATE (GTK2 version)'
 url="http://mate-desktop.org"
@@ -12,14 +12,14 @@ license=('GPL')
 #depends=('dbus-glib' 'libmatekbd>=1.10' 'libnotify' 'libxss' 'mate-desktop>=1.10'
 #         'mate-menus>=1.10' 'mate-session-manager>=1.10')
 depends=('dbus-glib' 'libnotify')
-makedepends=('mate-common' 'xmlto')
+makedepends=('intltool')
 optdepends=('mate-power-manager: Add power management support.'
             'mate-screensaver-hacks: Additional screensavers.'
             'rss-glx: Really slick screensavers.')
 groups=('mate-extra')
 conflicts=("${_pkgbase}-gtk3")
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
-sha1sums=('6930459af0d0f116861696265faf5f0807285bcf')
+sha1sums=('81dc31f96028a168456b8435e291090b789a3bea')
 install=${_pkgbase}.install
 
 if [ "$CARCH" = "x86_64" ]; then

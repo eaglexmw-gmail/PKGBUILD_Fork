@@ -1,0 +1,20 @@
+diff -Nur gnome-control-center/configure.ac gnome-control-center_new/configure.ac
+--- gnome-control-center/configure.ac	2017-02-25 10:45:48.046680257 +0000
++++ gnome-control-center_new/configure.ac	2017-02-25 10:46:55.426681257 +0000
+@@ -140,7 +140,15 @@
+ PKG_CHECK_MODULES(NETWORK_PANEL, $COMMON_MODULES gmodule-2.0
+                   polkit-gobject-1 >= $POLKIT_REQUIRED_VERSION)
+ PKG_CHECK_MODULES(NOTIFICATIONS_PANEL, $COMMON_MODULES)
+-PKG_CHECK_MODULES(ONLINE_ACCOUNTS_PANEL, $COMMON_MODULES goa-1.0 goa-backend-1.0 >= $GOA_REQUIRED_VERSION)
++PKG_CHECK_MODULES(ONLINE_ACCOUNTS_PANEL, $COMMON_MODULES goa-1.0 goa-backend-1.0 >= $GOA_REQUIRED_VERSION,
++                  [have_online_accounts=yes], have_online_accounts=no)
++if test "x$have_online_accounts" = xyes ; then
++	AC_DEFINE(BUILD_ONLINE_ACCOUNTS, 1, [Define to 1 to build the OnlineAccounts panel])
++fi
++AM_CONDITIONAL(BUILD_ONLINE_ACCOUNTS, [test x$have_online_accounts = xyes])
++if test x${have_online_accounts} = xyes; then
++  AC_DEFINE(HAVE_ONLINE_ACCOUNTS, 1, [Define to 1 if OnlineAccounts support is available])
++fi
+ PKG_CHECK_MODULES(COLOR_PANEL, $COMMON_MODULES
+                   colord >= $COLORD_REQUIRED_VERSION
+                   colord-gtk >= $COLORD_GTK_REQUIRED_VERSION

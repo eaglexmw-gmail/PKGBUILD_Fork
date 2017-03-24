@@ -3,8 +3,8 @@
 # Contributor: Adam Hani Schakaki <krzd@krzd.net>
 
 pkgname=caribou
-pkgver=0.4.19
-pkgrel=1
+pkgver=0.4.21+0+g36e3d0f
+pkgrel=2
 pkgdesc="A text entry and UI navigation application (on-screen keyboard)"
 arch=('i686' 'x86_64')
 url="http://live.gnome.org/Caribou"
@@ -13,8 +13,8 @@ depends=(at-spi2-atk python-atspi python-gobject gtk3 libxklavier libgee clutter
 makedepends=(intltool docbook-xsl gtk2 gobject-introspection vala)
 install=caribou.install
 options=(!emptydirs)
-source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:3}/$pkgname-$pkgver.tar.xz)
-sha256sums=('2f0bd0c14c5f94cf5ac3a7627018919addf7a054ac84aaa8e62356957c175a44')
+source=('git://git.gnome.org/caribou#commit=36e3d0fc89f0c5a61b1e2c3dd3c7970cd1b18f94')
+sha256sums=('SKIP')
 
 depends=(at-spi2-atk gtk3 dconf python-gobject)
 makedepends=(intltool docbook-xsl gtk2 gobject-introspection vala)
@@ -25,8 +25,13 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
 
+prepare() {
+  cd $pkgname
+  NOCONFIGURE=1 ./autogen.sh
+}
+
 build() {
-  cd $pkgname-$pkgver
+  cd $pkgname
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -44,12 +49,12 @@ build() {
 }
 
 check() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   make -k check
 }
 
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   make DESTDIR="$pkgdir" install
 }
 

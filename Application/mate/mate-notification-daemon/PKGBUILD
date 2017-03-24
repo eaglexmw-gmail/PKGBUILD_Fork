@@ -1,6 +1,6 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 pkgbase=mate-notification-daemon
 pkgname=(${pkgbase} ${pkgbase}-gtk3)
 pkgver=${_ver}.1
@@ -12,9 +12,9 @@ arch=('i686' 'x86_64')
 license=('GPL' 'LGPL')
 #depends=('dconf' 'dbus-glib' 'gtk2' 'gtk3' 'libcanberra' 'libwnck' 'libwnck3' 'libnotify')
 depends=('dconf' 'dbus-glib' 'gtk2' 'gtk3' 'libwnck' 'libnotify')
-makedepends=('mate-common')
+makedepends=('intltool')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgbase}-${pkgver}.tar.xz")
-sha1sums=('6877d4b8e6b55192f66aa16103e216c851470072')
+sha1sums=('510f0e1b99acfa886910190afd0be94da5cf6fe1')
 install=${pkgname}.install
 
 

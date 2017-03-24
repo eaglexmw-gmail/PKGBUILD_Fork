@@ -3,7 +3,7 @@
 # Contributor: Sergej Pupykin <pupykin.s+arch@gmail.com>
 
 pkgname=libgee
-pkgver=0.18.0
+pkgver=0.18.1
 pkgrel=1
 pkgdesc="GObject collection library"
 url="http://live.gnome.org/Libgee"
@@ -11,8 +11,9 @@ license=(LGPL2.1)
 arch=(i686 x86_64)
 depends=(glib2)
 makedepends=(gobject-introspection vala)
-source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
-sha256sums=('4ad99ef937d071b4883c061df40bfe233f7649d50c354cf81235f180b4244399')
+_commit=d52a07b1851e45f3cae3384cae4aa4803a1b6f51  # tags/0.18.1^0
+source=("git://git.gnome.org/libgee#commit=$_commit")
+sha256sums=('SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
@@ -20,20 +21,36 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=cinnamon
 fi
 
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+
+  sed -i 's|AX_REQUIRE_DEFINED|dnl AX_REQUIRE_DEFINED|g' configure.ac
+
+  NOCONFIGURE=1 ./autogen.sh
+}
+
 build() {
-  cd $pkgname-$pkgver
+  cd $pkgname
+
+  export GI_TYPELIB_PATH="/usr/lib/girepository-1.0:/usr/local/cinnamon64/lib/girepository-1.0/"
+
   ./configure --prefix=/usr/local/${dstdir} --disable-static
   make
 }
 
 check() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   # generates a bazillion traps - make sure systemd's core_pattern
   # is deactivated, or you'll DoS the journal and the system
   #make check
 }
 
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   make DESTDIR="$pkgdir" install
 }

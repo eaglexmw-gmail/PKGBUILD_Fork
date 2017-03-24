@@ -1,6 +1,6 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 _pkgbase=mate-utils
 pkgname=(${_pkgbase}-gtk3)
 pkgver=${_ver}.0
@@ -11,14 +11,14 @@ arch=('i686' 'x86_64')
 license=('GPL')
 #depends=('desktop-file-utils' 'gtk3' 'libcanberra' 'libgtop' 'libsm' 'zlib')
 depends=('desktop-file-utils' 'gtk3' 'libsm' 'zlib')
-#makedepends=('mate-common' 'mate-panel-gtk3>=1.10' 'rarian' 'yelp-tools')
-makedepends=('mate-common' 'rarian' 'yelp-tools')
+#makedepends=('intltool' 'itstool' 'mate-panel')
+makedepends=('intltool' 'itstool')
 optdepends=('mate-panel-gtk3: Look up words in dictionaries from the panel'
             'yelp: for reading MATE help documents')
 groups=('mate-extra-gtk3')
 conflicts=("${_pkgbase}")
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
-sha1sums=('577692e34fee8e79f59804bf314c5375a8482af1')
+sha1sums=('8435a42773bd2f5fcf27e2e6e71373fbf216eef9')
 install=${_pkgbase}.install
 
 if [ "$CARCH" = "x86_64" ]; then

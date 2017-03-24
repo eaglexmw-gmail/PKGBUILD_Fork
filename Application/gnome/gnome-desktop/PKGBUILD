@@ -2,7 +2,7 @@
 # Maintainer:  Jan de Groot <jan@archlinux.org>
 
 pkgname=gnome-desktop
-pkgver=3.20.1
+pkgver=3.22.2
 pkgrel=1
 epoch=1
 pkgdesc="Library with common API for various GNOME modules"
@@ -12,8 +12,9 @@ depends=(gsettings-desktop-schemas gtk3 libxkbfile xkeyboard-config iso-codes)
 makedepends=(intltool gobject-introspection itstool)
 url="http://www.gnome.org"
 groups=(gnome)
-source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
-sha256sums=('6eac7b2b1a9672685028b81d2b06cb45449f967e66dd41724bc4a9596941c140')
+_commit=b9e03c705253b1a35bd59c7a7f7ffc54d011342f  # tags/3.22.2^0
+source=("git://git.gnome.org/gnome-desktop#commit=$_commit")
+sha256sums=('SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gnome3_64
@@ -21,8 +22,18 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
 
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+  NOCONFIGURE=1 ./autogen.sh
+}
+
 build() {
-  cd $pkgname-$pkgver
+  cd $pkgname
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -36,6 +47,6 @@ build() {
 }
 
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   make DESTDIR="$pkgdir" install
 }

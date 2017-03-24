@@ -1,6 +1,6 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 _pkgbase=mate-settings-daemon
 pkgname=(${_pkgbase}-gtk3)
 pkgver=${_ver}.1
@@ -13,11 +13,11 @@ license=('GPL')
 #         'libmatekbd-gtk3>=1.12' 'libmatemixer' 'libnotify' 'libxt'
 #         'mate-desktop-gtk3>=1.12' 'nss' 'polkit')
 depends=('dbus-glib' 'dconf' 'fontconfig' 'gtk3' 'libnotify' 'libxt' 'nss' 'polkit')
-makedepends=('mate-common')
+makedepends=('intltool')
 groups=('mate-gtk3')
 conflicts=("${_pkgbase}" "${_pkgbase}-gstreamer" "${_pkgbase}-pulseaudio")
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
-sha1sums=('68e139873d954386ab9e302eeb03e5b9434e46e5')
+sha1sums=('8fcb4ae0571e9bd507b47a67e0e4245e6558693e')
 install=${_pkgbase}.install
 
 if [ "$CARCH" = "x86_64" ]; then

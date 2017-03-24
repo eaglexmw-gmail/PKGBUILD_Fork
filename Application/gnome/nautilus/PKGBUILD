@@ -3,7 +3,7 @@
 
 pkgbase=nautilus
 pkgname=(nautilus libnautilus-extension)
-pkgver=3.20.0
+pkgver=3.22.2
 pkgrel=1
 pkgdesc="GNOME file manager"
 arch=(i686 x86_64)
@@ -13,8 +13,11 @@ depends=(libexif gnome-desktop exempi gvfs desktop-file-utils dconf
 makedepends=(intltool gobject-introspection python packagekit)
 url="http://www.gnome.org"
 options=('!emptydirs')
-source=(http://download.gnome.org/sources/$pkgbase/${pkgver:0:4}/$pkgbase-$pkgver.tar.xz)
-sha256sums=('7ca7995a4d6a77871503dc092ae816584b8d1891730e1b9eed1a1e4a16194293')
+_commit=2c7e8d3e3cd019e6938be643e8991414190344d8  # tags/3.22.2^0
+source=("git+https://git.gnome.org/browse/nautilus#commit=$_commit"
+        "git+https://git.gnome.org/browse/libgd" drop_tracker.patch)
+sha256sums=('SKIP'
+            'SKIP' 'SKIP')
 
 depends=(libexif desktop-file-utils dconf)
 makedepends=(intltool gobject-introspection python)
@@ -25,8 +28,25 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
 
+prepare() {
+  cd $pkgbase
+
+  git submodule init
+  git config --local submodule.libgd.url "$srcdir/libgd"
+  git submodule update
+
+  patch -Np1 -i ../drop_tracker.patch
+
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+pkgver() {
+  cd $pkgbase
+  git describe --tags | sed 's/-/+/g'
+}
+
 build() {
-  cd $pkgbase-$pkgver
+  cd $pkgbase
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -46,23 +66,19 @@ build() {
 package_nautilus() {
   depends+=(libnautilus-extension)
   groups=(gnome)
-  install=nautilus.install
 
-  cd $pkgbase-$pkgver
+  cd $pkgbase
   make DESTDIR="$pkgdir" install
+  make DESTDIR="$pkgdir" -C libnautilus-extension uninstall
+  make DESTDIR="$pkgdir" -C docs/reference/libnautilus-extension uninstall
 
-### Split libnautilus-extension
-  cd ..
-  mkdir -p n-e/usr/local/${dstdir}/{lib,share}
-  mv "$pkgdir"/usr/local/${dstdir}/include n-e/usr/local/${dstdir}
-  mv "$pkgdir"/usr/local/${dstdir}/lib/{girepository-1.0,pkgconfig} n-e/usr/local/${dstdir}/lib
-  mv "$pkgdir"/usr/local/${dstdir}/lib/libnautilus-extension.so* n-e/usr/local/${dstdir}/lib
-  mv "$pkgdir"/usr/local/${dstdir}/share/{gir-1.0,gtk-doc} n-e/usr/local/${dstdir}/share
 }
 
 package_libnautilus-extension() {
   pkgdesc="Library for extending the $pkgdesc"
   depends=(gtk3)
 
-  mv n-e/* "$pkgdir"
+  cd $pkgbase
+  make DESTDIR="$pkgdir" -C libnautilus-extension install
+  make DESTDIR="$pkgdir" -C docs/reference/libnautilus-extension install
 }

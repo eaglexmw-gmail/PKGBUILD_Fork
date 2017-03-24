@@ -1,0 +1,1480 @@
+diff -Nur cinnamon/usr/bin/cinnamon-desktop-editor cinnamon_new/usr/bin/cinnamon-desktop-editor
+--- cinnamon/usr/bin/cinnamon-desktop-editor	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-desktop-editor	2017-03-19 18:03:53.000000000 +0800
+@@ -1,10 +1,11 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python2
+ """ Launch the cinnamon desktop editor utility
+ 
+ See cinnamon/cinnamon-desktop-editor/cinnamon-desktop-editor.py for usage info
+ """
+ 
+-import os
+-import sys
++# import os
++import os, sys
++
++os.execvp("/usr/local/cinnamon64/share/cinnamon/cinnamon-desktop-editor/cinnamon-desktop-editor.py", ("",) + tuple(sys.argv[1:]))
+ 
+-os.execvp("/usr/share/cinnamon/cinnamon-desktop-editor/cinnamon-desktop-editor.py", (" ",) + tuple(sys.argv[1:]))
+diff -Nur cinnamon/usr/bin/cinnamon-file-dialog cinnamon_new/usr/bin/cinnamon-file-dialog
+--- cinnamon/usr/bin/cinnamon-file-dialog	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-file-dialog	2017-03-19 18:04:04.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python3
+ """ Allows you to open a Gtk file dialog from and get the selected file in return
+ 
+ Used by a couple of Cinnamon spices via Javascript
+diff -Nur cinnamon/usr/bin/cinnamon-json-makepot cinnamon_new/usr/bin/cinnamon-json-makepot
+--- cinnamon/usr/bin/cinnamon-json-makepot	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-json-makepot	2017-03-19 18:04:28.000000000 +0800
+@@ -1,11 +1,11 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python2
+ 
+ """ Launch the cinnamon json makepot utility
+ 
+ See cinnamon/cinnamon-json-makepot/cinnamon-json-makepot.py for usage info
+ """
+ 
+-import os
+-import sys
++import os, sys
++
++os.execvp("/usr/local/cinnamon64/share/cinnamon/cinnamon-json-makepot/cinnamon-json-makepot.py", ("",) + tuple(sys.argv[1:]))
+ 
+-os.execvp("/usr/share/cinnamon/cinnamon-json-makepot/cinnamon-json-makepot.py", (" ",) + tuple(sys.argv[1:]))
+diff -Nur cinnamon/usr/bin/cinnamon-killer-daemon cinnamon_new/usr/bin/cinnamon-killer-daemon
+--- cinnamon/usr/bin/cinnamon-killer-daemon	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-killer-daemon	2017-03-19 18:04:41.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python2
+ 
+ """ Creates a keybinding that allows cinnamon to be restarted by pressing Ctrl + Alt + Esc,
+ and runs in the background to detect that keybinding
+diff -Nur cinnamon/usr/bin/cinnamon-launcher cinnamon_new/usr/bin/cinnamon-launcher
+--- cinnamon/usr/bin/cinnamon-launcher	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-launcher	2017-03-19 18:05:08.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python3
++#! /usr/bin/env python2
+ #
+ """ Launches or restarts cinnamon
+ """
+@@ -6,15 +6,12 @@
+ FALLBACK_COMMAND = "metacity"
+ FALLBACK_ARGS = ("--replace",)
+ 
+-import os
+-import sys
+-import gettext
+-
++import os, sys, gettext
+ import gi
+ gi.require_version('Gtk', '3.0')
+ from gi.repository import Gtk
+ 
+-gettext.install("cinnamon", "/usr/share/locale")
++gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+ 
+ panel_process_name = None
+ panel_cmd = None
+diff -Nur cinnamon/usr/bin/cinnamon-looking-glass cinnamon_new/usr/bin/cinnamon-looking-glass
+--- cinnamon/usr/bin/cinnamon-looking-glass	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-looking-glass	2017-03-19 18:05:33.000000000 +0800
+@@ -1,11 +1,11 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python2
+ 
+ """ Launch the cinnamon looking glass utility
+ 
+ Usage:  cinnamon-looking-glass {daemon|inspect}
+ """
+ 
+-import os
+-import sys
++import os, sys
++
++os.execvp("/usr/local/cinnamon64/share/cinnamon/cinnamon-looking-glass/cinnamon-looking-glass.py", ("",) + tuple(sys.argv[1:]))
+ 
+-os.execvp("/usr/share/cinnamon/cinnamon-looking-glass/cinnamon-looking-glass.py", (" ",) + tuple(sys.argv[1:]))
+diff -Nur cinnamon/usr/bin/cinnamon-menu-editor cinnamon_new/usr/bin/cinnamon-menu-editor
+--- cinnamon/usr/bin/cinnamon-menu-editor	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-menu-editor	2017-03-19 18:05:43.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#! /usr/bin/env python2
+ 
+ """ Launch the Cinnamon menu editor utility
+ 
+@@ -7,7 +7,7 @@
+ 
+ import sys
+ 
+-sys.path.insert(0, '/usr/share/cinnamon/cinnamon-menu-editor')
++sys.path.insert(0,'/usr/local/cinnamon64/share/cinnamon/cinnamon-menu-editor')
+ from cme import MainWindow
+ 
+ 
+diff -Nur cinnamon/usr/bin/cinnamon-preview-gtk-theme cinnamon_new/usr/bin/cinnamon-preview-gtk-theme
+--- cinnamon/usr/bin/cinnamon-preview-gtk-theme	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-preview-gtk-theme	2017-03-19 18:05:57.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python2
+ 
+ """ Preview a Cinnamon gtk theme in a small window
+ 
+diff -Nur cinnamon/usr/bin/cinnamon-screensaver-lock-dialog cinnamon_new/usr/bin/cinnamon-screensaver-lock-dialog
+--- cinnamon/usr/bin/cinnamon-screensaver-lock-dialog	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-screensaver-lock-dialog	2017-03-19 18:06:07.000000000 +0800
+@@ -1,8 +1,8 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python2
+ 
+ """ Launch the cinnamon screensaver lock dialog
+ """
+ 
+ import os
+ 
+-os.system("/usr/share/cinnamon/cinnamon-screensaver-lock-dialog/cinnamon-screensaver-lock-dialog.py")
++os.system("/usr/local/cinnamon64/share/cinnamon/cinnamon-screensaver-lock-dialog/cinnamon-screensaver-lock-dialog.py")
+diff -Nur cinnamon/usr/bin/cinnamon-session-cinnamon cinnamon_new/usr/bin/cinnamon-session-cinnamon
+--- cinnamon/usr/bin/cinnamon-session-cinnamon	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-session-cinnamon	2017-03-19 18:06:32.000000000 +0800
+@@ -1,3 +1,6 @@
+ #!/bin/sh
++source /usr/local/cinnamon64/bin/cinnamon_env
++# dbus-launch --sh-syntax --exit-with-session cinnamon-session --session cinnamon "$@"
++
+ exec cinnamon-session --session cinnamon "$@"
+ 
+diff -Nur cinnamon/usr/bin/cinnamon-session-cinnamon2d cinnamon_new/usr/bin/cinnamon-session-cinnamon2d
+--- cinnamon/usr/bin/cinnamon-session-cinnamon2d	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-session-cinnamon2d	2017-03-19 18:06:51.000000000 +0800
+@@ -1,3 +1,6 @@
+ #!/bin/sh
++source /usr/local/cinnamon64/bin/cinnamon_env
++# dbus-launch --sh-syntax --exit-with-session cinnamon-session --session cinnamon2d "$@"
++
+ exec cinnamon-session --session cinnamon2d "$@"
+ 
+diff -Nur cinnamon/usr/bin/cinnamon-settings cinnamon_new/usr/bin/cinnamon-settings
+--- cinnamon/usr/bin/cinnamon-settings	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-settings	2017-03-19 18:07:36.000000000 +0800
+@@ -1,26 +1,25 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python2
+ 
+ """ Launch the cinnamon-settings utility, or a specific settings module
+ 
+ Usage:  cinnamon-settings [optional module name]
+ """
+ 
+-import os
+-import sys
++import os, sys
+ 
+ if len(sys.argv) > 1:
+     module = sys.argv[1]
+     if module in ("applets", "desklets", "extensions") and len(sys.argv) > 2 and sys.argv[2][0:5] != "panel":
+-        os.execvp("/usr/share/cinnamon/cinnamon-settings/xlet-settings.py", (" ", module[0:-1]) + tuple(sys.argv[2:]))
+-    if os.path.exists("/usr/share/cinnamon/cinnamon-settings/modules/cs_%s.py" % module):
+-        os.execvp("/usr/share/cinnamon/cinnamon-settings/cinnamon-settings.py", (" ",) + tuple(sys.argv[1:]))
++        os.execvp("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/xlet-settings.py", (" ", module[0:-1]) + tuple(sys.argv[2:]))
++    if os.path.exists("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/modules/cs_%s.py" % module):
++        os.execvp("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/cinnamon-settings.py", (" ",) + tuple(sys.argv[1:]))
+     elif os.path.exists("/usr/local/cinnamon64/lib/cinnamon-control-center-1/panels"):
+-        os.execvp("/usr/share/cinnamon/cinnamon-settings/cinnamon-settings.py", (" ",) + tuple(sys.argv[1:]))
++        os.execvp("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/cinnamon-settings.py", (" ",) + tuple(sys.argv[1:]))
+     elif os.path.exists("/usr/bin/gnome-control-center"):
+         print ("Unknown module %s, calling gnome-control-center" % module)
+         os.execvp("gnome-control-center", (" ",) + tuple(sys.argv[1:]))
+     else:
+         print ("Unknown module %s" % module)
+-        os.execvp("/usr/share/cinnamon/cinnamon-settings/cinnamon-settings.py", (" ",) + tuple(sys.argv[1:]))
++        os.execvp("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/cinnamon-settings.py", (" ",) + tuple(sys.argv[1:]))
+ else:
+-    os.execvp("/usr/share/cinnamon/cinnamon-settings/cinnamon-settings.py", (" ",) + tuple(sys.argv[1:]))
++    os.execvp("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/cinnamon-settings.py", (" ",) + tuple(sys.argv[1:]))
+diff -Nur cinnamon/usr/bin/cinnamon-settings-users cinnamon_new/usr/bin/cinnamon-settings-users
+--- cinnamon/usr/bin/cinnamon-settings-users	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-settings-users	2017-03-19 18:08:00.000000000 +0800
+@@ -1,8 +1,9 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python2
+ 
+ """ Launch the cinnamon users and groups editor utility
+ """
+ 
+ import os
+ 
+-os.system("pkexec /usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py")
++os.system("pkexec /usr/local/cinnamon64/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py")
++
+diff -Nur cinnamon/usr/bin/cinnamon-slideshow cinnamon_new/usr/bin/cinnamon-slideshow
+--- cinnamon/usr/bin/cinnamon-slideshow	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-slideshow	2017-03-19 18:08:08.000000000 +0800
+@@ -1,8 +1,8 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python2
+ 
+ """ Starts a slideshow of images with the desktop background
+ """
+ 
+ import os
+ 
+-os.execvp("/usr/share/cinnamon/cinnamon-slideshow/cinnamon-slideshow.py", (" ",))
++os.execvp("/usr/local/cinnamon64/share/cinnamon/cinnamon-slideshow/cinnamon-slideshow.py", ("",))
+diff -Nur cinnamon/usr/bin/cinnamon-subprocess-wrapper cinnamon_new/usr/bin/cinnamon-subprocess-wrapper
+--- cinnamon/usr/bin/cinnamon-subprocess-wrapper	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/cinnamon-subprocess-wrapper	2017-03-19 18:08:16.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python3
++#! /usr/bin/env python2
+ 
+ """ Runs a command and then passes the output to Cinnamon via DBus asynchronously
+ 
+diff -Nur cinnamon/usr/bin/xlet-settings cinnamon_new/usr/bin/xlet-settings
+--- cinnamon/usr/bin/xlet-settings	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/bin/xlet-settings	2017-03-19 18:08:49.000000000 +0800
+@@ -1,8 +1,8 @@
+-#!/usr/bin/python3
++#! /usr/bin/env python2
+ 
+ import os, sys
+ 
+ if len(sys.argv) < 3:
+ 	print("usage:\n    xlet-settings <xlet_type> <uuid>\nor\n    xlet-settings <xlet_type> <uuid> <instance_id>")
+ else:
+-	os.execvp("/usr/share/cinnamon/cinnamon-settings/xlet-settings.py", (" ",) + tuple(sys.argv[1:]))
++	os.execvp("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/xlet-settings.py", (" ",) + tuple(sys.argv[1:]))
+diff -Nur cinnamon/usr/local/cinnamon64/share/cinnamon/js/ui/expo.js cinnamon_new/usr/local/cinnamon64/share/cinnamon/js/ui/expo.js
+--- cinnamon/usr/local/cinnamon64/share/cinnamon/js/ui/expo.js	2017-03-19 16:46:44.000000000 +0800
++++ cinnamon_new/usr/local/cinnamon64/share/cinnamon/js/ui/expo.js	2017-03-19 18:41:02.000000000 +0800
+@@ -218,7 +218,7 @@
+         this._addWorkspaceButton.set_position((primary.width - buttonWidth), buttonY);
+         this._addWorkspaceButton.set_size(buttonWidth, buttonHeight); 
+         if (this._addWorkspaceButton.get_theme_node().get_background_image() == null)
+-            this._addWorkspaceButton.set_style('background-image: url("/usr/share/cinnamon/theme/add-workspace.png");'); 
++            this._addWorkspaceButton.set_style('background-image: url("/usr/local/cinnamon64/share/cinnamon/theme/add-workspace.png");'); 
+ 
+         this._windowCloseArea.set_position((primary.width - this._windowCloseArea.width) / 2 , primary.height);
+         this._windowCloseArea.set_size(this._windowCloseArea.width, this._windowCloseArea.height);
+diff -Nur cinnamon/usr/local/cinnamon64/share/cinnamon/js/ui/main.js cinnamon_new/usr/local/cinnamon64/share/cinnamon/js/ui/main.js
+--- cinnamon/usr/local/cinnamon64/share/cinnamon/js/ui/main.js	2017-03-19 16:46:44.000000000 +0800
++++ cinnamon_new/usr/local/cinnamon64/share/cinnamon/js/ui/main.js	2017-03-19 18:41:21.000000000 +0800
+@@ -183,7 +183,7 @@
+ 
+ // Override Gettext localization
+ const Gettext = imports.gettext;
+-Gettext.bindtextdomain('cinnamon', '/usr/share/locale');
++Gettext.bindtextdomain('cinnamon', '/usr/local/cinnamon64/share/locale');
+ Gettext.textdomain('cinnamon');
+ const _ = Gettext.gettext;
+ 
+@@ -316,7 +316,7 @@
+     global.stage.color = DEFAULT_BACKGROUND_COLOR;
+     global.stage.no_clear_hint = true;
+     
+-    Gtk.IconTheme.get_default().append_search_path("/usr/share/cinnamon/icons/");
++    Gtk.IconTheme.get_default().append_search_path("/usr/local/cinnamon64/share/cinnamon/icons/");
+     _defaultCssStylesheet = global.datadir + '/theme/cinnamon.css';    
+ 
+     soundManager = new SoundManager.SoundManager();
+diff -Nur cinnamon/usr/share/applications/cinnamon2d.desktop cinnamon_new/usr/share/applications/cinnamon2d.desktop
+--- cinnamon/usr/share/applications/cinnamon2d.desktop	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/applications/cinnamon2d.desktop	2017-03-19 18:42:34.000000000 +0800
+@@ -2,7 +2,7 @@
+ Type=Application
+ Name=Cinnamon 2D
+ Comment=Window management and application launching
+-Exec=/usr/bin/cinnamon2d
++Exec=/usr/local/cinnamon64/bin/cinnamon2d
+ Categories=GNOME;GTK;System;Core;
+ OnlyShowIn=X-Cinnamon;
+ NoDisplay=true
+diff -Nur cinnamon/usr/share/cinnamon/applets/keyboard@cinnamon.org/applet.js cinnamon_new/usr/share/cinnamon/applets/keyboard@cinnamon.org/applet.js
+--- cinnamon/usr/share/cinnamon/applets/keyboard@cinnamon.org/applet.js	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/applets/keyboard@cinnamon.org/applet.js	2017-03-19 18:15:03.000000000 +0800
+@@ -262,7 +262,7 @@
+         if (this.show_flags) {
+             let name = this._config.get_current_icon_name();
+ 
+-            let file = Gio.file_new_for_path("/usr/share/iso-flag-png/" + name + ".png");
++            let file = Gio.file_new_for_path("/usr/local/cinnamon64/share/iso-flag-png/" + name + ".png");
+ 
+             if (file.query_exists(null)) {
+                 this._applet_icon = new EmblemedIcon(file.get_path(), this._config.get_current_flag_id(), "applet-icon");
+diff -Nur cinnamon/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js cinnamon_new/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js
+--- cinnamon/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/applets/menu@cinnamon.org/applet.js	2017-03-19 18:12:02.000000000 +0800
+@@ -165,7 +165,7 @@
+                 this._appButton.toggleMenu();
+                 break;
+             case "uninstall":
+-                Util.spawnCommandLine("gksu -m '" + _("Please provide your password to uninstall this application") + "' /usr/bin/cinnamon-remove-application '" + this._appButton.app.get_app_info().get_filename() + "'");
++                Util.spawnCommandLine("gksu -m '" + _("Please provide your password to uninstall this application") + "' /usr/local/cinnamon64/bin/cinnamon-remove-application '" + this._appButton.app.get_app_info().get_filename() + "'");
+                 this._appButton.appsMenuButton.menu.close();
+                 break;
+             case "run_with_nvidia_gpu":
+@@ -1238,7 +1238,7 @@
+         this.menuIsOpening = false;
+         this._knownApps = new Array(); // Used to keep track of apps that are already installed, so we can highlight newly installed ones
+         this._appsWereRefreshed = false;
+-        this._canUninstallApps = GLib.file_test("/usr/bin/cinnamon-remove-application", GLib.FileTest.EXISTS);
++        this._canUninstallApps = GLib.file_test("/usr/local/cinnamon64/bin/cinnamon-remove-application", GLib.FileTest.EXISTS);
+         this._isBumblebeeInstalled = GLib.file_test("/usr/bin/optirun", GLib.FileTest.EXISTS);
+         this.RecentManager = new DocInfo.DocManager();
+         this.privacy_settings = new Gio.Settings( {schema_id: PRIVACY_SCHEMA} );
+@@ -2657,7 +2657,7 @@
+             this.menu.close();
+ 
+             let screensaver_settings = new Gio.Settings({ schema_id: "org.cinnamon.desktop.screensaver" });
+-            let screensaver_dialog = Gio.file_new_for_path("/usr/bin/cinnamon-screensaver-command");
++            let screensaver_dialog = Gio.file_new_for_path("/usr/local/cinnamon64/bin/cinnamon-screensaver-command");
+             if (screensaver_dialog.query_exists(null)) {
+                 if (screensaver_settings.get_boolean("ask-for-away-message")) {
+                     Util.spawnCommandLine("cinnamon-screensaver-lock-dialog");
+diff -Nur cinnamon/usr/share/cinnamon/applets/menu@cinnamon.org/settings-schema.json cinnamon_new/usr/share/cinnamon/applets/menu@cinnamon.org/settings-schema.json
+--- cinnamon/usr/share/cinnamon/applets/menu@cinnamon.org/settings-schema.json	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/applets/menu@cinnamon.org/settings-schema.json	2017-03-19 18:12:19.000000000 +0800
+@@ -46,7 +46,7 @@
+  },
+  "menu-icon" : {
+     "type" : "iconfilechooser",
+-    "default" : "/usr/share/cinnamon/theme/menu-symbolic.svg",
++    "default" : "/usr/local/cinnamon64/share/cinnamon/theme/menu-symbolic.svg",
+     "description" : "Icon",
+     "tooltip" : "Select an icon to show in the panel.",
+     "dependency" : "menu-icon-custom",
+diff -Nur cinnamon/usr/share/cinnamon/applets/trash@cinnamon.org/metadata.json cinnamon_new/usr/share/cinnamon/applets/trash@cinnamon.org/metadata.json
+--- cinnamon/usr/share/cinnamon/applets/trash@cinnamon.org/metadata.json	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/applets/trash@cinnamon.org/metadata.json	2017-03-19 18:19:12.000000000 +0800
+@@ -3,6 +3,6 @@
+  "name": "Trash",
+  "description": "Control the trash from the panel",
+  "icon": "user-trash",
+- "localedir": "/usr/share/locale",
++ "localedir": "/usr/local/cinnamon64/share/locale",
+  "max-instances": -1
+ }
+diff -Nur cinnamon/usr/share/cinnamon/applets/user@cinnamon.org/applet.js cinnamon_new/usr/share/cinnamon/applets/user@cinnamon.org/applet.js
+--- cinnamon/usr/share/cinnamon/applets/user@cinnamon.org/applet.js	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/applets/user@cinnamon.org/applet.js	2017-03-19 18:49:22.000000000 +0800
+@@ -79,7 +79,7 @@
+             item = new PopupMenu.PopupIconMenuItem(_("Lock Screen"), "lock-screen", St.IconType.SYMBOLIC);
+             item.connect('activate', Lang.bind(this, function() {
+                 let screensaver_settings = new Gio.Settings({ schema_id: "org.cinnamon.desktop.screensaver" });
+-                let screensaver_dialog = Gio.file_new_for_path("/usr/bin/cinnamon-screensaver-command");
++                let screensaver_dialog = Gio.file_new_for_path("/usr/local/cinnamon64/bin/cinnamon-screensaver-command");
+                 if (screensaver_dialog.query_exists(null)) {
+                     if (screensaver_settings.get_boolean("ask-for-away-message")) {
+                         Util.spawnCommandLine("cinnamon-screensaver-lock-dialog");
+diff -Nur cinnamon/usr/share/cinnamon/applets/xrandr@cinnamon.org/metadata.json cinnamon_new/usr/share/cinnamon/applets/xrandr@cinnamon.org/metadata.json
+--- cinnamon/usr/share/cinnamon/applets/xrandr@cinnamon.org/metadata.json	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/applets/xrandr@cinnamon.org/metadata.json	2017-03-19 18:20:06.000000000 +0800
+@@ -3,5 +3,5 @@
+  "name": "Display",
+  "description": "XRandR monitor control applet",
+  "icon": "preferences-desktop-display",
+- "localedir": "/usr/share/locale"
++ "localedir": "/usr/local/cinnamon64/share/locale"
+ }
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-desktop-editor/cinnamon-desktop-editor.py cinnamon_new/usr/share/cinnamon/cinnamon-desktop-editor/cinnamon-desktop-editor.py
+--- cinnamon/usr/share/cinnamon/cinnamon-desktop-editor/cinnamon-desktop-editor.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-desktop-editor/cinnamon-desktop-editor.py	2017-03-19 18:21:05.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import sys
+ import os
+@@ -12,14 +12,14 @@
+ gi.require_version("CMenu", "3.0")
+ from gi.repository import GLib, Gtk, Gio, CMenu, GdkPixbuf
+ 
+-sys.path.insert(0, '/usr/share/cinnamon/cinnamon-menu-editor')
++sys.path.insert(0, '/usr/local/cinnamon64/share/cinnamon/cinnamon-menu-editor')
+ from cme import util
+ 
+-sys.path.insert(0, '/usr/share/cinnamon/cinnamon-settings')
++sys.path.insert(0, '/usr/local/cinnamon64/share/cinnamon/cinnamon-settings')
+ from bin import JsonSettingsWidgets
+ 
+ # i18n
+-gettext.install("cinnamon", "/usr/share/locale")
++gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+ # i18n for menu item
+ 
+ _ = gettext.gettext
+@@ -116,6 +116,8 @@
+                                         Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+         chooser.add_shortcut_folder("/usr/share/pixmaps")
+         chooser.add_shortcut_folder("/usr/share/icons")
++        chooser.add_shortcut_folder("/usr/local/cinnamon64/share/pixmaps")
++        chooser.add_shortcut_folder("/usr/local/cinnamon64/share/icons")
+         fn = get_icon_string(self.image)
+         if fn:
+             if GLib.path_is_absolute(fn):
+@@ -276,7 +278,7 @@
+ 
+ 
+ class LauncherEditor(ItemEditor):
+-    ui_file = '/usr/share/cinnamon/cinnamon-desktop-editor/launcher-editor.ui'
++    ui_file = '/usr/local/cinnamon64/share/cinnamon/cinnamon-desktop-editor/launcher-editor.ui'
+ 
+     def build_ui(self):
+         self.icon_picker = IconPicker(self.dialog,
+@@ -326,7 +328,7 @@
+ 
+ 
+ class DirectoryEditor(ItemEditor):
+-    ui_file = '/usr/share/cinnamon/cinnamon-desktop-editor/directory-editor.ui'
++    ui_file = '/usr/local/cinnamon64/share/cinnamon/cinnamon-desktop-editor/directory-editor.ui'
+ 
+     def build_ui(self):
+         self.icon_picker = IconPicker(self.dialog,
+@@ -357,7 +359,7 @@
+ 
+ 
+ class CinnamonLauncherEditor(ItemEditor):
+-    ui_file = '/usr/share/cinnamon/cinnamon-desktop-editor/launcher-editor.ui'
++    ui_file = '/usr/local/cinnamon64/share/cinnamon/cinnamon-desktop-editor/launcher-editor.ui'
+ 
+     def build_ui(self):
+         self.icon_picker = IconPicker(self.dialog,
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-json-makepot/cinnamon-json-makepot.py cinnamon_new/usr/share/cinnamon/cinnamon-json-makepot/cinnamon-json-makepot.py
+--- cinnamon/usr/share/cinnamon/cinnamon-json-makepot/cinnamon-json-makepot.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-json-makepot/cinnamon-json-makepot.py	2017-03-19 18:21:33.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import sys
+ import os
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-looking-glass/cinnamon-looking-glass.py cinnamon_new/usr/share/cinnamon/cinnamon-looking-glass/cinnamon-looking-glass.py
+--- cinnamon/usr/share/cinnamon/cinnamon-looking-glass/cinnamon-looking-glass.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-looking-glass/cinnamon-looking-glass.py	2017-03-19 18:21:43.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ # Todo:
+ # - TextTag.invisible does not work nicely with scrollheight, find out why
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-menu-editor/cme/config.py cinnamon_new/usr/share/cinnamon/cinnamon-menu-editor/cme/config.py
+--- cinnamon/usr/share/cinnamon/cinnamon-menu-editor/cme/config.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-menu-editor/cme/config.py	2017-03-19 18:21:54.000000000 +0800
+@@ -1,8 +1,8 @@
+-prefix="/usr"
+-datadir="/usr/share"
++prefix="/usr/local/cinnamon64"
++datadir="/usr/local/cinnamon64/share"
+ localedir=datadir+"/locale"
+-libdir="/usr/share/cinnamon"
+-libexecdir="/usr/share/cinnamon/cinnamon-menu-editor"
++libdir="/usr/local/cinnamon64/share/cinnamon"
++libexecdir="/usr/local/cinnamon64/share/cinnamon/cinnamon-menu-editor"
+ PACKAGE="cinnamon-menu-editor"
+ VERSION="1.6.1"
+ GETTEXT_PACKAGE="cinnamon"
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-menu-editor/cme/MainWindow.py cinnamon_new/usr/share/cinnamon/cinnamon-menu-editor/cme/MainWindow.py
+--- cinnamon/usr/share/cinnamon/cinnamon-menu-editor/cme/MainWindow.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-menu-editor/cme/MainWindow.py	2017-03-19 18:22:02.000000000 +0800
+@@ -48,7 +48,7 @@
+         Gtk.Window.set_default_icon_name('alacarte')
+         self.tree = Gtk.Builder()
+         self.tree.set_translation_domain(config.GETTEXT_PACKAGE)
+-        self.tree.add_from_file('/usr/share/cinnamon/cinnamon-menu-editor/cinnamon-menu-editor.ui')
++        self.tree.add_from_file('/usr/local/cinnamon64/share/cinnamon/cinnamon-menu-editor/cinnamon-menu-editor.ui')
+         self.tree.connect_signals(self)
+         self.setupMenuTree()
+         self.setupItemTree()
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-screensaver-lock-dialog/cinnamon-screensaver-lock-dialog.py cinnamon_new/usr/share/cinnamon/cinnamon-screensaver-lock-dialog/cinnamon-screensaver-lock-dialog.py
+--- cinnamon/usr/share/cinnamon/cinnamon-screensaver-lock-dialog/cinnamon-screensaver-lock-dialog.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-screensaver-lock-dialog/cinnamon-screensaver-lock-dialog.py	2017-03-19 18:22:19.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import os
+ import subprocess
+@@ -10,7 +10,7 @@
+ from gi.repository import Gtk
+ 
+ # i18n
+-gettext.install("cinnamon", "/usr/share/locale")
++gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+ 
+ 
+ class MainWindow:
+@@ -29,7 +29,7 @@
+             real_name = username
+ 
+         self.builder = Gtk.Builder()
+-        self.builder.add_from_file("/usr/share/cinnamon/cinnamon-screensaver-lock-dialog/cinnamon-screensaver-lock-dialog.ui")
++        self.builder.add_from_file("/usr/local/cinnamon64/share/cinnamon/cinnamon-screensaver-lock-dialog/cinnamon-screensaver-lock-dialog.ui")
+ 
+         self.window = self.builder.get_object("main_dialog")
+         self.button_cancel = self.builder.get_object("button_cancel")
+@@ -46,7 +46,7 @@
+         if os.path.exists("%s/.face" % home_dir):
+             self.image.set_from_file("%s/.face" % home_dir)
+         else:
+-            self.image.set_from_file("/usr/share/pixmaps/nobody.png")
++            self.image.set_from_file("/usr/local/cinnamon64/share/pixmaps/nobody.png")
+ 
+         self.window.connect("destroy", Gtk.main_quit)
+         self.button_cancel.connect("clicked", Gtk.main_quit)
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/bin/capi.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/capi.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/bin/capi.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/capi.py	2017-03-19 18:22:31.000000000 +0800
+@@ -25,7 +25,7 @@
+         self.modules = []
+ 
+         architecture = platform.machine()
+-        paths = ["/usr/lib"]
++        paths = ["/usr/local/cinnamon64/lib"]
+ 
+         # On x86 archs, iterate through multiple paths
+         # For instance, on a Mint i686 box, the path is actually /usr/lib/i386-linux-gnu
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/bin/ChooserButtonWidgets.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/ChooserButtonWidgets.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/bin/ChooserButtonWidgets.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/ChooserButtonWidgets.py	2017-03-19 18:22:40.000000000 +0800
+@@ -5,7 +5,7 @@
+ import os
+ import math
+ import gettext
+-gettext.install("cinnamon", "/usr/share/locale")
++gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+ 
+ TWEEN_SHAPES = ["Quad", "Cubic", "Quart", "Quint", "Sine", "Expo", "Circ", "Elastic", "Back", "Bounce"]
+ TWEEN_DIRECTIONS = ["In", "Out", "InOut", "OutIn"]
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/bin/CinnamonGtkSettings.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/CinnamonGtkSettings.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/bin/CinnamonGtkSettings.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/CinnamonGtkSettings.py	2017-03-19 18:23:04.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import os.path
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/bin/ExtensionCore.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/ExtensionCore.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/bin/ExtensionCore.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/ExtensionCore.py	2017-03-19 18:44:37.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import sys
+ import thread
+@@ -61,7 +61,7 @@
+             translations[uuid] = gettext.translation(uuid, home + "/.local/share/locale").ugettext
+         except IOError:
+             try:
+-                translations[uuid] = gettext.translation(uuid, "/usr/share/locale").ugettext
++                translations[uuid] = gettext.translation(uuid, "/usr/local/cinnamon64/share/locale").ugettext
+             except IOError:
+                 translations[uuid] = None
+ 
+@@ -1297,11 +1297,12 @@
+         self.model.clear()
+         if not self.themes:
+             self.load_extensions_in(('%s/.local/share/cinnamon/%ss') % (home, self.collection_type))
+-            self.load_extensions_in(('/usr/share/cinnamon/%ss') % (self.collection_type))
++            self.load_extensions_in(('/usr/local/cinnamon64/share/cinnamon/%ss') % (self.collection_type))
+         else:
+             self.load_extensions_in(('%s/.themes') % (home))
+             self.load_extensions_in('/usr/share', True)
+             self.load_extensions_in('/usr/share/themes')
++            self.load_extensions_in('/usr/local/cinnamon64/share/themes')
+ 
+     def load_extensions_in(self, directory, stock_theme = False):
+         if not self.themes:  # Applet, Desklet, Extension handling
+@@ -1495,7 +1496,7 @@
+                     if os.path.exists(os.path.join(path, "thumbnail.png")):
+                         icon_path = os.path.join(path, "thumbnail.png")
+                     else:
+-                        icon_path = "/usr/share/cinnamon/theme/thumbnail-generic.png"
++                        icon_path = "/usr/local/cinnamon64/share/cinnamon/theme/thumbnail-generic.png"
+                     size = 60 * self.window.get_scale_factor()
+                     img = GdkPixbuf.Pixbuf.new_from_file_at_size(icon_path, -1, size)
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/bin/GSettingsWidgets.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/GSettingsWidgets.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/bin/GSettingsWidgets.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/GSettingsWidgets.py	2017-03-19 18:43:22.000000000 +0800
+@@ -74,7 +74,7 @@
+         env = GLib.getenv("PATH")
+ 
+         if env == None:
+-            env = "/bin:/usr/bin:."
++            env = "/bin:/usr/bin:/usr/local/cinnamon64/bin:."
+ 
+         self.paths = env.split(":")
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/bin/installSchema.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/installSchema.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/bin/installSchema.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/installSchema.py	2017-03-19 18:24:41.000000000 +0800
+@@ -1,8 +1,8 @@
+-#!/usr/bin/python2
++#! /usr/bin/env python2
+ 
+ import os
+ import sys
+ 
+-os.system("cp %s /usr/share/glib-2.0/schemas/" % (sys.argv[1]))
+-os.system("glib-compile-schemas /usr/share/glib-2.0/schemas/")
++os.system("cp %s /usr/local/cinnamon64/share/glib-2.0/schemas/" % (sys.argv[1]))
++os.system("glib-compile-schemas /usr/local/cinnamon64/share/glib-2.0/schemas/")
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/bin/KeybindingWidgets.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/KeybindingWidgets.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/bin/KeybindingWidgets.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/KeybindingWidgets.py	2017-03-19 18:25:02.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from gi.repository import Gtk, Gdk, GObject
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/bin/removeSchema.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/removeSchema.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/bin/removeSchema.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/removeSchema.py	2017-03-19 18:25:10.000000000 +0800
+@@ -1,7 +1,8 @@
+-#!/usr/bin/python2
++#! /usr/bin/env python2
+ 
+ import os
+ import sys
+ 
+-os.system("rm /usr/share/glib-2.0/schemas/%s" % (sys.argv[1]))
+-os.system("glib-compile-schemas /usr/share/glib-2.0/schemas/")
++os.system("rm /usr/local/cinnamon64/share/glib-2.0/schemas/%s" % (sys.argv[1]))
++os.system("glib-compile-schemas /usr/local/cinnamon64/share/glib-2.0/schemas/")
++
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/bin/SettingsWidgets.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/SettingsWidgets.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/bin/SettingsWidgets.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/SettingsWidgets.py	2017-03-19 18:25:24.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import math
+ import os
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/bin/Spices.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/Spices.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/bin/Spices.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/bin/Spices.py	2017-03-19 18:25:58.000000000 +0800
+@@ -114,7 +114,7 @@
+ 
+         self.window = window
+         self.builder = Gtk.Builder()
+-        self.builder.add_from_file("/usr/share/cinnamon/cinnamon-settings/cinnamon-settings-spice-progress.ui")
++        self.builder.add_from_file("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/cinnamon-settings-spice-progress.ui")
+         self.progress_window = self.builder.get_object("progress_window")
+         self.progress_window.set_transient_for(window)
+         self.progress_window.set_destroy_with_parent(True)
+@@ -450,9 +450,9 @@
+                            ui_thread_do(self.progresslabel.set_text, _("Installing %s...") % title)
+                     elif "gschema.xml" in file.filename:
+                         sentence = _("Please enter your password to install the required settings schema for %s") % (uuid)
+-                        if os.path.exists("/usr/bin/gksu") and os.path.exists("/usr/share/cinnamon/cinnamon-settings/bin/installSchema.py"):
++                        if os.path.exists("/usr/bin/gksu") and os.path.exists("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/bin/installSchema.py"):
+                             launcher = "gksu  --message \"<b>%s</b>\"" % sentence
+-                            tool = "/usr/share/cinnamon/cinnamon-settings/bin/installSchema.py %s" % (os.path.join(dirname, file.filename))
++                            tool = "/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/bin/installSchema.py %s" % (os.path.join(dirname, file.filename))
+                             command = "%s %s" % (launcher, tool)
+                             os.system(command)
+                             schema_filename = file.filename
+@@ -551,9 +551,9 @@
+             if not self.themes:
+                 if schema_filename != "":
+                     sentence = _("Please enter your password to remove the settings schema for %s") % (uuid)
+-                    if os.path.exists("/usr/bin/gksu") and os.path.exists("/usr/share/cinnamon/cinnamon-settings/bin/removeSchema.py"):
++                    if os.path.exists("/usr/bin/gksu") and os.path.exists("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/bin/removeSchema.py"):
+                         launcher = "gksu  --message \"<b>%s</b>\"" % sentence
+-                        tool = "/usr/share/cinnamon/cinnamon-settings/bin/removeSchema.py %s" % (schema_filename)
++                        tool = "/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/bin/removeSchema.py %s" % (schema_filename)
+                         command = "%s %s" % (launcher, tool)
+                         os.system(command)
+                     else:
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/cinnamon-settings.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/cinnamon-settings.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/cinnamon-settings.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/cinnamon-settings.py	2017-03-19 18:34:30.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import sys
+ reload(sys)
+@@ -18,23 +18,23 @@
+ gi.require_version('Gtk', '3.0')
+ from gi.repository import Gio, Gtk, Pango, Gdk
+ 
+-sys.path.append('/usr/share/cinnamon/cinnamon-settings/modules')
+-sys.path.append('/usr/share/cinnamon/cinnamon-settings/bin')
++sys.path.append('/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/modules')
++sys.path.append('/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/bin')
+ import capi
+ import proxygsettings
+ import SettingsWidgets
+ 
+ # i18n
+-gettext.install("cinnamon", "/usr/share/locale")
++gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+ 
+ # Standard setting pages... this can be expanded to include applet dirs maybe?
+-mod_files = glob.glob('/usr/share/cinnamon/cinnamon-settings/modules/*.py')
++mod_files = glob.glob('/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/modules/*.py')
+ mod_files.sort()
+ if len(mod_files) is 0:
+     print "No settings modules found!!"
+     sys.exit(1)
+ 
+-mod_files = [x.split('/')[6].split('.')[0] for x in mod_files]
++mod_files = [x.split('/')[8].split('.')[0] for x in mod_files]
+ 
+ for mod_file in mod_files:
+     if mod_file[0:3] != "cs_":
+@@ -185,7 +185,7 @@
+     ''' Create the UI '''
+     def __init__(self):
+         self.builder = Gtk.Builder()
+-        self.builder.add_from_file("/usr/share/cinnamon/cinnamon-settings/cinnamon-settings.ui")
++        self.builder.add_from_file("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/cinnamon-settings.ui")
+         self.window = self.builder.get_object("main_window")
+         self.top_bar = self.builder.get_object("top_bar")
+         self.side_view = {}
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/data/spices/applet-detail.html cinnamon_new/usr/share/cinnamon/cinnamon-settings/data/spices/applet-detail.html
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/data/spices/applet-detail.html	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/data/spices/applet-detail.html	2017-03-19 18:46:47.000000000 +0800
+@@ -4,7 +4,7 @@
+ <head>
+     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+     <title></title>
+-    <script type="text/javascript" src="/usr/lib/cinnamon-settings/data/spices/jquery.js"></script>
++    <script type="text/javascript" src="/usr/local/cinnamon64/lib/cinnamon-settings/data/spices/jquery.js"></script>
+     <style type="text/css">
+     body {
+         font-family: "Lucida Grande", "Segoe UI";
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_accessibility.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_accessibility.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_accessibility.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_accessibility.py	2017-03-19 18:26:36.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import gi
+ gi.require_version("Gtk", "3.0")
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_applets.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_applets.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_applets.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_applets.py	2017-03-19 18:26:45.000000000 +0800
+@@ -1,5 +1,4 @@
+-#!/usr/bin/python2
+-
++#!/usr/bin/env python2
+ import sys
+ 
+ from ExtensionCore import ExtensionSidePage
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_backgrounds.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_backgrounds.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_backgrounds.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_backgrounds.py	2017-03-19 18:26:58.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import sys
+ import os
+@@ -20,10 +20,10 @@
+ gi.require_version("Gtk", "3.0")
+ from gi.repository import Gio, Gtk, GObject, Gdk, Pango, GLib
+ 
+-sys.path.append('/usr/share/cinnamon/cinnamon-settings/bin')
++sys.path.append('/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/bin')
+ from GSettingsWidgets import *
+ 
+-gettext.install("cinnamon", "/usr/share/locale")
++gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+ 
+ BACKGROUND_COLOR_SHADING_TYPES = [
+     ("solid", _("None")),
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_calendar.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_calendar.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_calendar.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_calendar.py	2017-03-19 18:27:17.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from GSettingsWidgets import *
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_default.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_default.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_default.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_default.py	2017-03-19 18:27:27.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from GSettingsWidgets import *
+ from gi.repository import *
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_desklets.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_desklets.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_desklets.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_desklets.py	2017-03-19 18:27:39.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import gi
+ gi.require_version("Gtk", "3.0")
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_desktop.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_desktop.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_desktop.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_desktop.py	2017-03-19 18:27:46.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from gi.repository import Gio
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_effects.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_effects.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_effects.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_effects.py	2017-03-19 18:28:00.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from GSettingsWidgets import *
+ from ChooserButtonWidgets import TweenChooserButton, EffectChooserButton
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_extensions.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_extensions.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_extensions.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_extensions.py	2017-03-19 18:28:14.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from ExtensionCore import ExtensionSidePage
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_fonts.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_fonts.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_fonts.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_fonts.py	2017-03-19 18:28:22.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import gi
+ gi.require_version("Gtk", "3.0")
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_general.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_general.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_general.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_general.py	2017-03-19 18:28:30.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from GSettingsWidgets import *
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_hotcorner.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_hotcorner.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_hotcorner.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_hotcorner.py	2017-03-19 18:28:38.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ import cairo
+ import math
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_info.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_info.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_info.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_info.py	2017-03-19 18:29:15.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import platform
+ import subprocess
+@@ -35,7 +35,7 @@
+     cards = {}
+     count = 0
+     envpath = os.environ["PATH"]
+-    os.environ["PATH"] = envpath + ":/usr/local/sbin:/usr/sbin:/sbin"
++    os.environ["PATH"] = envpath + ":/usr/local/sbin:/usr/sbin:/sbin:/usr/local/cinnamon64/bin"
+     for card in getProcessOut(("lspci")):
+         if not "VGA" in card:
+             continue
+@@ -158,7 +158,7 @@
+                 widget.pack_end(labelValue, False, False, 0)
+                 settings.add_row(widget)
+ 
+-            if os.path.exists("/usr/bin/upload-system-info"):
++            if os.path.exists("/usr/local/cinnamon64/bin/upload-system-info"):
+                 widget = SettingsWidget()
+                 button = Gtk.Button(_("Upload system information"))
+                 button.set_tooltip_text(_("No personal information included"))
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_keyboard.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_keyboard.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_keyboard.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_keyboard.py	2017-03-19 18:29:28.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from gi.repository import Gio, Gtk, GObject, Gdk
+ import cgi
+@@ -11,7 +11,7 @@
+ from KeybindingWidgets import CellRendererKeybinding
+ from GSettingsWidgets import *
+ 
+-gettext.install("cinnamon", "/usr/share/locale")
++gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+ 
+ # Keybindings page - check if we need to store custom
+ # keybindings to gsettings key as well as GConf (In Mint 14 this is changed)
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_mouse.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_mouse.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_mouse.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_mouse.py	2017-03-19 18:29:48.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import gi
+ gi.require_version("Gtk", "3.0")
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_notifications.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_notifications.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_notifications.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_notifications.py	2017-03-19 18:29:55.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import gi
+ gi.require_version('Notify', '0.7')
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_panel.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_panel.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_panel.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_panel.py	2017-03-19 18:30:09.000000000 +0800
+@@ -1,5 +1,4 @@
+-#!/usr/bin/python2
+-#
++#!/usr/bin/env python2
+ import sys
+ 
+ import dbus
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_power.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_power.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_power.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_power.py	2017-03-19 18:30:15.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import gi
+ gi.require_version('CinnamonDesktop', '3.0')
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_privacy.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_privacy.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_privacy.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_privacy.py	2017-03-19 18:30:30.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from GSettingsWidgets import *
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_screensaver.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_screensaver.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_screensaver.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_screensaver.py	2017-03-19 18:31:02.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import os, json, subprocess, re
+ from xml.etree import ElementTree
+@@ -35,7 +35,7 @@
+     (3600, _("1 hour"))
+ ]
+ 
+-XSCREENSAVER_PATH = "/usr/share/xscreensaver/config/"
++XSCREENSAVER_PATH = "/usr/local/cinnamon64/share/xscreensaver/config/"
+ 
+ 
+ def list_header_func(row, before, user_data):
+@@ -280,7 +280,7 @@
+         if self.xscreensaver_executable is not None and os.path.exists(XSCREENSAVER_PATH):
+             xscreensavers = []
+             try:
+-                gettext.install("xscreensaver", "/usr/share/locale")
++                gettext.install("xscreensaver", "/usr/local/cinnamon64/share/locale")
+ 
+                 for item in sorted(os.listdir(XSCREENSAVER_PATH)):
+                     if not item.endswith(".xml"):
+@@ -306,7 +306,7 @@
+                     self.add_row(xscreensaver)
+                     if self.current_name == "xscreensaver-" + xscreensaver.uuid:
+                         self.list_box.select_row(xscreensaver)
+-                gettext.install("cinnamon", "/usr/share/locale")
++                gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+             except Exception, detail:
+                 print "Unable to parse xscreensaver hacks: %s" % detail
+ 
+@@ -372,7 +372,7 @@
+             for child in self.socket_box:
+                 child.destroy()
+ 
+-            px = GdkPixbuf.Pixbuf.new_from_file_at_size("/usr/share/cinnamon/thumbnails/wallclock.png", -1, 240)
++            px = GdkPixbuf.Pixbuf.new_from_file_at_size("/usr/local/cinnamon64/share/cinnamon/thumbnails/wallclock.png", -1, 240)
+             w = Gtk.Image.new_from_pixbuf(px)
+             w.show()
+             self.socket_box.pack_start(w, True, True, 0)
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_sound.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_sound.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_sound.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_sound.py	2017-03-19 18:31:11.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python3
+ 
+ import gi
+ gi.require_version('Cvc', '1.0')
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_startup.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_startup.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_startup.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_startup.py	2017-03-19 18:31:27.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import os
+ import glob
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_themes.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_themes.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_themes.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_themes.py	2017-03-19 18:32:50.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from gi.repository.Gtk import SizeGroup, SizeGroupMode
+ 
+@@ -92,7 +92,7 @@
+                     pass
+ 
+             self.monitors = []
+-            for path in [os.path.expanduser("~/.themes"), "/usr/share/themes", os.path.expanduser("~/.icons"), "/usr/share/icons"]:
++            for path in [os.path.expanduser("~/.themes"), "/usr/share/themes", "/usr/local/cinnamon64/share/themes", os.path.expanduser("~/.icons"), "/usr/local/cinnamon64/share/icons","/usr/share/icons"]:
+                 if os.path.exists(path):
+                     file_obj = Gio.File.new_for_path(path)
+                     file_monitor = file_obj.monitor_directory(Gio.FileMonitorFlags.SEND_MOVED, None)
+@@ -142,19 +142,19 @@
+                 GLib.timeout_add(5, self.increment_progress, (chooser,inc))
+         else:
+             if path_suffix == "cinnamon":
+-                chooser.add_picture("/usr/share/cinnamon/theme/thumbnail.png", callback, title="cinnamon", id="cinnamon")
++                chooser.add_picture("/usr/local/cinnamon64/share/cinnamon/theme/thumbnail.png", callback, title="cinnamon", id="cinnamon")
+             for theme in themes:
+                 theme_name = theme[0]
+                 theme_path = theme[1]
+                 try:
+                     for path in ["%s/%s/%s/thumbnail.png" % (theme_path, theme_name, path_suffix),
+-                             "/usr/share/cinnamon/thumbnails/%s/%s.png" % (path_suffix, theme_name),
+-                             "/usr/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix]:
++                             "/usr/local/cinnamon64/share/cinnamon/thumbnails/%s/%s.png" % (path_suffix, theme_name),
++                             "/usr/local/cinnamon64/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix]:
+                         if os.path.exists(path):
+                             chooser.add_picture(path, callback, title=theme_name, id=theme_name)
+                             break
+                 except:
+-                    chooser.add_picture("/usr/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix, callback, title=theme_name, id=theme_name)
++                    chooser.add_picture("/usr/local/cinnamon64/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix, callback, title=theme_name, id=theme_name)
+                 GLib.timeout_add(5, self.increment_progress, (chooser, inc))
+         GLib.timeout_add(500, self.hide_progress, chooser)
+         # thread.exit()
+@@ -190,7 +190,7 @@
+         chooser.set_button_label(theme)
+         chooser.set_tooltip_text(theme)
+         if path_suffix == "cinnamon" and theme == "cinnamon":
+-            chooser.set_picture_from_file("/usr/share/cinnamon/theme/thumbnail.png")
++            chooser.set_picture_from_file("/usr/local/cinnamon64/share/cinnamon/theme/thumbnail.png")
+         elif path_suffix == "icons":
+             current_theme = Gtk.IconTheme.get_default()
+             folder = current_theme.lookup_icon("folder", button_picture_size, 0)
+@@ -201,13 +201,13 @@
+             try:
+                 for path in ["/usr/share/%s/%s/%s/thumbnail.png" % (path_prefix, theme, path_suffix),
+                              os.path.expanduser("~/.%s/%s/%s/thumbnail.png" % (path_prefix, theme, path_suffix)),
+-                             "/usr/share/cinnamon/thumbnails/%s/%s.png" % (path_suffix, theme),
+-                             "/usr/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix]:
++                             "/usr/local/cinnamon64/share/cinnamon/thumbnails/%s/%s.png" % (path_suffix, theme),
++                             "/usr/local/cinnamon64/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix]:
+                     if os.path.exists(path):
+                         chooser.set_picture_from_file(path)
+                         break
+             except:
+-                chooser.set_picture_from_file("/usr/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix)
++                chooser.set_picture_from_file("/usr/local/cinnamon64/share/cinnamon/thumbnails/%s/unknown.png" % path_suffix)
+         return chooser
+ 
+     def add_remove_cinnamon_themes(self, widget):
+@@ -271,7 +271,7 @@
+ 
+     def _load_gtk_themes(self):
+         """ Only shows themes that have variations for gtk+-3 and gtk+-2 """
+-        dirs = ("/usr/share/themes", os.path.join(os.path.expanduser("~"), ".themes"))
++        dirs = ("/usr/share/themes", "/usr/local/cinnamon64/share/themes", os.path.join(os.path.expanduser("~"), ".themes"))
+         valid = walk_directories(dirs, self.filter_func_gtk_dir, return_directories=True)
+         valid.sort(lambda a,b: cmp(a[0].lower(), b[0].lower()))
+         res = []
+@@ -296,7 +296,7 @@
+         return False
+ 
+     def _load_icon_themes(self):
+-        dirs = ("/usr/share/icons", os.path.join(os.path.expanduser("~"), ".icons"))
++        dirs = ("/usr/share/icons", "/usr/local/cinnamon64/share/icons", os.path.join(os.path.expanduser("~"), ".icons"))
+         walked = walk_directories(dirs, lambda d: os.path.isdir(d), return_directories=True)
+         valid = []
+         for directory in walked:
+@@ -323,7 +323,7 @@
+         return res
+ 
+     def _load_cursor_themes(self):
+-        dirs = ("/usr/share/icons", os.path.join(os.path.expanduser("~"), ".icons"))
++        dirs = ("/usr/share/icons", "/usr/local/cinnamon64/share/icons", os.path.join(os.path.expanduser("~"), ".icons"))
+         valid = walk_directories(dirs, lambda d: os.path.isdir(d) and os.path.exists(os.path.join(d, "cursors")), return_directories=True)
+         valid.sort(lambda a,b: cmp(a[0].lower(), b[0].lower()))
+         res = []
+@@ -338,7 +338,7 @@
+         return res
+ 
+     def _load_metacity_themes(self):
+-        dirs = ("/usr/share/themes", os.path.join(os.path.expanduser("~"), ".themes"))
++        dirs = ("/usr/share/themes", "/usr/local/cinnamon64/share/themes", os.path.join(os.path.expanduser("~"), ".themes"))
+         valid = walk_directories(dirs, lambda d: os.path.exists(os.path.join(d, "metacity-1")), return_directories=True)
+         valid.sort(lambda a,b: cmp(a[0].lower(), b[0].lower()))
+         res = []
+@@ -353,7 +353,7 @@
+         return res
+ 
+     def _load_cinnamon_themes(self):
+-        dirs = ("/usr/share/themes", os.path.join(os.path.expanduser("~"), ".themes"))
++        dirs = ("/usr/share/themes", "/usr/local/cinnamon64/share/themes", os.path.join(os.path.expanduser("~"), ".themes"))
+         valid = walk_directories(dirs, lambda d: os.path.exists(os.path.join(d, "cinnamon")), return_directories=True)
+         valid.sort(lambda a,b: cmp(a[0].lower(), b[0].lower()))
+         res = []
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_tiling.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_tiling.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_tiling.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_tiling.py	2017-03-19 18:33:06.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from GSettingsWidgets import *
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_user.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_user.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_user.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_user.py	2017-03-19 18:47:24.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ try:
+     import PAM
+@@ -48,7 +48,7 @@
+             self.face_browse_menuitem = Gtk.MenuItem.new_with_label(_("Browse for more pictures..."))
+             self.face_browse_menuitem.connect('activate', self._on_face_browse_menuitem_activated)
+ 
+-            face_dirs = ["/usr/share/cinnamon/faces"]
++            face_dirs = ["/usr/local/cinnamon64/share/cinnamon/faces"]
+             for face_dir in face_dirs:
+                 if os.path.exists(face_dir):
+                     pictures = sorted(os.listdir(face_dir))
+@@ -203,7 +203,7 @@
+ 
+     def load_user_info(self, user, param):
+         self.realname_entry.set_text(user.get_real_name())
+-        for path in [os.path.join(self.accountService.get_home_dir(), ".face"), user.get_icon_file(), "/usr/share/cinnamon/faces/user-generic.png"]:
++        for path in [os.path.join(self.accountService.get_home_dir(), ".face"), user.get_icon_file(), "/usr/local/cinnamon64/share/cinnamon/faces/user-generic.png"]:
+             if os.path.exists(path):
+                 self.face_button.set_picture_from_file(path)
+                 break
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_windows.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_windows.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_windows.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_windows.py	2017-03-19 18:33:34.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import gi
+ gi.require_version('Gtk', '3.0')
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_workspaces.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_workspaces.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/modules/cs_workspaces.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/modules/cs_workspaces.py	2017-03-19 18:33:41.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from GSettingsWidgets import *
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings/xlet-settings.py cinnamon_new/usr/share/cinnamon/cinnamon-settings/xlet-settings.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings/xlet-settings.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings/xlet-settings.py	2017-03-19 18:35:10.000000000 +0800
+@@ -1,16 +1,16 @@
+-#!/usr/bin/python3
++#!/usr/bin/env python2
+ 
+ import gi
+ gi.require_version('Gtk', '3.0')
+ import sys
+-sys.path.append('/usr/share/cinnamon/cinnamon-settings/bin')
++sys.path.append('/usr/local/cinnamon64/share/cinnamon/cinnamon-settings/bin')
+ import gettext
+ import json
+ from JsonSettingsWidgets import *
+ from gi.repository import Gtk, Gio
+ 
+ # i18n
+-gettext.install("cinnamon", "/usr/share/locale")
++gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+ 
+ home = os.path.expanduser("~")
+ 
+@@ -55,7 +55,7 @@
+             translations[uuid] = gettext.translation(uuid, home + "/.local/share/locale").gettext
+         except IOError:
+             try:
+-                translations[uuid] = gettext.translation(uuid, "/usr/share/locale").gettext
++                translations[uuid] = gettext.translation(uuid, "/usr/local/cinnamon64/share/locale").gettext
+             except IOError:
+                 translations[uuid] = None
+ 
+@@ -108,7 +108,7 @@
+             proxy.highlightXlet('(ssb)', self.uuid, self.selected_instance["id"], True)
+ 
+     def load_xlet_data (self):
+-        self.xlet_dir = "/usr/share/cinnamon/%ss/%s" % (self.type, self.uuid)
++        self.xlet_dir = "/usr/local/cinnamon64/share/cinnamon/%ss/%s" % (self.type, self.uuid)
+         if not os.path.exists(self.xlet_dir):
+             self.xlet_dir = "%s/.local/share/cinnamon/%ss/%s" % (home, self.type, self.uuid)
+ 
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py cinnamon_new/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py
+--- cinnamon/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py	2017-03-19 18:38:45.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import os
+ import sys
+@@ -17,7 +17,7 @@
+ gi.require_version("AccountsService", "1.0")
+ from gi.repository import Gtk, GObject, Gio, GdkPixbuf, AccountsService
+ 
+-gettext.install("cinnamon", "/usr/share/locale")
++gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+ 
+ (INDEX_USER_OBJECT, INDEX_USER_PICTURE, INDEX_USER_DESCRIPTION) = range(3)
+ (INDEX_GID, INDEX_GROUPNAME) = range(2)
+@@ -418,7 +418,7 @@
+     def __init__(self):
+         try:
+             self.builder = Gtk.Builder()
+-            self.builder.add_from_file("/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.ui")
++            self.builder.add_from_file("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.ui")
+             self.window = self.builder.get_object("main_window")
+             self.window.connect("destroy", Gtk.main_quit)
+ 
+@@ -473,7 +473,7 @@
+             self.face_button = Gtk.Button()
+             self.face_image = Gtk.Image()
+             self.face_button.set_image(self.face_image)
+-            self.face_image.set_from_file("/usr/share/cinnamon/faces/user-generic.png")
++            self.face_image.set_from_file("/usr/local/cinnamon64/share/cinnamon/faces/user-generic.png")
+             self.face_button.set_alignment(0.0, 0.5)
+             self.face_button.set_tooltip_text(_("Click to change the picture"))
+ 
+@@ -487,7 +487,7 @@
+             row = 0
+             col = 0
+             num_cols = 4
+-            face_dirs = ["/usr/share/cinnamon/faces"]
++            face_dirs = ["/usr/local/cinnamon64/share/cinnamon/faces"]
+             for face_dir in face_dirs:
+                 if os.path.exists(face_dir):
+                     pictures = sorted(os.listdir(face_dir))
+@@ -704,7 +704,7 @@
+             if os.path.exists(user.get_icon_file()):
+                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(user.get_icon_file(), 48, 48)
+             else:
+-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size("/usr/share/cinnamon/faces/user-generic.png", 48, 48)
++                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size("/usr/local/cinnamon64/share/cinnamon/faces/user-generic.png", 48, 48)
+             description = "<b>%s</b>\n%s" % (user.get_real_name(), user.get_user_name())
+             piter = self.users.append(None, [user, pixbuf, description])
+         self.users_treeview.set_model(self.users)
+@@ -744,7 +744,7 @@
+             if os.path.exists(user.get_icon_file()):
+                 self.face_image.set_from_file(user.get_icon_file())
+             else:
+-                self.face_image.set_from_file("/usr/share/cinnamon/faces/user-generic.png")
++                self.face_image.set_from_file("/usr/local/cinnamon64/share/cinnamon/faces/user-generic.png")
+ 
+             groups = []
+             for group in grp.getgrall():
+@@ -803,7 +803,7 @@
+             username = dialog.username_entry.get_text()
+             new_user = self.accountService.create_user(username, fullname, account_type)
+             new_user.set_password_mode(AccountsService.UserPasswordMode.NONE)
+-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size("/usr/share/cinnamon/faces/user-generic.png", 48, 48)
++            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size("/usr/local/cinnamon64/share/cinnamon/faces/user-generic.png", 48, 48)
+             description = "<b>%s</b>\n%s" % (fullname, username)
+             piter = self.users.append(None, [new_user, pixbuf, description])
+             # Add the user to his/her own group and wheel if Administrator was selected
+diff -Nur cinnamon/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py.orig cinnamon_new/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py.orig
+--- cinnamon/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py.orig	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py.orig	2017-03-19 18:36:22.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ import os
+ import sys
+@@ -17,7 +17,7 @@
+ gi.require_version("AccountsService", "1.0")
+ from gi.repository import Gtk, GObject, Gio, GdkPixbuf, AccountsService
+ 
+-gettext.install("cinnamon", "/usr/share/locale")
++gettext.install("cinnamon", "/usr/local/cinnamon64/share/locale")
+ 
+ (INDEX_USER_OBJECT, INDEX_USER_PICTURE, INDEX_USER_DESCRIPTION) = range(3)
+ (INDEX_GID, INDEX_GROUPNAME) = range(2)
+@@ -426,7 +426,7 @@
+     def __init__(self):
+         try:
+             self.builder = Gtk.Builder()
+-            self.builder.add_from_file("/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.ui")
++            self.builder.add_from_file("/usr/local/cinnamon64/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.ui")
+             self.window = self.builder.get_object("main_window")
+             self.window.connect("destroy", Gtk.main_quit)
+ 
+@@ -481,7 +481,7 @@
+             self.face_button = Gtk.Button()
+             self.face_image = Gtk.Image()
+             self.face_button.set_image(self.face_image)
+-            self.face_image.set_from_file("/usr/share/cinnamon/faces/user-generic.png")
++            self.face_image.set_from_file("/usr/local/cinnamon64/share/cinnamon/faces/user-generic.png")
+             self.face_button.set_alignment(0.0, 0.5)
+             self.face_button.set_tooltip_text(_("Click to change the picture"))
+ 
+@@ -495,7 +495,7 @@
+             row = 0
+             col = 0
+             num_cols = 4
+-            face_dirs = ["/usr/share/cinnamon/faces"]
++            face_dirs = ["/usr/local/cinnamon64/share/cinnamon/faces"]
+             for face_dir in face_dirs:
+                 if os.path.exists(face_dir):
+                     pictures = sorted(os.listdir(face_dir))
+@@ -712,7 +712,7 @@
+             if os.path.exists(user.get_icon_file()):
+                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(user.get_icon_file(), 48, 48)
+             else:
+-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size("/usr/share/cinnamon/faces/user-generic.png", 48, 48)
++                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size("/usr/local/cinnamon64/share/cinnamon/faces/user-generic.png", 48, 48)
+             description = "<b>%s</b>\n%s" % (user.get_real_name(), user.get_user_name())
+             piter = self.users.append(None, [user, pixbuf, description])
+         self.users_treeview.set_model(self.users)
+@@ -811,7 +811,7 @@
+             username = dialog.username_entry.get_text()
+             new_user = self.accountService.create_user(username, fullname, account_type)
+             new_user.set_password_mode(AccountsService.UserPasswordMode.NONE)
+-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size("/usr/share/cinnamon/faces/user-generic.png", 48, 48)
++            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size("/usr/local/cinnamon64/share/cinnamon/faces/user-generic.png", 48, 48)
+             description = "<b>%s</b>\n%s" % (fullname, username)
+             piter = self.users.append(None, [new_user, pixbuf, description])
+             # Add the user to his/her own group and sudo if Administrator was selected
+diff -Nur cinnamon/usr/share/cinnamon/desklets/launcher@cinnamon.org/desklet.js cinnamon_new/usr/share/cinnamon/desklets/launcher@cinnamon.org/desklet.js
+--- cinnamon/usr/share/cinnamon/desklets/launcher@cinnamon.org/desklet.js	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/desklets/launcher@cinnamon.org/desklet.js	2017-03-19 18:36:47.000000000 +0800
+@@ -32,10 +32,10 @@
+ 
+         this._menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+         this._menu.addAction(_("Add new launcher"), function() {
+-                                 Util.spawnCommandLine("/usr/share/cinnamon/desklets/launcher@cinnamon.org/editorDialog.py");
++                                 Util.spawnCommandLine("/usr/local/cinnamon64/share/cinnamon/desklets/launcher@cinnamon.org/editorDialog.py");
+                              });
+         this._menu.addAction(_("Edit launcher"), Lang.bind(this, function() {
+-                                                               Util.spawnCommandLine("/usr/share/cinnamon/desklets/launcher@cinnamon.org/editorDialog.py " + this.instance_id);
++                                                               Util.spawnCommandLine("/usr/local/cinnamon64/share/cinnamon/desklets/launcher@cinnamon.org/editorDialog.py " + this.instance_id);
+                                                            }));
+ 
+         this._settingsSignalId = this._launcherSettings.connect('changed::launcher-list', Lang.bind(this, this._onSettingsChanged));
+diff -Nur cinnamon/usr/share/cinnamon/desklets/launcher@cinnamon.org/editorDialog.py cinnamon_new/usr/share/cinnamon/desklets/launcher@cinnamon.org/editorDialog.py
+--- cinnamon/usr/share/cinnamon/desklets/launcher@cinnamon.org/editorDialog.py	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/cinnamon/desklets/launcher@cinnamon.org/editorDialog.py	2017-03-19 18:37:00.000000000 +0800
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ #-*-indent-tabs-mode: nil-*-
+ 
+ import sys
+@@ -12,7 +12,7 @@
+ 
+ HOME_DIR = os.path.expanduser("~")+"/"
+ CUSTOM_LAUNCHERS_PATH = HOME_DIR + ".cinnamon/panel-launchers/"
+-EDITOR_DIALOG_UI_PATH = "/usr/share/cinnamon/desklets/launcher@cinnamon.org/editorDialog.ui"
++EDITOR_DIALOG_UI_PATH = "/usr/local/cinnamon64/share/cinnamon/desklets/launcher@cinnamon.org/editorDialog.ui"
+ 
+ class EditorDialog:
+     def __init__(self, desklet_id=-1):
+@@ -186,6 +186,8 @@
+             self._path = CUSTOM_LAUNCHERS_PATH + file_name
+         elif (os.path.exists("/usr/share/applications/" + file_name)):
+             self._path = "/usr/share/applications/" + file_name
++        elif (os.path.exists("/usr/local/cinnamon64/share/applications/" + file_name)):
++            self._path = "/usr/local/cinnamon64/share/applications/" + file_name
+ 
+         if self._path:
+             self._file = open(self._path, "r")
+diff -Nur cinnamon/usr/share/dbus-1/services/org.Cinnamon.Melange.service cinnamon_new/usr/share/dbus-1/services/org.Cinnamon.Melange.service
+--- cinnamon/usr/share/dbus-1/services/org.Cinnamon.Melange.service	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/dbus-1/services/org.Cinnamon.Melange.service	2017-03-19 18:41:59.000000000 +0800
+@@ -1,4 +1,4 @@
+ [D-BUS Service]
+ Name=org.Cinnamon.Melange
+-Exec=/usr/bin/cinnamon-looking-glass daemon
++Exec=/usr/local/cinnamon64/bin/cinnamon-looking-glass daemon
+ 
+diff -Nur cinnamon/usr/share/dbus-1/services/org.Cinnamon.Slideshow.service cinnamon_new/usr/share/dbus-1/services/org.Cinnamon.Slideshow.service
+--- cinnamon/usr/share/dbus-1/services/org.Cinnamon.Slideshow.service	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/dbus-1/services/org.Cinnamon.Slideshow.service	2017-03-19 18:41:54.000000000 +0800
+@@ -1,3 +1,3 @@
+ [D-BUS Service]
+ Name=org.Cinnamon.Slideshow
+-Exec=/usr/bin/cinnamon-slideshow
+\ 文件尾没有换行符
++Exec=/usr/local/cinnamon64/bin/cinnamon-slideshow
+\ 文件尾没有换行符
+diff -Nur cinnamon/usr/share/polkit-1/actions/org.cinnamon.settings-users.policy cinnamon_new/usr/share/polkit-1/actions/org.cinnamon.settings-users.policy
+--- cinnamon/usr/share/polkit-1/actions/org.cinnamon.settings-users.policy	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/polkit-1/actions/org.cinnamon.settings-users.policy	2017-03-19 18:43:52.000000000 +0800
+@@ -12,7 +12,7 @@
+       <allow_inactive>auth_admin</allow_inactive>
+       <allow_active>auth_admin</allow_active>
+     </defaults>
+-    <annotate key="org.freedesktop.policykit.exec.path">/usr/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py</annotate>
++    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/cinnamon64/share/cinnamon/cinnamon-settings-users/cinnamon-settings-users.py</annotate>
+     <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+   </action>
+ 
+diff -Nur cinnamon/usr/share/xsessions/cinnamon2d.desktop cinnamon_new/usr/share/xsessions/cinnamon2d.desktop
+--- cinnamon/usr/share/xsessions/cinnamon2d.desktop	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/xsessions/cinnamon2d.desktop	2017-03-19 18:09:51.000000000 +0800
+@@ -1,8 +1,8 @@
+ [Desktop Entry]
+ Name=Cinnamon (Software Rendering)
+ Comment=This session logs you into Cinnamon (using software rendering)
+-Exec=cinnamon-session-cinnamon2d
+-TryExec=/usr/bin/cinnamon2d
++Exec=/usr/local/cinnamon64/bin/cinnamon-session-cinnamon2d
++TryExec=/usr/local/cinnamon64/bin/cinnamon2d
+ Icon=
+ Type=Application
+ X-Ubuntu-Gettext-Domain=cinnamon
+diff -Nur cinnamon/usr/share/xsessions/cinnamon.desktop cinnamon_new/usr/share/xsessions/cinnamon.desktop
+--- cinnamon/usr/share/xsessions/cinnamon.desktop	2017-03-19 16:46:45.000000000 +0800
++++ cinnamon_new/usr/share/xsessions/cinnamon.desktop	2017-03-19 18:09:45.000000000 +0800
+@@ -1,8 +1,8 @@
+ [Desktop Entry]
+ Name=Cinnamon
+ Comment=This session logs you into Cinnamon
+-Exec=cinnamon-session-cinnamon
+-TryExec=/usr/bin/cinnamon
++Exec=/usr/local/cinnamon64/bin/cinnamon-session-cinnamon
++TryExec=/usr/local/cinnamon64/bin/cinnamon
+ Icon=
+ Type=Application
+ 

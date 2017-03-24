@@ -1,10 +1,10 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 _pkgbase=mate-session-manager
 pkgname=(${_pkgbase}-gtk3)
 pkgver=${_ver}.1
-pkgrel=2
+pkgrel=1
 pkgdesc="The MATE Session Handler (GTK3 version [EXPERIMENTAL])"
 url="http://mate-desktop.org"
 arch=('i686' 'x86_64')
@@ -13,7 +13,7 @@ license=('GPL' 'LGPL')
 #         'mate-polkit-gtk3>=1.12' 'mate-settings-daemon-gtk3>=1.10' 'ttf-dejavu'
 #         'xdg-user-dirs')
 depends=('dbus-glib' 'gtk3' 'libsm' 'libxtst' 'ttf-dejavu' 'xdg-user-dirs')
-makedepends=('mate-common' 'xtrans' 'xmlto')
+makedepends=('intltool' 'xtrans' 'systemd')
 optdepends=('lightdm-gtk-greeter: A lightweight display manager'
             'onboard: On-screen keyboard useful for mobility impaired users'
             'orca: Screen reader for blind or visually impaired individuals'
@@ -21,8 +21,7 @@ optdepends=('lightdm-gtk-greeter: A lightweight display manager'
 groups=('mate-gtk3')
 conflicts=("${_pkgbase}")
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
-sha1sums=('225e769bade9d4968c0df98695777478f5fbe055')
-install=${_pkgbase}.install
+sha1sums=('510d4ffd3b15fddfefeae3c126ca23b31166bcb1')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64
@@ -31,7 +30,7 @@ elif [ "$CARCH" = "i686" ]; then
 fi
 
 build() {
-    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    cd ${_pkgbase}-${pkgver}
 
     export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/mate_gtk+3.0/lib/pkgconfig/
 
@@ -46,6 +45,6 @@ build() {
 }
 
 package() {
-    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    cd ${_pkgbase}-${pkgver}
     make DESTDIR="${pkgdir}" install
 }

@@ -3,7 +3,7 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=metacity
-pkgver=3.18.3
+pkgver=3.22.1
 pkgrel=1
 pkgdesc="Legacy GNOME window manager"
 arch=('i686' 'x86_64')
@@ -13,8 +13,8 @@ depends=('dconf' 'libsm' 'gsettings-desktop-schemas' 'gtk3' 'startup-notificatio
 makedepends=('intltool' 'itstool')
 url="https://wiki.gnome.org/Projects/Metacity"
 install=metacity.install
-source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
-sha256sums=('57698150dc70e6381caafc1fb0dff5d215196f17f791554766a35812dfe19bf5')
+source=(https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+sha256sums=('d27d91864d8ba7294f6a093427ad16b20b1d834f4e23c9619bbeee6e641b5d87')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gnome3_64

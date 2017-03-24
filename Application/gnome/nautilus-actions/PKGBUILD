@@ -6,7 +6,7 @@
 
 pkgname=nautilus-actions
 pkgver=3.2.4
-pkgrel=1
+pkgrel=3
 pkgdesc="Configures programs to be launched when files are selected in Nautilus"
 arch=('i686' 'x86_64')
 url="http://git.gnome.org/browse/nautilus-actions"
@@ -14,8 +14,10 @@ license=('GPL')
 depends=('nautilus' 'libunique3' 'libgtop' 'libsm' 'gconf')
 makedepends=('intltool' 'gnome-doc-utils')
 install=nautilus-actions.install
-source=(http://www.nautilus-actions.org/downloads/$pkgname-$pkgver.tar.gz)
-sha1sums=('bfa90e86ff0624d345962a9add71d3b2e8bb2047')
+source=(http://www.nautilus-actions.org/downloads/$pkgname-$pkgver.tar.gz
+        drop-libunique3.patch)
+sha1sums=('bfa90e86ff0624d345962a9add71d3b2e8bb2047'
+          '0bd84d150a0b610459f98bd8e3dc2d55e52f1860')
 
 depends=('libsm')
 makedepends=('intltool')
@@ -25,6 +27,13 @@ if [ "$CARCH" = "x86_64" ]; then
 elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
+
+prepare() {
+  cd $pkgname-$pkgver
+
+  # Remove libunique3 dependency
+  patch -Np1 -i ../drop-libunique3.patch
+}
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"

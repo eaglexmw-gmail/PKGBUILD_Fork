@@ -11,14 +11,14 @@
 # or simply roll with a new version. I usually choose the latter when the former seems
 # unreasonable.
 
-_gittag=v2.74
+_gittag=v2.78
 #_gitcommit=b4d8fb57
 
 pkgname=blender
-pkgver=2.74
+pkgver=2.78
 [[ -n $_gitcommit ]] && pkgver=${pkgver}.git1.${_gitcommit}
-pkgrel=3
-epoch=16
+pkgrel=1
+epoch=17
 pkgdesc="A fully integrated 3D graphics creation suite"
 arch=('i686' 'x86_64')
 license=('GPL')
@@ -36,13 +36,15 @@ install=blender.install
 source=("git://git.blender.org/blender-addons.git"
         "git://git.blender.org/blender-addons-contrib.git"
         "git://git.blender.org/blender-translations.git"
+        "git://git.blender.org/blender-dev-tools.git"
         "git://git.blender.org/scons.git")
 if [[ -n $_gittag ]]; then
     source+=("${pkgname}-${pkgver}::git://git.blender.org/blender.git#tag=${_gittag}")
-else
+elif [[ -n $_gitcommit ]]; then
     source+=("${pkgname}-${pkgver}::git://git.blender.org/blender.git#commit=${_gitcommit}")
 fi
 md5sums=('SKIP'
+         'SKIP'
          'SKIP'
          'SKIP'
          'SKIP'
@@ -55,8 +57,11 @@ prepare() {
   git config submodule."release/scripts/addons".url ${srcdir}/blender-addons
   git config submodule."release/scripts/addons_contrib".url ${srcdir}/blender-addons-contrib
   git config submodule."release/datafiles/locale".url ${srcdir}/blender-translations
+  git config submodule."source/tools".url ${srcdir}/blender-dev-tools
   git config submodule."scons".url ${srcdir}/scons
   git submodule update
+
+  sed -i "s|lib64 lib|lib lib64|g" build_files/cmake/Modules/FindJack.cmake
 }
 
 build() {
@@ -67,7 +72,7 @@ build() {
   [[ $CARCH == i686 ]] && BUILDCUDA="OFF" || BUILDCUDA="ON"
 
   sed -i 's|find_package_wrapper(SDL2)| |' ../CMakeLists.txt
-  sed -i 's|/usr/bin/env python|/usr/local/python3/bin/python3_spec|g' ../doc/manpage/blender.1.py
+  sed -i 's|/usr/bin/env python3|/usr/local/python3.5/bin/python3|g' ../doc/manpage/blender.1.py
 
   cmake -C../build_files/cmake/config/blender_full.cmake .. \
     -DCMAKE_INSTALL_PREFIX=/usr/local/blender \
@@ -83,33 +88,33 @@ build() {
     -DLLVM_STATIC=ON \
     -DWITH_CYCLES_CUDA_BINARIES=$BUILDCUDA \
     -DWITH_CYCLES_OSL=ON \
-    -DPYTHON_VERSION=3.4 \
-    -DPYTHON_LIBPATH=/usr/local/python3/lib \
-    -DPYTHON_LIBRARY=python3.4m \
-    -DPYTHON_INCLUDE_DIR=/usr/local/python3/include/python3.4m
+    -DPYTHON_VERSION=3.5 \
+    -DPYTHON_LIBPATH=/usr/local/python3.5/lib \
+    -DPYTHON_LIBRARY=python3.5m \
+    -DPYTHON_INCLUDE_DIR=/usr/local/python3.5/include/python3.5m -DWITH_SDL=OFF -DWITH_SDL_DYNLOAD=OFF
 
   make cmake_check_build_system
 
   sed -i -e 's|libopenal.a |& -lcommon |g' \
          -e 's|libOpenImageIO.a |& -lpng -lgif -lwebp |g' \
-         -e 's|libSDL2.a |libSDL.a |g' \
          -e 's|/usr/local/lib/opencollada/libUTF.a| |g' \
-         -e 's|-lLLVMSupport |-lLLVMSupport -Wl,-Bdynamic /usr/lib/libncurses.so.5 -Wl,-Bstatic |g' \
-         -e 's|-lpython3.4m |& -Wl,-rpath=/usr/local/python3/lib |g' \
-         -e 's|libSDL.a |& -lpthread -lm -ldl -lX11 -lXext -lXrandr -lXrender -lpthread |g' \
-         -e 's|-lboost_locale -Wl,-Bdynamic |& /usr/lib/libicuuc.so /usr/lib/libicudata.so /usr/lib/libicui18n.so |g' \
+         -e 's|-lLLVMSupport |-lLLVMSupport -Wl,-Bdynamic /usr/lib/libncurses.so -Wl,-Bstatic |g' \
+         -e 's|-lpython3.5m |& -Wl,-rpath=/usr/local/python3.5/lib |g' \
+         -e 's|libSDL2.a |& -lpthread -lm -ldl -lX11 -lXext -lXrandr -lXrender -lpthread |g' \
+         -e 's|-lboost_serialization |& -Wl,-Bdynamic /usr/lib/libicuuc.so /usr/lib/libicudata.so /usr/lib/libicui18n.so -Wl,-Bstatic |g' \
          -e 's|-lavformat -lavcodec -lavutil -lavdevice |& -L/usr/local/lib -lavdevice -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lorc-0.4 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lenca -lharfbuzz -lglib-2.0 -lgraphite2 -lfribidi -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavfilter -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lorc-0.4 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lenca -lharfbuzz -lglib-2.0 -lgraphite2 -lfribidi -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lpostproc -lswresample -lm -lswscale -lm -lavresample -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lorc-0.4 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lenca -lharfbuzz -lglib-2.0 -lgraphite2 -lfribidi -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavformat -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lorc-0.4 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lenca -lharfbuzz -lglib-2.0 -lgraphite2 -lfribidi -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavcodec -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lorc-0.4 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lenca -lharfbuzz -lglib-2.0 -lgraphite2 -lfribidi -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavutil -lm |g' \
+         -e 's|-lSDL |& -lpthread -lm -ldl -lX11 -lXext -lXrandr -lXrender -lpthread |g' \
         source/creator/CMakeFiles/blender.dir/link.txt
 
   sed -i -e 's|libopenal.a |& -lcommon |g' \
          -e 's|libOpenImageIO.a |& -lpng -lgif -lwebp |g' \
-         -e 's|libSDL2.a |libSDL.a |g' \
          -e 's|/usr/local/lib/opencollada/libUTF.a| |g' \
-         -e 's|-lLLVMSupport |-lLLVMSupport -Wl,-Bdynamic /usr/lib/libncurses.so.5 -Wl,-Bstatic |g' \
-         -e 's|-lpython3.4m |& -Wl,-rpath=/usr/local/python3/lib |g' \
-         -e 's|libSDL.a |& -lpthread -lm -ldl -lX11 -lXext -lXrandr -lXrender -lpthread |g' \
-         -e 's|-lboost_locale -Wl,-Bdynamic |& /usr/lib/libicuuc.so /usr/lib/libicudata.so /usr/lib/libicui18n.so |g' \
+         -e 's|-lLLVMSupport |-lLLVMSupport -Wl,-Bdynamic /usr/lib/libncurses.so -Wl,-Bstatic |g' \
+         -e 's|-lpython3.5m |& -Wl,-rpath=/usr/local/python3.5/lib |g' \
+         -e 's|libSDL2.a |& -lpthread -lm -ldl -lX11 -lXext -lXrandr -lXrender -lpthread |g' \
+         -e 's|-lboost_serialization |& -Wl,-Bdynamic /usr/lib/libicuuc.so /usr/lib/libicudata.so /usr/lib/libicui18n.so -Wl,-Bstatic |g' \
          -e 's|-lavformat -lavcodec -lavutil -lavdevice |& -L/usr/local/lib -lavdevice -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lorc-0.4 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lenca -lharfbuzz -lglib-2.0 -lgraphite2 -lfribidi -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavfilter -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lorc-0.4 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lenca -lharfbuzz -lglib-2.0 -lgraphite2 -lfribidi -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lpostproc -lswresample -lm -lswscale -lm -lavresample -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lorc-0.4 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lenca -lharfbuzz -lglib-2.0 -lgraphite2 -lfribidi -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavformat -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lorc-0.4 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lenca -lharfbuzz -lglib-2.0 -lgraphite2 -lfribidi -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavcodec -ldl -lXv -lX11 -lXext -lva -lXfixes -lXext -lX11 -lasound -lSDL -lpthread -lnettle -lhogweed -lgmp -lxvidcore -lx264 -lvpx -lvorbisenc -lvorbis -logg -lv4l2 -ltheoraenc -ltheoradec -logg -lspeex -lschroedinger-1.0 -lorc-0.4 -lrtmp -lz -lssl -lcrypto -lopus -lopenjpeg -lopencore-amrwb -lopencore-amrnb -lmp3lame -lmodplug -lgsm -lfreetype -lbluray -lass -lenca -lharfbuzz -lglib-2.0 -lgraphite2 -lfribidi -lgnutls -lfontconfig -lfreetype -lm -pthread -lbz2 -lz -lavutil -lm |g' \
+         -e 's|-lSDL |& -lpthread -lm -ldl -lX11 -lXext -lXrandr -lXrender -lpthread |g' \
         source/blenderplayer/CMakeFiles/blenderplayer.dir/link.txt
 
   make
@@ -121,6 +126,6 @@ package() {
   make DESTDIR="${pkgdir}" install
   install -m755 bin/blenderplayer ${pkgdir}/usr/local/blender/blenderplayer
 
-  /usr/local/python3/bin/python3_spec -m compileall "${pkgdir}/usr/local/blender/share/blender"
-  /usr/local/python3/bin/python3_spec -O -m compileall "${pkgdir}/usr/local/blender/share/blender"
+  /usr/local/python3.5/bin/python3 -m compileall "${pkgdir}/usr/local/blender/share/blender"
+  /usr/local/python3.5/bin/python3 -O -m compileall "${pkgdir}/usr/local/blender/share/blender"
 }

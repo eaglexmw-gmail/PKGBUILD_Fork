@@ -1,10 +1,10 @@
 # $Id$
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 _pkgbase=mate-applets
 pkgname=(${_pkgbase}-gtk3)
-pkgver=${_ver}.1
+pkgver=${_ver}.0
 pkgrel=1
 pkgdesc="Applets for MATE panel (GTK3 version [EXPERIMENTAL])"
 arch=('i686' 'x86_64')
@@ -13,13 +13,13 @@ license=('GPL')
 #depends=('gtksourceview3' 'libgtop' 'mate-icon-theme>=1.12' 'mate-panel-gtk3>=1.12'
 #         'python2-dbus' 'python2-gobject' 'upower')
 depends=('upower')
-makedepends=('docbook2x' 'docbook-xsl' 'mate-common' 'yelp-tools')
+makedepends=('intltool' 'itstool')
 optdepends=('fortune-mod: for displaying fortune cookies in the Wanda the Fish applet'
             'yelp: for reading MATE help documents')
 groups=('mate-extra-gtk3')
 conflicts=("${_pkgbase}")
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
-sha1sums=('1275d9922e8c0abde0256d086d3e7bceb9bcf2c9')
+sha1sums=('6e6b51089bcb6450a466ba358b71fcfd7aba3a6a')
 install=${_pkgbase}.install
 
 if [ "$CARCH" = "x86_64" ]; then

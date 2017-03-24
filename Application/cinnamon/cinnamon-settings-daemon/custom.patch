@@ -1,0 +1,23 @@
+diff -Nur cinnamon-settings-daemon-3.2.1/configure.ac cinnamon-settings-daemon-3.2.1_new/configure.ac
+--- cinnamon-settings-daemon-3.2.1/configure.ac	2016-12-10 19:58:25.000000000 +0800
++++ cinnamon-settings-daemon-3.2.1_new/configure.ac	2017-03-02 21:13:08.469876822 +0800
+@@ -263,7 +263,7 @@
+ dnl - color
+ dnl ---------------------------------------------------------------------------
+ 
+-PKG_CHECK_MODULES(COLOR, [colord >= 0.1.27 cinnamon-desktop >= $CINNAMON_DESKTOP_REQUIRED_VERSION libcanberra-gtk3])
++dnl PKG_CHECK_MODULES(COLOR, [colord >= 0.1.27 cinnamon-desktop >= $CINNAMON_DESKTOP_REQUIRED_VERSION libcanberra-gtk3])
+ 
+ dnl ---------------------------------------------------------------------------
+ dnl - wacom
+diff -Nur cinnamon-settings-daemon-3.2.1/plugins/Makefile.am cinnamon-settings-daemon-3.2.1_new/plugins/Makefile.am
+--- cinnamon-settings-daemon-3.2.1/plugins/Makefile.am	2016-12-10 19:58:25.000000000 +0800
++++ cinnamon-settings-daemon-3.2.1_new/plugins/Makefile.am	2017-03-02 21:13:23.566543087 +0800
+@@ -6,7 +6,6 @@
+ 	automount	\
+ 	background  \
+ 	clipboard	\
+-	color		\
+ 	cursor		\
+ 	dummy		\
+     datetime    \

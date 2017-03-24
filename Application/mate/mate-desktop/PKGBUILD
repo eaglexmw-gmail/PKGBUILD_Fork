@@ -1,8 +1,8 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 pkgbase=mate-desktop
-pkgname=(${pkgbase} ${pkgbase}-gtk3)
+pkgname=(${pkgbase} ${pkgbase}-gtk3 ${pkgbase}-schemas ${pkgbase}-schemas-gtk3)
 pkgver=${_ver}.1
 pkgrel=1
 pkgdesc="Library with common API for various MATE modules"
@@ -10,9 +10,9 @@ url="http://mate-desktop.org"
 arch=('i686' 'x86_64')
 license=('GPL' 'LGPL')
 depends=('dconf' 'gtk2' 'gtk3' 'startup-notification')
-makedepends=('gobject-introspection' 'mate-common' 'yelp-tools')
+makedepends=('gobject-introspection' 'intltool')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgname}-${pkgver}.tar.xz")
-sha1sums=('9e1235c4305d0e73d4f271f4452a5fe767798d03')
+sha1sums=('bcded93e383e810817e9737ce2796050f9038b2a')
 install=${pkgbase}.install
 
 if [ "$CARCH" = "x86_64" ]; then
@@ -33,8 +33,8 @@ build() {
         --prefix=/usr/local/${dstdir}/mate_gtk+2.0 \
         --with-gtk=2.0 \
         --disable-static \
-        --disable-schemas-compile \
-        --enable-gtk-doc
+        --enable-schemas-compile \
+        --disable-gtk-doc
     make
 
     cd "${srcdir}/${pkgbase}-gtk3"
@@ -42,8 +42,8 @@ build() {
         --prefix=/usr/local/${dstdir}/mate_gtk+3.0 \
         --with-gtk=3.0 \
         --disable-static \
-        --disable-schemas-compile \
-        --enable-gtk-doc
+        --enable-schemas-compile \
+        --disable-gtk-doc
     make
 }
 
@@ -66,3 +66,21 @@ package_mate-desktop-gtk3() {
     cd "${srcdir}/${pkgbase}-gtk3"
     make DESTDIR="${pkgdir}" install
 }
+
+package_mate-desktop-schemas() {
+    pkgdesc='GSettings schemas for MATE Desktop'
+    depends=()
+
+    cd "${srcdir}/${pkgbase}-gtk2"
+    make -C schemas DESTDIR="${pkgdir}" install
+}
+
+
+package_mate-desktop-schemas-gtk3() {
+    pkgdesc='GSettings schemas for MATE Desktop'
+    depends=()
+
+    cd "${srcdir}/${pkgbase}-gtk3"
+    make -C schemas DESTDIR="${pkgdir}" install
+}
+

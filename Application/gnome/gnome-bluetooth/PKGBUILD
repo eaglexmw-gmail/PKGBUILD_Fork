@@ -3,7 +3,7 @@
 # Contributor: Roman Kyrylych <roman@archlinux.org>
 
 pkgname=gnome-bluetooth
-pkgver=3.18.3
+pkgver=3.20.1
 pkgrel=1
 pkgdesc="The GNOME Bluetooth Subsystem"
 arch=(i686 x86_64)
@@ -13,9 +13,10 @@ depends=(gtk3 libnotify bluez libcanberra)
 makedepends=(intltool gobject-introspection itstool docbook-xsl)
 options=(!emptydirs)
 install=gnome-bluetooth.install
-source=(https://download.gnome.org/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz
+_commit=9219cc1ab433d3237b46146cbab2a7d89c5f09b5  # tags/GNOMEBT_V_3_20_1^0
+source=("git+https://git.gnome.org/browse/gnome-bluetooth#commit=$_commit"
         61-gnome-bluetooth-rfkill.rules)
-sha256sums=('e481b70423e52adc3c3aa919eeb033b47f9cd1598d6c0c7f384c0bd10f4e8ce3'
+sha256sums=('SKIP'
             '8dd2d3637f380a89e72f65e6c8021e994ccbdc645f1a1b1dbffe74ac9f061f53')
 
 depends=(gtk3 libnotify)
@@ -26,8 +27,18 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
 
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^GNOMEBT_V_//;s/_/./g;s/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+  NOCONFIGURE=1 ./autogen.sh
+}
+
 build() {
-  cd $pkgname-$pkgver
+  cd $pkgname
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -47,7 +58,7 @@ build() {
 }
 
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   make DESTDIR="$pkgdir" install
 
   install -m644 -D ../61-gnome-bluetooth-rfkill.rules \

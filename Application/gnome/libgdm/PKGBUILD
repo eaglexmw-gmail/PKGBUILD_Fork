@@ -4,7 +4,7 @@
 
 pkgbase=gdm
 pkgname=(gdm libgdm)
-pkgver=3.18.2
+pkgver=3.22.1
 pkgrel=1
 pkgdesc="Gnome Display Manager"
 arch=(i686 x86_64)
@@ -13,11 +13,10 @@ url="http://www.gnome.org"
 depends=(gnome-shell gnome-session upower xorg-xrdb xorg-server xorg-server-xwayland xorg-xhost)
 makedepends=(itstool intltool yelp-tools gobject-introspection)
 # checkdepends=('check')
-source=(http://ftp.gnome.org/pub/gnome/sources/$pkgbase/${pkgver:0:4}/$pkgbase-$pkgver.tar.xz
-        0001-Add-Arch-Linux-PAM-config-files.patch
+_commit=4eb6575fdbd0e0dda9b209f6b4731edf990fde98  # tags/3.22.1^0
+source=("git://git.gnome.org/gdm#commit=$_commit"
         0002-Xsession-Don-t-start-ssh-agent-by-default.patch)
-sha256sums=('549235247611d74f0d5d5a4aa01ba9350a4d3468e44ac013b40791c6a986f822'
-            'b8a766de258520e9f9079ce50db5a80c9a22fd4e2813359e9f34f7c29e723912'
+sha256sums=('SKIP'
             '9449da0b6ee58aa3fde65e6d8d1f30513e4176a7dc6d176f17f320ce82cb1d82')
 
 depends=(upower xorg-xrdb xorg-server xorg-server-xwayland xorg-xhost)
@@ -29,17 +28,22 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
 
-prepare() {
-  cd $pkgbase-$pkgver
+pkgver() {
+  cd $pkgbase
+  git describe --tags | sed 's/-/+/g'
+}
 
-  patch -Np1 -i ../0001-Add-Arch-Linux-PAM-config-files.patch
+prepare() {
+  cd $pkgbase
+
+  # patch -Np1 -i ../0001-Add-Arch-Linux-PAM-config-files.patch
   patch -Np1 -i ../0002-Xsession-Don-t-start-ssh-agent-by-default.patch
 
-  AUTOPOINT='intltoolize --automake -c' autoreconf -fi
+  NOCONFIGURE=1 ./autogen.sh
 }
 
 build() {
-  cd $pkgbase-$pkgver
+  cd $pkgbase
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -65,13 +69,13 @@ build() {
     --with-systemd \
     --with-default-pam-config=arch
 
-  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0 /g' -e 's/    if test "$export_dynamic" = yes && test -n "$export_dynamic_flag_spec"; then/      func_append compile_command " -Wl,-O1,--as-needed"\n      func_append finalize_command " -Wl,-O1,--as-needed"\n\0/' libtool
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 
   make
 }
 
 check() {
-  cd $pkgbase-$pkgver
+  cd $pkgbase
   # make check
 }
 
@@ -84,7 +88,7 @@ package_gdm() {
   groups=(gnome)
   install=gdm.install
 
-  cd $pkgbase-$pkgver
+  cd $pkgbase
   make DESTDIR="$pkgdir" install
 
   chmod 711 "$pkgdir/var/log/gdm"
@@ -100,7 +104,7 @@ package_libgdm() {
   depends=(systemd glib2)
   install=libgdm.install
 
-  cd $pkgbase-$pkgver
+  cd $pkgbase
   make -C libgdm DESTDIR="$pkgdir" install
   install -Dm644 "$srcdir/org.gnome.login-screen.gschema.xml" \
     "$pkgdir/usr/local/${dstdir}/share/glib-2.0/schemas/org.gnome.login-screen.gschema.xml"

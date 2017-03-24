@@ -1,6 +1,6 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 pkgbase=mate-polkit
 pkgname=(${pkgbase} ${pkgbase}-gtk3)
 pkgver=${_ver}.0
@@ -10,9 +10,9 @@ url="http://mate-desktop.org"
 arch=('i686' 'x86_64')
 license=('LGPL')
 depends=('gtk2' 'gtk3' 'polkit' 'accountsservice')
-makedepends=('gobject-introspection' 'mate-common')
+makedepends=('gobject-introspection' 'intltool')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgname}-${pkgver}.tar.xz")
-sha1sums=('26ec78dda925755f0c0b272c9b53fb77a78bfe98')
+sha1sums=('d4add9b8ad5ffd249f961dbc7f69fd372013bd46')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64

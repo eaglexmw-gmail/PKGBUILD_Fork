@@ -3,7 +3,7 @@
 # Contributor: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
 
 pkgname=cinnamon-session
-pkgver=3.0.0
+pkgver=3.2.0
 pkgrel=1
 pkgdesc="The Cinnamon Session Handler"
 arch=(i686 x86_64)
@@ -14,10 +14,9 @@ makedepends=(intltool mesa json-glib xtrans gnome-common)
 options=('!emptydirs')
 install=cinnamon-session.install
 url="https://github.com/linuxmint/cinnamon-session"
-source=(${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/cinnamon-session/archive/${pkgver}.tar.gz
-        timeout.patch)
-sha256sums=('0ddf1cf2555c97dd6cf2e2b1bd11abbe6e3c21f9d417268110e5860ae7e4af2e'
-            'ef421a14814c7858490b3a806568ab4ec8a0dc21d390e94f801771c1261bb24a')
+source=(${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/cinnamon-session/archive/${pkgver}.tar.gz)
+sha256sums=('d7c3d951ae0dddef96941c9f08f028a099443888db41981524f618a92624e0ca')
+
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
@@ -29,7 +28,7 @@ prepare() {
   cd $pkgname-$pkgver
 
   # Increase timeout, for slow machines
-  patch -Np1 -i ../timeout.patch
+  # patch -Np1 -i ../timeout.patch
 
 }
 

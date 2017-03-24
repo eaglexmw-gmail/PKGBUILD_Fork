@@ -3,8 +3,8 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gnome-applets
-pkgver=3.18.1
-pkgrel=2
+pkgver=3.22.0
+pkgrel=1
 pkgdesc="Small applications for the GNOME Panel"
 arch=('i686' 'x86_64')
 url="https://wiki.gnome.org/Projects/GnomeApplets"
@@ -16,22 +16,14 @@ depends=('upower')
 makedepends=('intltool' 'itstool')
 
 install=$pkgname.install
-source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz
-        0001-stickynotes-don-t-ignore-font-type.patch)
-sha256sums=('e09eb18f55be851da4c75c7d97df40130625ea548b2aa8d9db21e17bb06eefd5'
-            '7b6120c5d8daebe71fceb1f6993bed1580c82ed28d75d6ca44f1f87add46325a')
+source=(https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+sha256sums=('2707f4efb3e890e36a54792fb728107f82f79bf517145b576331c7a973a56dd4')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gnome3_64
 elif [ "$CARCH" = "i686" ]; then
   dstdir=gnome3
 fi
-
-prepare() {
-  cd $pkgname-$pkgver
-  # stickynotes: don't ignore font type
-  patch -Np1 -i ../0001-stickynotes-don-t-ignore-font-type.patch
-}
 
 build() {
   cd $pkgname-$pkgver
@@ -42,6 +34,10 @@ build() {
 
   ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var --libexecdir=/usr/local/${dstdir}/lib/$pkgname \
               --disable-schemas-compile --with-cpufreq-lib=cpupower
+
+  #https://bugzilla.gnome.org/show_bug.cgi?id=656231
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
   make
 }
 

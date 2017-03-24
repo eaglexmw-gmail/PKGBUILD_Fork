@@ -3,7 +3,7 @@
 # Contributor: Ner0
 
 pkgname=nemo
-pkgver=3.0.0
+pkgver=3.2.2
 pkgrel=1
 pkgdesc="Cinnamon file manager (Nautilus fork)"
 arch=('i686' 'x86_64')
@@ -17,8 +17,8 @@ depends=('libexif' 'dconf' 'desktop-file-utils'
 makedepends=('gtk-doc' 'gobject-introspection' 'intltool' 'gnome-common' 'python2-gobject' 'python2-polib')
 options=('!emptydirs')
 install=nemo.install
-source=("$pkgname-$pkgver.tar.gz::https://github.com/linuxmint/nemo/tarball/$pkgver")
-sha256sums=('25da69bfb2a5864e643095c85b875bbfb97520a899671a77aeae0c812444366c')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/linuxmint/nemo/tarball/$pkgver" locale.patch)
+sha256sums=('5f04fe37112d15d55d0fe1783252a8d03df70897fb5349ef6d28dbdbcf226407' 'SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
@@ -29,8 +29,10 @@ fi
 prepare() {
   cd linuxmint-nemo-*
 
+  patch -Np1 -i ../locale.patch
+
   # Python2 fix
-  find -type f | xargs sed -i 's@^#!.*python$@#!/usr/bin/python2@'
+  # find -type f | xargs sed -i 's@^#!.*python$@#!/usr/bin/python2@'
 
   # directory: limit deep scount (folder contents and size) to one filesystem (FS#47480)
   # https://github.com/linuxmint/nemo/pull/1083

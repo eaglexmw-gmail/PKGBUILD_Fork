@@ -1,0 +1,23 @@
+diff -Nur cinnamon-control-center-3.2.1/configure.ac cinnamon-control-center-3.2.1_new/configure.ac
+--- cinnamon-control-center-3.2.1/configure.ac	2016-12-12 22:31:49.000000000 +0800
++++ cinnamon-control-center-3.2.1_new/configure.ac	2017-03-02 21:24:53.003191418 +0800
+@@ -124,7 +124,7 @@
+ PKG_CHECK_MODULES(MEDIA_PANEL, $COMMON_MODULES)
+ 
+ PKG_CHECK_MODULES(NETWORK_PANEL, $COMMON_MODULES gmodule-2.0)
+-PKG_CHECK_MODULES(COLOR_PANEL, $COMMON_MODULES colord >= 0.1.14)
++dnl PKG_CHECK_MODULES(COLOR_PANEL, $COMMON_MODULES colord >= 0.1.14)
+ PKG_CHECK_MODULES(REGION_PANEL, $COMMON_MODULES libgnomekbd >= 2.91.91
+                   polkit-gobject-1 >= $POLKIT_REQUIRED_VERSION
+                   libxklavier >= 5.1 libgnomekbdui >= 2.91.91)
+diff -Nur cinnamon-control-center-3.2.1/panels/Makefile.am cinnamon-control-center-3.2.1_new/panels/Makefile.am
+--- cinnamon-control-center-3.2.1/panels/Makefile.am	2016-12-12 22:31:49.000000000 +0800
++++ cinnamon-control-center-3.2.1_new/panels/Makefile.am	2017-03-02 21:25:07.636524362 +0800
+@@ -2,7 +2,6 @@
+ 
+ enabled_panels = \
+ 	common \
+-	color \
+ 	display \
+ 	region \
+ 	datetime

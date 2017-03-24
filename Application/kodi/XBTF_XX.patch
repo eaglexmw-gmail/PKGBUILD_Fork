@@ -1,0 +1,61 @@
+diff -Nur old/tools/depends/native/TexturePacker/src/XBTFWriter.cpp new/tools/depends/native/TexturePacker/src/XBTFWriter.cpp
+--- old/tools/depends/native/TexturePacker/src/XBTFWriter.cpp	2016-04-24 06:48:30.000000000 +0000
++++ new/tools/depends/native/TexturePacker/src/XBTFWriter.cpp	2016-10-23 03:40:33.222561632 +0000
+@@ -108,8 +108,8 @@
+   uint64_t headerSize = GetHeaderSize();
+   uint64_t offset = headerSize;
+ 
+-  WRITE_STR(XBTF_MAGIC.c_str(), 4, m_file);
+-  WRITE_STR(XBTF_VERSION.c_str(), 1, m_file);
++  WRITE_STR(XBTF_MAGIC, 4, m_file);
++  WRITE_STR(XBTF_VERSION, 1, m_file);
+ 
+   auto files = GetFiles();
+   WRITE_U32(files.size(), m_file);
+diff -Nur old/xbmc/guilib/XBTF.cpp new/xbmc/guilib/XBTF.cpp
+--- old/xbmc/guilib/XBTF.cpp	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/guilib/XBTF.cpp	2016-10-23 03:43:11.465903282 +0000
+@@ -203,7 +203,7 @@
+ 
+ uint64_t CXBTFBase::GetHeaderSize() const
+ {
+-  uint64_t result = XBTF_MAGIC.size() + XBTF_VERSION.size() +
++  uint64_t result = 4 + 1 + //XBTF_MAGIC.size() + XBTF_VERSION.size() +
+     sizeof(uint32_t) /* number of files */;
+ 
+   for (const auto& file : m_files)
+diff -Nur old/xbmc/guilib/XBTF.h new/xbmc/guilib/XBTF.h
+--- old/xbmc/guilib/XBTF.h	2016-10-23 03:33:59.682540945 +0000
++++ new/xbmc/guilib/XBTF.h	2016-10-23 03:43:25.229237338 +0000
+@@ -25,8 +25,8 @@
+ 
+ #include <stdint.h>
+ 
+-static const std::string XBTF_MAGIC = "XBTF";
+-static const std::string XBTF_VERSION = "2";
++static const char* XBTF_MAGIC = "XBTF";
++static const char* XBTF_VERSION = "2";
+ 
+ #define XB_FMT_MASK   0xffff ///< mask for format info - other flags are outside this
+ #define XB_FMT_DXT_MASK   15
+diff -Nur old/xbmc/guilib/XBTFReader.cpp new/xbmc/guilib/XBTFReader.cpp
+--- old/xbmc/guilib/XBTFReader.cpp	2016-04-24 06:48:30.000000000 +0000
++++ new/xbmc/guilib/XBTFReader.cpp	2016-10-23 03:43:45.552571740 +0000
+@@ -98,7 +98,7 @@
+   if (!ReadString(m_file, magic, sizeof(magic)))
+     return false;
+ 
+-  if (strncmp(XBTF_MAGIC.c_str(), magic, sizeof(magic)) != 0)
++  if (strncmp(XBTF_MAGIC, magic, sizeof(magic)) != 0)
+     return false;
+ 
+   // read the version
+@@ -106,7 +106,7 @@
+   if (!ReadString(m_file, version, sizeof(version)))
+     return false;
+ 
+-  if (strncmp(XBTF_VERSION.c_str(), version, sizeof(version)) != 0)
++  if (strncmp(XBTF_VERSION, version, sizeof(version)) != 0)
+     return false;
+ 
+   unsigned int nofFiles;

@@ -1,7 +1,8 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
-pkgname=mate-menus
+_ver=1.16
+pkgbase=mate-menus
+pkgname=(${pkgbase} ${pkgbase}-gtk3)
 pkgver=${_ver}.0
 pkgrel=1
 pkgdesc="MATE menu specifications"
@@ -9,10 +10,10 @@ url="http://mate-desktop.org"
 arch=('i686' 'x86_64')
 license=('GPL')
 depends=('glib2' 'python2')
-makedepends=('gobject-introspection' 'mate-common')
+makedepends=('gobject-introspection' 'intltool' 'python2')
 groups=('mate' 'mate-gtk3')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${pkgname}-${pkgver}.tar.xz")
-sha1sums=('a52eacac8cd912b866c085bc4a20e866572f96d6')
+sha1sums=('40b73ae7a151259c32ecd150c8fb77b5dc696f62')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=mate64
@@ -20,19 +21,47 @@ elif [ "$CARCH" = "i686" ]; then
   dstdir=mate
 fi
 
+prepare() {
+    cd "${srcdir}"
+    mv "${pkgname}-${pkgver}" "${pkgbase}-gtk2"
+    cp -a "${pkgbase}-gtk2" "${pkgbase}-gtk3"
+}
 
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    PYTHON=/usr/bin/python2 ./configure \
+    cd "${srcdir}/${pkgbase}-gtk2"
+    ./configure \
         --prefix=/usr/local/${dstdir}/mate_gtk+2.0 \
         --sysconfdir=/usr/local/${dstdir}/mate_gtk+2.0/etc \
         --localstatedir=/var \
-        --enable-python \
+        --disable-python \
+        --disable-static
+    make
+
+
+    cd "${srcdir}/${pkgbase}-gtk3"
+    ./configure \
+        --prefix=/usr/local/${dstdir}/mate_gtk+3.0 \
+        --sysconfdir=/usr/local/${dstdir}/mate_gtk+3.0/etc \
+        --localstatedir=/var \
+        --disable-python \
         --disable-static
     make
 }
 
-package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
+package_mate-menus() {
+    pkgdesc+=' (GTK2 version)'
+    groups=('mate')
+    conflicts=("${pkgbase}-gtk3")
+    
+    cd "${srcdir}/${pkgbase}-gtk2"
+    make DESTDIR="${pkgdir}" install
+}
+
+package_mate-menus-gtk3() {
+    pkgdesc+=' (GTK3 version [EXPERIMENTAL])'
+    groups=('mate-gtk3')
+    conflicts=("${pkgbase}")
+    
+    cd "${srcdir}/${pkgbase}-gtk3"
     make DESTDIR="${pkgdir}" install
 }

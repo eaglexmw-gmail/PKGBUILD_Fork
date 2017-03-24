@@ -1,6 +1,6 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 _pkgbase=mate-sensors-applet
 pkgname=(${_pkgbase})
 pkgver=${_ver}.1
@@ -10,12 +10,12 @@ url="http://mate-desktop.org"
 arch=('i686' 'x86_64')
 license=('GPL')
 depends=('dbus' 'gtk2' 'libatasmart' 'libnotify' 'lm_sensors')
-makedepends=('docbook-xml' 'libxnvctrl' 'mate-common' 'rarian' 'yelp-tools')
+makedepends=('docbook-xsl' 'intltool' 'itstool')
 optdepends=('yelp: for reading MATE help documents')
 groups=('mate-extra')
 conflicts=("${_pkgbase}-gtk3")
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
-sha1sums=('310b06bc37038c55a18874e49c75a20c13b75e37')
+sha1sums=('a588b17b8c7ae3d01bb0871a37fa9d726c4637a1')
 install=${_pkgbase}.install
 
 if [ "$CARCH" = "x86_64" ]; then

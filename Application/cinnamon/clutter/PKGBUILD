@@ -4,7 +4,7 @@
 # Contributor: William Rea <sillywilly@gmail.com>
 
 pkgname=clutter
-pkgver=1.24.0
+pkgver=1.26.0+24+g79da52614
 pkgrel=1
 pkgdesc="A GObject based library for creating fast, visually rich graphical user interfaces"
 arch=('i686' 'x86_64')
@@ -13,8 +13,19 @@ license=('LGPL')
 # depends=('gtk3' 'cogl' 'libinput')
 depends=('gtk3')
 makedepends=('gobject-introspection' 'gtk-doc')
-source=(https://download.gnome.org/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
-sha256sums=('85c87d5745b97af7633776419a47421aae7cea66c1b870f88cc5e06a4c5626e6')
+_commit=79da526145de3033e01eb1de6d6ec712639a7ea5
+source=("git://git.gnome.org/clutter#commit=$_commit")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+  NOCONFIGURE=1 ./autogen.sh
+}
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
@@ -23,7 +34,7 @@ elif [ "$CARCH" = "i686" ]; then
 fi
 
 build() {
-  cd "$pkgname-$pkgver"
+  cd "$pkgname"
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -44,6 +55,6 @@ build() {
 }
 
 package() {
-  cd "$pkgname-$pkgver"
+  cd "$pkgname"
   make DESTDIR="$pkgdir" install
 }

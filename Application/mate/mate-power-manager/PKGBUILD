@@ -1,9 +1,9 @@
 # Maintainer : Martin Wimpress <code@flexion.org>
 
-_ver=1.12
+_ver=1.16
 _pkgbase=mate-power-manager
 pkgname=(${_pkgbase})
-pkgver=${_ver}.1
+pkgver=${_ver}.2
 pkgrel=1
 pkgdesc="Power management tool for the MATE desktop (GTK2 version)"
 url="http://mate-desktop.org"
@@ -13,14 +13,14 @@ license=('GPL')
 #         'libnotify' 'libunique' 'mate-desktop>=1.10' 'upower')
 depends=('dbus-glib' 'dconf' 'gtk2' 
          'libnotify' 'upower')
-#makedepends=('docbook2x' 'docbook-xml' 'mate-common' 'mate-panel' 'xmlto' 'yelp-tools')
-makedepends=('docbook2x' 'docbook-xml' 'mate-common' 'xmlto' 'yelp-tools')
+#makedepends=('intltool' 'itstool' 'mate-panel')
+makedepends=('intltool' 'itstool')
 optdepends=('mate-panel: Set brightness and inhibit power management from the panel'
             'yelp: for reading MATE help documents')
 source=("http://pub.mate-desktop.org/releases/${_ver}/${_pkgbase}-${pkgver}.tar.xz")
 groups=('mate-extra')
 conflicts=("${_pkgbase}-gtk3")
-sha1sums=('b9902eb14618f9378887d9e1d5d0ef37dc99d737')
+sha1sums=('d688f8903216819ccd6c6000aea6d6a847706a52')
 install=${_pkgbase}.install
 
 if [ "$CARCH" = "x86_64" ]; then
