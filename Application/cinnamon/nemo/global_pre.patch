@@ -1,0 +1,65 @@
+diff -Nur linuxmint-nemo-21202c0_old/libnemo-private/nemo-global-preferences.c linuxmint-nemo-21202c0/libnemo-private/nemo-global-preferences.c
+--- linuxmint-nemo-21202c0_old/libnemo-private/nemo-global-preferences.c	2016-12-12 22:25:38.000000000 +0800
++++ linuxmint-nemo-21202c0/libnemo-private/nemo-global-preferences.c	2022-12-25 17:17:58.189837210 +0800
+@@ -34,6 +34,22 @@
+ #include <eel/eel-string.h>
+ #include <glib/gi18n.h>
+ 
++GSettings *nemo_preferences;
++GSettings *nemo_icon_view_preferences;
++GSettings *nemo_list_view_preferences;
++GSettings *nemo_compact_view_preferences;
++GSettings *nemo_desktop_preferences;
++GSettings *nemo_tree_sidebar_preferences;
++GSettings *nemo_window_state;
++GSettings *nemo_plugin_preferences;
++GSettings *gnome_lockdown_preferences;
++GSettings *gnome_background_preferences;
++GSettings *gnome_media_handling_preferences;
++GSettings *gnome_terminal_preferences;
++GSettings *cinnamon_privacy_preferences;
++
++gint64 nemo_startup_time;
++
+ static gboolean ignore_view_metadata = FALSE;
+ 
+ /*
+diff -Nur linuxmint-nemo-21202c0_old/libnemo-private/nemo-global-preferences.h linuxmint-nemo-21202c0/libnemo-private/nemo-global-preferences.h
+--- linuxmint-nemo-21202c0_old/libnemo-private/nemo-global-preferences.h	2016-12-12 22:25:38.000000000 +0800
++++ linuxmint-nemo-21202c0/libnemo-private/nemo-global-preferences.h	2022-12-25 17:17:05.526504288 +0800
+@@ -261,21 +261,21 @@
+ gint nemo_global_preferences_get_tooltip_flags (void);
+ gboolean nemo_global_preferences_should_load_plugin (const gchar *name, const gchar *key);
+ 
+-GSettings *nemo_preferences;
+-GSettings *nemo_icon_view_preferences;
+-GSettings *nemo_list_view_preferences;
+-GSettings *nemo_compact_view_preferences;
+-GSettings *nemo_desktop_preferences;
+-GSettings *nemo_tree_sidebar_preferences;
+-GSettings *nemo_window_state;
+-GSettings *nemo_plugin_preferences;
+-GSettings *gnome_lockdown_preferences;
+-GSettings *gnome_background_preferences;
+-GSettings *gnome_media_handling_preferences;
+-GSettings *gnome_terminal_preferences;
+-GSettings *cinnamon_privacy_preferences;
++extern GSettings *nemo_preferences;
++extern GSettings *nemo_icon_view_preferences;
++extern GSettings *nemo_list_view_preferences;
++extern GSettings *nemo_compact_view_preferences;
++extern GSettings *nemo_desktop_preferences;
++extern GSettings *nemo_tree_sidebar_preferences;
++extern GSettings *nemo_window_state;
++extern GSettings *nemo_plugin_preferences;
++extern GSettings *gnome_lockdown_preferences;
++extern GSettings *gnome_background_preferences;
++extern GSettings *gnome_media_handling_preferences;
++extern GSettings *gnome_terminal_preferences;
++extern GSettings *cinnamon_privacy_preferences;
+ 
+-gint64 nemo_startup_time;
++extern gint64 nemo_startup_time;
+ 
+ G_END_DECLS
+ 

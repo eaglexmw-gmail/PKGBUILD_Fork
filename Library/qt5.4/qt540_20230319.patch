@@ -1,0 +1,249 @@
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/include/QtCore/qcursorshape_adp.h qt-everywhere-opensource-src-5.4.0/qtbase/include/QtCore/qcursorshape_adp.h
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/include/QtCore/qcursorshape_adp.h	1970-01-01 08:00:00.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/include/QtCore/qcursorshape_adp.h	2023-03-19 21:24:44.000000000 +0800
+@@ -0,0 +1,10 @@
++#ifndef QCURSOR_SHAPE_ADAPT_H
++#define QCURSOR_SHAPE_ADAPT_H
++
++#include <X11/Xlib.h>
++enum {
++    XCursorShape = CursorShape
++};
++#undef CursorShape
++
++#endif
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/corelib/global/qglobal.h qt-everywhere-opensource-src-5.4.0/qtbase/src/corelib/global/qglobal.h
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/corelib/global/qglobal.h	2014-12-06 00:24:37.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/corelib/global/qglobal.h	2023-03-19 23:49:33.000000000 +0800
+@@ -35,6 +35,11 @@
+ #ifndef QGLOBAL_H
+ #define QGLOBAL_H
+ 
++#ifdef __cplusplus
++#include <stdexcept>
++#include <limits>
++#endif
++
+ #include <stddef.h>
+ 
+ #define QT_VERSION_STR   "5.4.0"
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/corelib/io/qtextstream.h qt-everywhere-opensource-src-5.4.0/qtbase/src/corelib/io/qtextstream.h
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/corelib/io/qtextstream.h	2014-12-06 00:24:37.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/corelib/io/qtextstream.h	2023-03-19 23:49:43.000000000 +0800
+@@ -43,7 +43,10 @@
+ #include <stdio.h>
+ 
+ #ifdef Status
+-#error qtextstream.h must be included before any header file that defines Status
++#warning defined: #Status
++#define TEMP_Status Status
++#undef Status
++//#error qtextstream.h must be included before any header file that defines Status
+ #endif
+ 
+ QT_BEGIN_NAMESPACE
+@@ -275,4 +278,9 @@
+ 
+ QT_END_NAMESPACE
+ 
++#ifdef TEMP_Status
++#define Status TEMP_Status
++#undef TEMP_Status
++#endif
++
+ #endif // QTEXTSTREAM_H
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/platformsupport/eglconvenience/qeglplatformcursor.cpp qt-everywhere-opensource-src-5.4.0/qtbase/src/platformsupport/eglconvenience/qeglplatformcursor.cpp
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/platformsupport/eglconvenience/qeglplatformcursor.cpp	2014-12-06 00:24:30.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/platformsupport/eglconvenience/qeglplatformcursor.cpp	2023-03-19 23:49:56.000000000 +0800
+@@ -44,6 +44,8 @@
+ #include "qeglplatformcursor_p.h"
+ #include "qeglplatformintegration_p.h"
+ 
++#include <QtCore/qcursorshape_adp.h>
++
+ QT_BEGIN_NAMESPACE
+ 
+ /*!
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/platformsupport/eglconvenience/qeglplatformintegration_p.h qt-everywhere-opensource-src-5.4.0/qtbase/src/platformsupport/eglconvenience/qeglplatformintegration_p.h
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/platformsupport/eglconvenience/qeglplatformintegration_p.h	2014-12-06 00:24:30.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/platformsupport/eglconvenience/qeglplatformintegration_p.h	2023-03-19 23:50:03.000000000 +0800
+@@ -50,6 +50,8 @@
+ #include <QtCore/QVariant>
+ #include <EGL/egl.h>
+ 
++#include <QtCore/qcursorshape_adp.h>
++
+ QT_BEGIN_NAMESPACE
+ 
+ class QEGLPlatformScreen;
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/eglfs/qeglfscontext.cpp qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/eglfs/qeglfscontext.cpp
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/eglfs/qeglfscontext.cpp	2014-12-06 00:24:37.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/eglfs/qeglfscontext.cpp	2023-03-19 23:50:16.000000000 +0800
+@@ -31,15 +31,16 @@
+ **
+ ****************************************************************************/
+ 
+-#include "qeglfscontext.h"
+-#include "qeglfswindow.h"
+-#include "qeglfshooks.h"
++#include <QtGui/QSurface>
++#include <QtDebug>
+ 
++#include <QtPlatformSupport/private/qeglplatformcursor_p.h>
+ #include <QtPlatformSupport/private/qeglconvenience_p.h>
+ #include <QtPlatformSupport/private/qeglpbuffer_p.h>
+-#include <QtPlatformSupport/private/qeglplatformcursor_p.h>
+-#include <QtGui/QSurface>
+-#include <QtDebug>
++
++#include "qeglfswindow.h"
++#include "qeglfshooks.h"
++#include "qeglfscontext.h"
+ 
+ QT_BEGIN_NAMESPACE
+ 
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/eglfs/qeglfshooks_stub.cpp qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/eglfs/qeglfshooks_stub.cpp
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/eglfs/qeglfshooks_stub.cpp	2014-12-06 00:24:37.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/eglfs/qeglfshooks_stub.cpp	2023-03-19 23:50:23.000000000 +0800
+@@ -31,10 +31,10 @@
+ **
+ ****************************************************************************/
+ 
+-#include "qeglfshooks.h"
+ #include <QtPlatformSupport/private/qeglplatformcursor_p.h>
+ #include <QtPlatformSupport/private/qeglconvenience_p.h>
+ #include <QtCore/QRegularExpression>
++#include "qeglfshooks.h"
+ 
+ #if defined(Q_OS_LINUX)
+ #include <fcntl.h>
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/eglfs/qeglfsintegration.cpp qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/eglfs/qeglfsintegration.cpp
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/eglfs/qeglfsintegration.cpp	2014-12-06 00:24:37.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/eglfs/qeglfsintegration.cpp	2023-03-19 23:50:30.000000000 +0800
+@@ -31,26 +31,27 @@
+ **
+ ****************************************************************************/
+ 
++#include <QtCore/qtextstream.h>
++#include <QtGui/private/qguiapplication_p.h>
++
++#include <qpa/qplatformwindow.h>
++#include <QtGui/QSurfaceFormat>
++#include <QtGui/QOpenGLContext>
++#include <QtGui/QScreen>
++#include <QtGui/QOffscreenSurface>
++#include <qpa/qplatformcursor.h>
++
+ #include "qeglfsintegration.h"
+ 
+ #include "qeglfswindow.h"
+ #include "qeglfshooks.h"
+ #include "qeglfscontext.h"
+ 
+-#include <QtGui/private/qguiapplication_p.h>
+-
+ #include <QtPlatformSupport/private/qeglconvenience_p.h>
+ #include <QtPlatformSupport/private/qeglplatformcontext_p.h>
+ #include <QtPlatformSupport/private/qeglpbuffer_p.h>
+ #include <QtPlatformHeaders/QEGLNativeContext>
+ 
+-#include <qpa/qplatformwindow.h>
+-#include <QtGui/QSurfaceFormat>
+-#include <QtGui/QOpenGLContext>
+-#include <QtGui/QScreen>
+-#include <QtGui/QOffscreenSurface>
+-#include <qpa/qplatformcursor.h>
+-
+ #include <EGL/egl.h>
+ 
+ static void initResources()
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/eglfs/qeglfsscreen.cpp qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/eglfs/qeglfsscreen.cpp
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/eglfs/qeglfsscreen.cpp	2014-12-06 00:24:37.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/eglfs/qeglfsscreen.cpp	2023-03-19 23:50:36.000000000 +0800
+@@ -31,10 +31,12 @@
+ **
+ ****************************************************************************/
+ 
++#include <QtCore/qtextstream.h>
++#include <QtPlatformSupport/private/qeglplatformcursor_p.h>
++
+ #include "qeglfsscreen.h"
+ #include "qeglfswindow.h"
+ #include "qeglfshooks.h"
+-#include <QtPlatformSupport/private/qeglplatformcursor_p.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/eglfs/qeglfswindow.cpp qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/eglfs/qeglfswindow.cpp
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/eglfs/qeglfswindow.cpp	2014-12-06 00:24:37.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/eglfs/qeglfswindow.cpp	2023-03-19 23:50:43.000000000 +0800
+@@ -31,8 +31,7 @@
+ **
+ ****************************************************************************/
+ 
+-#include "qeglfswindow.h"
+-#include "qeglfshooks.h"
++#include <QtCore/qtextstream.h>
+ #include <qpa/qwindowsysteminterface.h>
+ #include <qpa/qplatformintegration.h>
+ #include <private/qguiapplication_p.h>
+@@ -40,6 +39,9 @@
+ #include <QtPlatformSupport/private/qeglplatformcursor_p.h>
+ #include <QtPlatformSupport/private/qeglconvenience_p.h>
+ 
++#include "qeglfswindow.h"
++#include "qeglfshooks.h"
++
+ #include <QtDebug>
+ 
+ QT_BEGIN_NAMESPACE
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/linuxfb/qlinuxfbintegration.h qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/linuxfb/qlinuxfbintegration.h
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/linuxfb/qlinuxfbintegration.h	2014-12-06 00:24:37.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/linuxfb/qlinuxfbintegration.h	2023-03-19 23:50:49.000000000 +0800
+@@ -35,6 +35,7 @@
+ #define QLINUXFBINTEGRATION_H
+ 
+ #include <qpa/qplatformintegration.h>
++#include <qpa/qplatformnativeinterface.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/minimalegl/qminimaleglwindow.cpp qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/minimalegl/qminimaleglwindow.cpp
+--- qt-everywhere-opensource-src-5.4.0_old/qtbase/src/plugins/platforms/minimalegl/qminimaleglwindow.cpp	2014-12-06 00:24:37.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtbase/src/plugins/platforms/minimalegl/qminimaleglwindow.cpp	2023-03-19 23:50:56.000000000 +0800
+@@ -31,10 +31,10 @@
+ **
+ ****************************************************************************/
+ 
+-#include "qminimaleglwindow.h"
+-
+ #include <qpa/qwindowsysteminterface.h>
+ 
++#include "qminimaleglwindow.h"
++
+ QT_BEGIN_NAMESPACE
+ 
+ QMinimalEglWindow::QMinimalEglWindow(QWindow *w)
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp qt-everywhere-opensource-src-5.4.0/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp
+--- qt-everywhere-opensource-src-5.4.0_old/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp	2014-12-06 00:25:19.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp	2023-03-19 23:51:07.000000000 +0800
+@@ -31,6 +31,7 @@
+ ** $QT_END_LICENSE$
+ **
+ ****************************************************************************/
++#include <math.h>
+ 
+ #include "qjp2handler_p.h"
+ 
+diff -Nur qt-everywhere-opensource-src-5.4.0_old/qtscript/src/3rdparty/javascriptcore/JavaScriptCore/yarr/RegexCompiler.cpp qt-everywhere-opensource-src-5.4.0/qtscript/src/3rdparty/javascriptcore/JavaScriptCore/yarr/RegexCompiler.cpp
+--- qt-everywhere-opensource-src-5.4.0_old/qtscript/src/3rdparty/javascriptcore/JavaScriptCore/yarr/RegexCompiler.cpp	2014-12-06 00:24:12.000000000 +0800
++++ qt-everywhere-opensource-src-5.4.0/qtscript/src/3rdparty/javascriptcore/JavaScriptCore/yarr/RegexCompiler.cpp	2023-03-19 23:51:20.000000000 +0800
+@@ -719,7 +719,7 @@
+ 
+     constructor.setupOffsets();
+ 
+-    return false;
++    return NULL;
+ };
+ 
+ 

@@ -6,7 +6,7 @@ pkgname=cinnamon-session
 pkgver=3.2.0
 pkgrel=1
 pkgdesc="The Cinnamon Session Handler"
-arch=(i686 x86_64)
+arch=(i686 x86_64 pentium4)
 license=(GPL LGPL)
 # depends=(dbus-glib cinnamon-desktop libsm libcanberra)
 depends=(dbus-glib libsm)
@@ -14,13 +14,15 @@ makedepends=(intltool mesa json-glib xtrans gnome-common)
 options=('!emptydirs')
 install=cinnamon-session.install
 url="https://github.com/linuxmint/cinnamon-session"
-source=(${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/cinnamon-session/archive/${pkgver}.tar.gz)
+source=(${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/cinnamon-session/archive/refs/tags/${pkgver}.tar.gz)
 sha256sums=('d7c3d951ae0dddef96941c9f08f028a099443888db41981524f618a92624e0ca')
 
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
   dstdir=cinnamon
 fi
 
@@ -40,7 +42,17 @@ build() {
   ./autogen.sh --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc \
       --localstatedir=/var --libexecdir=/usr/local/${dstdir}/lib/cinnamon-session \
       --disable-schemas-compile --disable-gconf
-  make
+
+if [ "$CARCH" = "x86_64" ]; then
+  #sed -i 's| -lharfbuzz |& /usr/local/lib64/libgraphite2.a |g' cinnamon-session/Makefile
+  #sed -i 's| -lharfbuzz |& /usr/local/lib64/libgraphite2.a |g' tools/Makefile
+  echo skip change cinnamon-session/Makefile
+else
+  sed -i 's| -lharfbuzz |& /usr/local/lib32/libgraphite2.a |g' cinnamon-session/Makefile
+  sed -i 's| -lharfbuzz |& /usr/local/lib32/libgraphite2.a |g' tools/Makefile
+fi
+
+  make V=1
 }
 
 package() {

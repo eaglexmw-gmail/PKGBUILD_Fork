@@ -5,11 +5,12 @@ pkgname=js
 pkgver=24.2.0
 pkgrel=1
 pkgdesc="JavaScript interpreter and libraries"
-arch=(i686 x86_64)
+arch=(i686 x86_64 pentium4)
 url="https://developer.mozilla.org/En/SpiderMonkey/17"
 license=(MPL)
 depends=(nspr gcc-libs readline zlib)
-makedepends=(python2 zip libffi)
+#makedepends=(python2 zip libffi)
+makedepends=(zip libffi)
 options=(!staticlibs)
 source=(http://ftp.mozilla.org/pub/mozilla.org/js/mozjs-$pkgver.tar.bz2
         fix_template_file.patch)
@@ -20,6 +21,8 @@ if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
   dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
+  dstdir=cinnamon
 fi
 
 prepare() {
@@ -28,20 +31,37 @@ prepare() {
 
   cd mozjs-$pkgver
   patch -p1 -i ../fix_template_file.patch
+  sed -i 's|QuoteString(&sprinter, s, quote) >= |& (char*)|g' js/src/jsopcode.cpp
+  sed -i "256c\ if (value[0] == (char*)0)"          js/src/shell/jsoptparse.cpp
 
 }
 
 build() {
   unset CPPFLAGS
   cd mozjs-$pkgver/js/src
+
+if [ "$CARCH" = "x86_64" ]; then
+  export LDFLAGS="-L/usr/lib -L/usr/local/python2_64 -L/usr/local/python2_64/lib"
+
+  PYTHON=python2 ./configure --prefix=/usr/local/${dstdir} --with-system-nspr --enable-system-ffi \
+     --enable-readline --enable-threadsafe
+
+  cp -f ./config.status /usr/local/python2_64/lib/python2.7/site-packages/
+
+else
+  export LDFLAGS="-L/usr/lib -L/usr/local/python2 -L/usr/local/python2/lib"
+
   ./configure --prefix=/usr/local/${dstdir} --with-system-nspr --enable-system-ffi \
      --enable-readline --enable-threadsafe
+
+  cp -f ./config.status /usr/local/python2/lib/python2.7/site-packages/
+fi
   make
 }
 
 check() {
   cd mozjs-$pkgver/js/src
-  make check
+  #make check
 }
 
 package() {

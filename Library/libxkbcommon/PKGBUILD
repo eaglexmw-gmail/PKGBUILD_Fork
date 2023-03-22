@@ -1,59 +1,121 @@
-# $Id$
-# Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 # Contributor: Daniel Micay <danielmicay@gmail.com>
 # Contributor: Mladen Pejakovic <pejakm@gmail.com>
 
 pkgbase=libxkbcommon
-pkgname=(libxkbcommon libxkbcommon-x11)
-pkgver=0.5.0
+pkgname=(
+  libxkbcommon
+  libxkbcommon-x11
+  libxkbcommon-doc
+)
+pkgver=1.5.0
 pkgrel=1
-pkgdesc="Keyboard handling library using XKB data"
-arch=(i686 x86_64)
-url="http://xkbcommon.org/"
+pkgdesc='Keymap handling library for toolkits and window systems'
+url='https://xkbcommon.org/'
+arch=(x86_64  pentium4 )
 license=(custom)
-depends=(xkeyboard-config glibc)
-#checkdepends=(xorg-server-xvfb libgl)
-makedepends=(libxcb xorg-util-macros)
-source=("http://xkbcommon.org/download/$pkgname-$pkgver.tar.xz")
-md5sums=('2e1faeafcc609c30af3a561a91e84158')
-options=('staticlibs')
+makedepends=(
+  doxygen
+  git
+  libxcb 
+  libxml2
+  meson
+  wayland
+  wayland-protocols
+  xkeyboard-config
+  xorgproto
+)
+checkdepends=(
+  libgl
+)
+options=(
+  'staticlibs'  # needed by binutils testsuite
+  'debug'
+)
+_commit=cecaa01df18925eb66c6a81f6e4b7167421d45f2  # tags/xkbcommon-1.5.0^0
+source=("git+https://github.com/xkbcommon/libxkbcommon#commit=$_commit")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd libxkbcommon
+  git describe --tags | sed 's/^xkbcommon-//;s/[^-]*-g/r&/;s/-/+/g'
+}
 
 prepare() {
-  mkdir -p x11/usr/{include/xkbcommon,lib/pkgconfig}
+  cd libxkbcommon
+
+  # Fix xkbcli interactive-wayland
+  git cherry-pick -n 320f56d2a4a31026e5c8d3b60303af98bf885e1b
 }
 
 build() {
-  cd $pkgbase-$pkgver
-  export CFLAGS="-fPIC"
-  export CPPFLAGS="-fPIC"
-  export CXXFLAGS="-fPIC"
-
-  ./configure --prefix=/usr --disable-shared --enable-static
-  make
+  arch-meson --default-library static libxkbcommon build
+  meson compile -C build
 }
 
-check() {
-  cd $pkgbase-$pkgver
-#  xvfb-run -a make -k check
+#check() {
+#  xvfb-run -s '-nolisten local' meson test -C build --print-errorlogs
+#}
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
 }
 
 package_libxkbcommon() {
-  cd $pkgbase-$pkgver
-  make DESTDIR="$pkgdir" install
-  install -Dm644 COPYING "$pkgdir/usr/share/licenses/libxkbcommon/LICENSE"
+  depends=(
+    libxml2
+    xkeyboard-config
+  )
+  optdepends=(
+    'libxkbcommon-x11: xkbcli interactive-x11'
+    'wayland: xkbcli interactive-wayland'
+  )
+#  provides=(
+#    libxkbcommon.so
+#    libxkbregistry.so
+#  )
 
-### Split libxkbcommon-x11
+  meson install -C build --destdir "$pkgdir"
 
-  mv "$pkgdir"/usr/lib/*x11* "$srcdir/x11/usr/lib"
-  mv "$pkgdir"/usr/lib/pkgconfig/*x11* "$srcdir/x11/usr/lib/pkgconfig"
-  mv "$pkgdir"/usr/include/xkbcommon/*x11* "$srcdir/x11/usr/include/xkbcommon"
+  _pick x11 "$pkgdir"/usr/lib/*x11*
+  _pick x11 "$pkgdir"/usr/lib/pkgconfig/*x11*
+  _pick x11 "$pkgdir"/usr/lib/xkbcommon/*x11*
+  _pick x11 "$pkgdir"/usr/include/xkbcommon/*x11*
+  _pick x11 "$pkgdir"/usr/share/man/man1/*x11*
+
+  _pick doc "$pkgdir"/usr/share/doc
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 libxkbcommon/LICENSE
 }
 
 package_libxkbcommon-x11() {
-  pkgdesc="Keyboard handling library using XKB data for X11 XCB clients"
-  depends=(libxkbcommon libxcb)
+  pkgdesc='Keyboard handling library using XKB data for X11 XCB clients'
+  depends=(
+    libxcb
+    libxkbcommon
+#    libxkbcommon.so
+  )
+#  provides=(
+#    libxkbcommon-x11.so
+#  )
 
-  mv x11/* "$pkgdir"
+  mv x11/* "$pkgdir"/
 
-  install -Dm644 $pkgbase-$pkgver/COPYING "$pkgdir/usr/share/licenses/libxkbcommon-x11/LICENSE"
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 libxkbcommon/LICENSE
 }
+
+package_libxkbcommon-doc() {
+  pkgdesc='API documentation for libxkbcommon'
+
+  mv doc/* "$pkgdir"/
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 libxkbcommon/LICENSE
+}
+
+# vim:set sw=2 sts=-1 et:

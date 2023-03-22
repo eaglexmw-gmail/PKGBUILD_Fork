@@ -4,26 +4,30 @@ pkgname=cinnamon-menus
 pkgver=3.2.0
 pkgrel=1
 pkgdesc="Cinnamon menu specifications"
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' pentium4)
 depends=('glib2')
-makedepends=('intltool' 'gobject-introspection' 'python2' 'gnome-common')
+# makedepends=('intltool' 'gobject-introspection' 'python2' 'gnome-common')
+makedepends=('intltool' 'gobject-introspection' 'gnome-common')
 license=('GPL' 'LGPL')
 url="https://github.com/linuxmint/cinnamon-menus"
-source=("${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/cinnamon-menus/archive/${pkgver}.tar.gz")
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/cinnamon-menus/archive/refs/tags/${pkgver}.tar.gz")
 sha256sums=('96eb3303151fabc18ccf2719849149d08f7391d22d0a6b72e82326009bb243b5')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
   dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
+  dstdir=cinnamon
 fi
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
+  # CFLAGS=" -gdwarf-4 -g3 " CXXFLAGS=" -gdwarf-4 -g3 " LDFLAGS=" -gdwarf-4 -g3 " 
   ./autogen.sh --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc \
       --localstatedir=/var --disable-static \
-      --sbindir=/usr/bin
-  make
+      --sbindir=/usr/bin --enable-debug=yes
+  make V=1
 }
 
 package(){

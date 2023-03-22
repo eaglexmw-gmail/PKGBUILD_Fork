@@ -6,11 +6,12 @@ pkgname=cinnamon-desktop
 pkgver=3.2.4
 pkgrel=2
 pkgdesc="Library with common API for various Cinnamon modules"
-arch=(i686 x86_64)
+arch=(i686 x86_64 pentium4)
 license=(GPL LGPL)
 # depends=(gtk3 libxkbfile python2 glib2 libgsystem)
-depends=(gtk3 libxkbfile python2 glib2)
-makedepends=(intltool gobject-introspection gnome-common python2)
+depends=(gtk3 libxkbfile glib2)
+#makedepends=(intltool gobject-introspection gnome-common python2)
+makedepends=(intltool gobject-introspection gnome-common)
 url="https://github.com/linuxmint/cinnamon-desktop"
 install=cinnamon-desktop.install
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/cinnamon-desktop/archive/${pkgver}.tar.gz"
@@ -21,6 +22,8 @@ sha256sums=('f9920082b299c85d11cfdb6747026f5f044eabf3a09c0164873fa2850561abad'
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
   dstdir=cinnamon
 fi
 
@@ -36,7 +39,7 @@ build() {
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
 
-  ./autogen.sh --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var \
+  PYTHON=/usr/local/python2/bin/python2 ./autogen.sh --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var \
     --libexecdir=/usr/local/${dstdir}/lib/$pkgname --disable-static
 
   make

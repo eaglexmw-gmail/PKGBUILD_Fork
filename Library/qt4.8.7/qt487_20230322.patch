@@ -1,0 +1,3048 @@
+diff -Nur qt-everywhere-opensource-src-4.8.7/examples/desktop/systray/window.cpp qt-everywhere-opensource-src-4.8.7_new/examples/desktop/systray/window.cpp
+--- qt-everywhere-opensource-src-4.8.7/examples/desktop/systray/window.cpp	2015-05-07 22:14:37.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/examples/desktop/systray/window.cpp	2023-03-22 23:29:01.000000000 +0800
+@@ -158,15 +158,23 @@
+     iconComboBox->addItem(QIcon(":/images/bad.svg"), tr("Bad"));
+     iconComboBox->addItem(QIcon(":/images/heart.svg"), tr("Heart"));
+     iconComboBox->addItem(QIcon(":/images/trash.svg"), tr("Trash"));
++    iconComboBox->addItem(QIcon::fromTheme("system-file-manager"), tr("File Manager"));
+ 
+     showIconCheckBox = new QCheckBox(tr("Show icon"));
+     showIconCheckBox->setChecked(true);
+ 
++#if defined(Q_WS_X11)
++    jitToolTipCheckBox = new QCheckBox(tr("Just In Time Tooltip"));
++#endif
++
+     QHBoxLayout *iconLayout = new QHBoxLayout;
+     iconLayout->addWidget(iconLabel);
+     iconLayout->addWidget(iconComboBox);
+     iconLayout->addStretch();
+     iconLayout->addWidget(showIconCheckBox);
++#if defined(Q_WS_X11)
++    iconLayout->addWidget(jitToolTipCheckBox);
++#endif
+     iconGroupBox->setLayout(iconLayout);
+ }
+ 
+@@ -254,5 +262,37 @@
+     trayIconMenu->addAction(quitAction);
+ 
+     trayIcon = new QSystemTrayIcon(this);
++    QByteArray category = qgetenv("SNI_CATEGORY");
++    if (!category.isEmpty()) {
++        trayIcon->setProperty("_qt_sni_category", QString::fromLocal8Bit(category));
++    }
+     trayIcon->setContextMenu(trayIconMenu);
++
++#if defined(Q_WS_X11)
++    trayIcon->installEventFilter(this);
++#endif
++}
++
++#if defined(Q_WS_X11)
++bool Window::eventFilter(QObject *, QEvent *event)
++{
++    switch(event->type()) {
++    case QEvent::ToolTip:
++        if (jitToolTipCheckBox->isChecked()) {
++            QString timeString = QTime::currentTime().toString();
++            trayIcon->setToolTip(tr("Current Time: %1").arg(timeString));
++        }
++        break;
++    case QEvent::Wheel: {
++        QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
++        int delta = wheelEvent->delta() > 0 ? 1 : -1;
++        int index = (iconComboBox->currentIndex() + delta) % iconComboBox->count();
++        iconComboBox->setCurrentIndex(index);
++        break;
++    }
++    default:
++        break;
++    }
++    return false;
+ }
++#endif
+diff -Nur qt-everywhere-opensource-src-4.8.7/examples/desktop/systray/window.h qt-everywhere-opensource-src-4.8.7_new/examples/desktop/systray/window.h
+--- qt-everywhere-opensource-src-4.8.7/examples/desktop/systray/window.h	2015-05-07 22:14:37.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/examples/desktop/systray/window.h	2023-03-20 20:48:15.000000000 +0800
+@@ -69,6 +69,9 @@
+ 
+ protected:
+     void closeEvent(QCloseEvent *event);
++#if defined(Q_WS_X11)
++    bool eventFilter(QObject *object, QEvent *event);
++#endif
+ 
+ private slots:
+     void setIcon(int index);
+@@ -86,6 +89,9 @@
+     QLabel *iconLabel;
+     QComboBox *iconComboBox;
+     QCheckBox *showIconCheckBox;
++#if defined(Q_WS_X11)
++    QCheckBox *jitToolTipCheckBox;
++#endif
+ 
+     QGroupBox *messageGroupBox;
+     QLabel *typeLabel;
+diff -Nur qt-everywhere-opensource-src-4.8.7/mkspecs/common/g++-base.conf qt-everywhere-opensource-src-4.8.7_new/mkspecs/common/g++-base.conf
+--- qt-everywhere-opensource-src-4.8.7/mkspecs/common/g++-base.conf	2015-05-07 22:14:42.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/mkspecs/common/g++-base.conf	2023-03-20 20:49:33.000000000 +0800
+@@ -13,7 +13,7 @@
+ QMAKE_LINK_C       = $$QMAKE_CC
+ QMAKE_LINK_C_SHLIB = $$QMAKE_CC
+ 
+-QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO += -O2 -g
++QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO +=  -g
+ 
+ QMAKE_CXX = g++
+ 
+diff -Nur qt-everywhere-opensource-src-4.8.7/mkspecs/common/gcc-base.conf qt-everywhere-opensource-src-4.8.7_new/mkspecs/common/gcc-base.conf
+--- qt-everywhere-opensource-src-4.8.7/mkspecs/common/gcc-base.conf	2015-05-07 22:14:42.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/mkspecs/common/gcc-base.conf	2023-03-20 20:49:50.000000000 +0800
+@@ -35,7 +35,7 @@
+ QMAKE_CFLAGS_DEPS           += -M
+ QMAKE_CFLAGS_WARN_ON        += -Wall -W
+ QMAKE_CFLAGS_WARN_OFF       += -w
+-QMAKE_CFLAGS_RELEASE        += -O2
++QMAKE_CFLAGS_RELEASE        += 
+ QMAKE_CFLAGS_DEBUG          += -g
+ QMAKE_CFLAGS_SHLIB          += -fPIC
+ QMAKE_CFLAGS_STATIC_LIB     += -fPIC
+@@ -53,7 +53,7 @@
+ QMAKE_CXXFLAGS_YACC       += $$QMAKE_CFLAGS_YACC
+ QMAKE_CXXFLAGS_HIDESYMS   += $$QMAKE_CFLAGS_HIDESYMS -fvisibility-inlines-hidden
+ 
+-QMAKE_LFLAGS         +=
++QMAKE_LFLAGS         += 
+ QMAKE_LFLAGS_DEBUG   +=
+ QMAKE_LFLAGS_APP     +=
+ QMAKE_LFLAGS_RELEASE +=
+diff -Nur qt-everywhere-opensource-src-4.8.7/mkspecs/common/gcc-base-unix.conf qt-everywhere-opensource-src-4.8.7_new/mkspecs/common/gcc-base-unix.conf
+--- qt-everywhere-opensource-src-4.8.7/mkspecs/common/gcc-base-unix.conf	2015-05-07 22:14:42.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/mkspecs/common/gcc-base-unix.conf	2023-03-20 20:49:41.000000000 +0800
+@@ -14,7 +14,7 @@
+ QMAKE_LFLAGS_PLUGIN += $$QMAKE_LFLAGS_SHLIB
+ QMAKE_LFLAGS_SONAME += -Wl,-soname,
+ QMAKE_LFLAGS_THREAD +=
+-QMAKE_LFLAGS_RPATH   = -Wl,-rpath,
++QMAKE_LFLAGS_RPATH   =
+ 
+ # -Bsymbolic-functions (ld) support
+ QMAKE_LFLAGS_BSYMBOLIC_FUNC = -Wl,-Bsymbolic-functions
+diff -Nur qt-everywhere-opensource-src-4.8.7/mkspecs/common/linux32.conf qt-everywhere-opensource-src-4.8.7_new/mkspecs/common/linux32.conf
+--- qt-everywhere-opensource-src-4.8.7/mkspecs/common/linux32.conf	1970-01-01 08:00:00.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/mkspecs/common/linux32.conf	2023-03-20 20:50:14.000000000 +0800
+@@ -0,0 +1,67 @@
++#
++# qmake configuration for common linux
++#
++
++QMAKE_CFLAGS_THREAD	+= -D_REENTRANT
++QMAKE_CXXFLAGS_THREAD	+= $$QMAKE_CFLAGS_THREAD
++
++QMAKE_INCDIR          =
++QMAKE_LIBDIR          = /usr/lib32
++QMAKE_INCDIR_X11      = /usr/X11R6/include
++QMAKE_LIBDIR_X11      = /usr/X11R6/lib
++QMAKE_INCDIR_QT       = $$[QT_INSTALL_HEADERS]
++QMAKE_LIBDIR_QT       = $$[QT_INSTALL_LIBS]
++QMAKE_INCDIR_OPENGL   = /usr/X11R6/include
++QMAKE_LIBDIR_OPENGL   = /usr/X11R6/lib
++QMAKE_INCDIR_OPENGL_ES1 = $$QMAKE_INCDIR_OPENGL
++QMAKE_LIBDIR_OPENGL_ES1 = $$QMAKE_LIBDIR_OPENGL
++QMAKE_INCDIR_OPENGL_ES2 = $$QMAKE_INCDIR_OPENGL
++QMAKE_LIBDIR_OPENGL_ES2 = $$QMAKE_LIBDIR_OPENGL
++QMAKE_INCDIR_EGL      = 
++QMAKE_LIBDIR_EGL      =
++QMAKE_INCDIR_OPENVG   = 
++QMAKE_LIBDIR_OPENVG   =
++
++QMAKE_LIBS            =
++QMAKE_LIBS_DYNLOAD    = -ldl
++QMAKE_LIBS_X11        = -lXext -lX11 -lm
++QMAKE_LIBS_X11SM      = -lSM -lICE
++QMAKE_LIBS_NIS        = -lnsl
++QMAKE_LIBS_EGL        = -lEGL
++QMAKE_LIBS_OPENGL     = -lGL
++QMAKE_LIBS_OPENGL_QT  = -lGL
++QMAKE_LIBS_OPENGL_ES1 = -lGLES_CM
++QMAKE_LIBS_OPENGL_ES2 = -lGLESv2
++QMAKE_LIBS_OPENVG     = -lOpenVG
++QMAKE_LIBS_THREAD     = -lpthread
++
++QMAKE_CFLAGS_WAYLAND =
++QMAKE_INCDIR_WAYLAND =
++QMAKE_LIBS_WAYLAND =
++QMAKE_LIBDIR_WAYLAND =
++QMAKE_DEFINES_WAYLAND =
++
++QMAKE_MOC             = $$[QT_INSTALL_BINS]/moc
++QMAKE_UIC             = $$[QT_INSTALL_BINS]/uic
++
++QMAKE_AR              = ar cqs
++QMAKE_OBJCOPY         = objcopy
++QMAKE_RANLIB          =
++
++QMAKE_TAR             = tar -cf
++QMAKE_GZIP            = gzip -9f
++
++QMAKE_COPY            = cp -f
++QMAKE_COPY_FILE       = $(COPY)
++QMAKE_COPY_DIR        = $(COPY) -r
++QMAKE_MOVE            = mv -f
++QMAKE_DEL_FILE        = rm -f
++QMAKE_DEL_DIR         = rmdir
++QMAKE_STRIP           = strip
++QMAKE_STRIPFLAGS_LIB += --strip-unneeded
++QMAKE_CHK_DIR_EXISTS  = test -d
++QMAKE_MKDIR           = mkdir -p
++QMAKE_INSTALL_FILE    = install -m 644 -p
++QMAKE_INSTALL_PROGRAM = install -m 755 -p
++
++include(unix.conf)
+diff -Nur qt-everywhere-opensource-src-4.8.7/mkspecs/linux-g++-32/qmake.conf qt-everywhere-opensource-src-4.8.7_new/mkspecs/linux-g++-32/qmake.conf
+--- qt-everywhere-opensource-src-4.8.7/mkspecs/linux-g++-32/qmake.conf	2015-05-07 22:14:41.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/mkspecs/linux-g++-32/qmake.conf	2023-03-20 20:50:26.000000000 +0800
+@@ -12,7 +12,7 @@
+ QMAKE_CFLAGS		= -m32
+ QMAKE_LFLAGS		= -m32
+ 
+-include(../common/linux.conf)
++include(../common/linux32.conf)
+ include(../common/gcc-base-unix.conf)
+ include(../common/g++-unix.conf)
+ load(qt_config)
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/3rdparty/javascriptcore/JavaScriptCore/JavaScriptCore.pri qt-everywhere-opensource-src-4.8.7_new/src/3rdparty/javascriptcore/JavaScriptCore/JavaScriptCore.pri
+--- qt-everywhere-opensource-src-4.8.7/src/3rdparty/javascriptcore/JavaScriptCore/JavaScriptCore.pri	2015-05-07 22:14:47.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/3rdparty/javascriptcore/JavaScriptCore/JavaScriptCore.pri	2023-03-20 20:52:12.000000000 +0800
+@@ -234,3 +234,4 @@
+     SOURCES += wtf/TCSystemAlloc.cpp
+ }
+ 
++QMAKE_CXXFLAGS += -std=gnu++98
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/3rdparty/javascriptcore/JavaScriptCore/jit/JITStubs.cpp qt-everywhere-opensource-src-4.8.7_new/src/3rdparty/javascriptcore/JavaScriptCore/jit/JITStubs.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/3rdparty/javascriptcore/JavaScriptCore/jit/JITStubs.cpp	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/3rdparty/javascriptcore/JavaScriptCore/jit/JITStubs.cpp	2023-03-20 20:51:05.000000000 +0800
+@@ -116,7 +116,7 @@
+ COMPILE_ASSERT(offsetof(struct JITStackFrame, callFrame) == 0x58, JITStackFrame_callFrame_offset_matches_ctiTrampoline);
+ COMPILE_ASSERT(offsetof(struct JITStackFrame, code) == 0x50, JITStackFrame_code_offset_matches_ctiTrampoline);
+ 
+-asm volatile (
++asm (
+ ".text\n"
+ ".globl " SYMBOL_STRING(ctiTrampoline) "\n"
+ HIDE_SYMBOL(ctiTrampoline) "\n"
+@@ -138,7 +138,7 @@
+     "ret" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiVMThrowTrampoline) "\n"
+ HIDE_SYMBOL(ctiVMThrowTrampoline) "\n"
+ SYMBOL_STRING(ctiVMThrowTrampoline) ":" "\n"
+@@ -154,7 +154,7 @@
+     "ret" "\n"
+ );
+     
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiOpThrowNotCaught) "\n"
+ HIDE_SYMBOL(ctiOpThrowNotCaught) "\n"
+ SYMBOL_STRING(ctiOpThrowNotCaught) ":" "\n"
+@@ -179,7 +179,7 @@
+ COMPILE_ASSERT(offsetof(struct JITStackFrame, callFrame) == 0x90, JITStackFrame_callFrame_offset_matches_ctiTrampoline);
+ COMPILE_ASSERT(offsetof(struct JITStackFrame, code) == 0x80, JITStackFrame_code_offset_matches_ctiTrampoline);
+ 
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiTrampoline) "\n"
+ HIDE_SYMBOL(ctiTrampoline) "\n"
+ SYMBOL_STRING(ctiTrampoline) ":" "\n"
+@@ -206,7 +206,7 @@
+     "ret" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiVMThrowTrampoline) "\n"
+ HIDE_SYMBOL(ctiVMThrowTrampoline) "\n"
+ SYMBOL_STRING(ctiVMThrowTrampoline) ":" "\n"
+@@ -222,7 +222,7 @@
+     "ret" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiOpThrowNotCaught) "\n"
+ HIDE_SYMBOL(ctiOpThrowNotCaught) "\n"
+ SYMBOL_STRING(ctiOpThrowNotCaught) ":" "\n"
+@@ -242,7 +242,7 @@
+ #error "JIT_STUB_ARGUMENT_VA_LIST not supported on ARMv7."
+ #endif
+ 
+-asm volatile (
++asm (
+ ".text" "\n"
+ ".align 2" "\n"
+ ".globl " SYMBOL_STRING(ctiTrampoline) "\n"
+@@ -269,7 +269,7 @@
+     "bx lr" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".text" "\n"
+ ".align 2" "\n"
+ ".globl " SYMBOL_STRING(ctiVMThrowTrampoline) "\n"
+@@ -287,7 +287,7 @@
+     "bx lr" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".text" "\n"
+ ".align 2" "\n"
+ ".globl " SYMBOL_STRING(ctiOpThrowNotCaught) "\n"
+@@ -305,7 +305,7 @@
+ 
+ #elif COMPILER(GCC) && CPU(ARM_TRADITIONAL)
+ 
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiTrampoline) "\n"
+ HIDE_SYMBOL(ctiTrampoline) "\n"
+ SYMBOL_STRING(ctiTrampoline) ":" "\n"
+@@ -323,7 +323,7 @@
+     "mov pc, lr" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiVMThrowTrampoline) "\n"
+ HIDE_SYMBOL(ctiVMThrowTrampoline) "\n"
+ SYMBOL_STRING(ctiVMThrowTrampoline) ":" "\n"
+@@ -418,7 +418,7 @@
+ COMPILE_ASSERT(offsetof(struct JITStackFrame, code) == 0x30, JITStackFrame_code_offset_matches_ctiTrampoline);
+ COMPILE_ASSERT(offsetof(struct JITStackFrame, savedEBX) == 0x1c, JITStackFrame_stub_argument_space_matches_ctiTrampoline);
+ 
+-asm volatile (
++asm (
+ ".text\n"
+ ".globl " SYMBOL_STRING(ctiTrampoline) "\n"
+ HIDE_SYMBOL(ctiTrampoline) "\n"
+@@ -440,7 +440,7 @@
+     "ret" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiVMThrowTrampoline) "\n"
+ HIDE_SYMBOL(ctiVMThrowTrampoline) "\n"
+ SYMBOL_STRING(ctiVMThrowTrampoline) ":" "\n"
+@@ -456,7 +456,7 @@
+     "ret" "\n"
+ );
+     
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiOpThrowNotCaught) "\n"
+ HIDE_SYMBOL(ctiOpThrowNotCaught) "\n"
+ SYMBOL_STRING(ctiOpThrowNotCaught) ":" "\n"
+@@ -480,7 +480,7 @@
+ COMPILE_ASSERT(offsetof(struct JITStackFrame, code) == 0x48, JITStackFrame_code_offset_matches_ctiTrampoline);
+ COMPILE_ASSERT(offsetof(struct JITStackFrame, savedRBX) == 0x78, JITStackFrame_stub_argument_space_matches_ctiTrampoline);
+ 
+-asm volatile (
++asm (
+ ".text\n"
+ ".globl " SYMBOL_STRING(ctiTrampoline) "\n"
+ HIDE_SYMBOL(ctiTrampoline) "\n"
+@@ -515,7 +515,7 @@
+     "ret" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiVMThrowTrampoline) "\n"
+ HIDE_SYMBOL(ctiVMThrowTrampoline) "\n"
+ SYMBOL_STRING(ctiVMThrowTrampoline) ":" "\n"
+@@ -531,7 +531,7 @@
+     "ret" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiOpThrowNotCaught) "\n"
+ HIDE_SYMBOL(ctiOpThrowNotCaught) "\n"
+ SYMBOL_STRING(ctiOpThrowNotCaught) ":" "\n"
+@@ -551,7 +551,7 @@
+ #error "JIT_STUB_ARGUMENT_VA_LIST not supported on ARMv7."
+ #endif
+ 
+-asm volatile (
++asm (
+ ".text" "\n"
+ ".align 2" "\n"
+ ".globl " SYMBOL_STRING(ctiTrampoline) "\n"
+@@ -578,7 +578,7 @@
+     "bx lr" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".text" "\n"
+ ".align 2" "\n"
+ ".globl " SYMBOL_STRING(ctiVMThrowTrampoline) "\n"
+@@ -596,7 +596,7 @@
+     "bx lr" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".text" "\n"
+ ".align 2" "\n"
+ ".globl " SYMBOL_STRING(ctiOpThrowNotCaught) "\n"
+@@ -614,7 +614,7 @@
+ 
+ #elif COMPILER(GCC) && CPU(ARM_TRADITIONAL)
+ 
+-asm volatile (
++asm (
+ ".text\n"
+ ".globl " SYMBOL_STRING(ctiTrampoline) "\n"
+ HIDE_SYMBOL(ctiTrampoline) "\n"
+@@ -632,7 +632,7 @@
+     "mov pc, lr" "\n"
+ );
+ 
+-asm volatile (
++asm (
+ ".globl " SYMBOL_STRING(ctiVMThrowTrampoline) "\n"
+ HIDE_SYMBOL(ctiVMThrowTrampoline) "\n"
+ SYMBOL_STRING(ctiVMThrowTrampoline) ":" "\n"
+@@ -1024,7 +1024,7 @@
+     extern "C" { \
+         rtype JITStubThunked_##op(STUB_ARGS_DECLARATION); \
+     }; \
+-    asm volatile ( \
++    asm ( \
+         ".text" "\n" \
+         ".align 2" "\n" \
+         ".globl " SYMBOL_STRING(cti_##op) "\n" \
+@@ -1053,7 +1053,7 @@
+     extern "C" { \
+         rtype JITStubThunked_##op(STUB_ARGS_DECLARATION); \
+     }; \
+-    asm volatile ( \
++    asm ( \
+         ".globl " SYMBOL_STRING(cti_##op) "\n" \
+         HIDE_SYMBOL(cti_##op) "\n"             \
+         SYMBOL_STRING(cti_##op) ":" "\n" \
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/3rdparty/javascriptcore/JavaScriptCore/jit/JITStubs.h qt-everywhere-opensource-src-4.8.7_new/src/3rdparty/javascriptcore/JavaScriptCore/jit/JITStubs.h
+--- qt-everywhere-opensource-src-4.8.7/src/3rdparty/javascriptcore/JavaScriptCore/jit/JITStubs.h	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/3rdparty/javascriptcore/JavaScriptCore/jit/JITStubs.h	2023-03-20 20:52:00.000000000 +0800
+@@ -316,7 +316,7 @@
+     EncodedJSValue JIT_STUB cti_op_to_primitive(STUB_ARGS_DECLARATION);
+     EncodedJSValue JIT_STUB cti_op_typeof(STUB_ARGS_DECLARATION);
+     EncodedJSValue JIT_STUB cti_op_urshift(STUB_ARGS_DECLARATION);
+-    EncodedJSValue JIT_STUB cti_vm_throw(STUB_ARGS_DECLARATION);
++    __attribute__((used)) EncodedJSValue JIT_STUB cti_vm_throw(STUB_ARGS_DECLARATION);
+     EncodedJSValue JIT_STUB cti_to_object(STUB_ARGS_DECLARATION);
+     JSObject* JIT_STUB cti_op_construct_JSConstruct(STUB_ARGS_DECLARATION);
+     JSObject* JIT_STUB cti_op_new_array(STUB_ARGS_DECLARATION);
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/corelib/global/qglobal.h qt-everywhere-opensource-src-4.8.7_new/src/corelib/global/qglobal.h
+--- qt-everywhere-opensource-src-4.8.7/src/corelib/global/qglobal.h	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/corelib/global/qglobal.h	2023-03-20 20:51:29.000000000 +0800
+@@ -52,7 +52,7 @@
+ /*
+    can be used like #if (QT_VERSION >= QT_VERSION_CHECK(4, 4, 0))
+ */
+-#define QT_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
++#define QT_VERSION_CHECK(qt_version_check_major, qt_version_check_minor, qt_version_check_patch) ((qt_version_check_major<<16)|(qt_version_check_minor<<8)|(qt_version_check_patch))
+ 
+ #define QT_PACKAGEDATE_STR "2015-05-07"
+ 
+@@ -2482,22 +2482,31 @@
+ 
+ #endif /* Q_NO_TYPESAFE_FLAGS */
+ 
+-#if defined(Q_CC_GNU) && !defined(Q_CC_INTEL) && !defined(Q_CC_RVCT)
++#if defined(Q_CC_GNU) && !defined(Q_CC_RVCT)
+ /* make use of typeof-extension */
+ template <typename T>
+ class QForeachContainer {
+ public:
+-    inline QForeachContainer(const T& t) : c(t), brk(0), i(c.begin()), e(c.end()) { }
++    inline QForeachContainer(const T& t) : c(t), i(c.begin()), e(c.end()), control(1) { }
+     const T c;
+-    int brk;
+     typename T::const_iterator i, e;
++    int control;
+ };
+ 
+-#define Q_FOREACH(variable, container)                                \
+-for (QForeachContainer<__typeof__(container)> _container_(container); \
+-     !_container_.brk && _container_.i != _container_.e;              \
+-     __extension__  ({ ++_container_.brk; ++_container_.i; }))                       \
+-    for (variable = *_container_.i;; __extension__ ({--_container_.brk; break;}))
++// Explanation of the control word:
++//  - it's initialized to 1
++//  - that means both the inner and outer loops start
++//  - if there were no breaks, at the end of the inner loop, it's set to 0, which
++//    causes it to exit (the inner loop is run exactly once)
++//  - at the end of the outer loop, it's inverted, so it becomes 1 again, allowing
++//    the outer loop to continue executing
++//  - if there was a break inside the inner loop, it will exit with control still
++//    set to 1; in that case, the outer loop will invert it to 0 and will exit too
++#define Q_FOREACH(variable, container)                                  \
++for (QForeachContainer<__typeof__(container)> _container_(container);   \
++     _container_.control && _container_.i != _container_.e;             \
++     ++_container_.i, _container_.control ^= 1)                         \
++for (variable = *_container_.i; _container_.control; _container_.control = 0)
+ 
+ #else
+ 
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/corelib/kernel/qeventdispatcher_glib.cpp qt-everywhere-opensource-src-4.8.7_new/src/corelib/kernel/qeventdispatcher_glib.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/corelib/kernel/qeventdispatcher_glib.cpp	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/corelib/kernel/qeventdispatcher_glib.cpp	2023-03-20 20:49:02.000000000 +0800
+@@ -65,6 +65,7 @@
+ struct GSocketNotifierSource
+ {
+     GSource source;
++    QEventLoop::ProcessEventsFlags processEventsFlags;
+     QList<GPollFDWithQSocketNotifier *> pollfds;
+ };
+ 
+@@ -80,6 +81,9 @@
+     GSocketNotifierSource *src = reinterpret_cast<GSocketNotifierSource *>(source);
+ 
+     bool pending = false;
++    if (src->processEventsFlags & QEventLoop::ExcludeSocketNotifiers)
++        return pending;
++
+     for (int i = 0; !pending && i < src->pollfds.count(); ++i) {
+         GPollFDWithQSocketNotifier *p = src->pollfds.at(i);
+ 
+@@ -103,6 +107,9 @@
+     QEvent event(QEvent::SockAct);
+ 
+     GSocketNotifierSource *src = reinterpret_cast<GSocketNotifierSource *>(source);
++    if (src->processEventsFlags & QEventLoop::ExcludeSocketNotifiers)
++        return true;
++
+     for (int i = 0; i < src->pollfds.count(); ++i) {
+         GPollFDWithQSocketNotifier *p = src->pollfds.at(i);
+ 
+@@ -248,22 +255,30 @@
+     GSource source;
+     QAtomicInt serialNumber;
+     int lastSerialNumber;
++    QEventLoop::ProcessEventsFlags processEventsFlags;
+     QEventDispatcherGlibPrivate *d;
+ };
+ 
+ static gboolean postEventSourcePrepare(GSource *s, gint *timeout)
+ {
++    GPostEventSource *source = reinterpret_cast<GPostEventSource *>(s);
+     QThreadData *data = QThreadData::current();
+     if (!data)
+         return false;
+ 
++    QEventLoop::ProcessEventsFlags excludeAllFlags
++        = QEventLoop::ExcludeUserInputEvents
++        | QEventLoop::ExcludeSocketNotifiers
++        | QEventLoop::X11ExcludeTimers;
++    if ((source->processEventsFlags & excludeAllFlags) == excludeAllFlags)
++        return false;
++
+     gint dummy;
+     if (!timeout)
+         timeout = &dummy;
+     const bool canWait = data->canWaitLocked();
+     *timeout = canWait ? -1 : 0;
+ 
+-    GPostEventSource *source = reinterpret_cast<GPostEventSource *>(s);
+     return (!canWait
+             || (source->serialNumber != source->lastSerialNumber));
+ }
+@@ -277,8 +292,14 @@
+ {
+     GPostEventSource *source = reinterpret_cast<GPostEventSource *>(s);
+     source->lastSerialNumber = source->serialNumber;
+-    QCoreApplication::sendPostedEvents();
+-    source->d->runTimersOnceWithNormalPriority();
++    QEventLoop::ProcessEventsFlags excludeAllFlags
++        = QEventLoop::ExcludeUserInputEvents
++        | QEventLoop::ExcludeSocketNotifiers
++        | QEventLoop::X11ExcludeTimers;
++    if ((source->processEventsFlags & excludeAllFlags) != excludeAllFlags) {
++        QCoreApplication::sendPostedEvents();
++        source->d->runTimersOnceWithNormalPriority();
++    }
+     return true; // i dunno, george...
+ }
+ 
+@@ -322,6 +343,7 @@
+     postEventSource = reinterpret_cast<GPostEventSource *>(g_source_new(&postEventSourceFuncs,
+                                                                         sizeof(GPostEventSource)));
+     postEventSource->serialNumber = 1;
++    postEventSource->processEventsFlags = QEventLoop::AllEvents;
+     postEventSource->d = this;
+     g_source_set_can_recurse(&postEventSource->source, true);
+     g_source_attach(&postEventSource->source, mainContext);
+@@ -331,6 +353,7 @@
+         reinterpret_cast<GSocketNotifierSource *>(g_source_new(&socketNotifierSourceFuncs,
+                                                                sizeof(GSocketNotifierSource)));
+     (void) new (&socketNotifierSource->pollfds) QList<GPollFDWithQSocketNotifier *>();
++    socketNotifierSource->processEventsFlags = QEventLoop::AllEvents;
+     g_source_set_can_recurse(&socketNotifierSource->source, true);
+     g_source_attach(&socketNotifierSource->source, mainContext);
+ 
+@@ -415,7 +438,9 @@
+ 
+     // tell postEventSourcePrepare() and timerSource about any new flags
+     QEventLoop::ProcessEventsFlags savedFlags = d->timerSource->processEventsFlags;
++    d->postEventSource->processEventsFlags = flags;
+     d->timerSource->processEventsFlags = flags;
++    d->socketNotifierSource->processEventsFlags = flags;
+ 
+     if (!(flags & QEventLoop::EventLoopExec)) {
+         // force timers to be sent at normal priority
+@@ -426,7 +451,9 @@
+     while (!result && canWait)
+         result = g_main_context_iteration(d->mainContext, canWait);
+ 
++    d->postEventSource->processEventsFlags = savedFlags;
+     d->timerSource->processEventsFlags = savedFlags;
++    d->socketNotifierSource->processEventsFlags = savedFlags;
+ 
+     if (canWait)
+         emit awake();
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/corelib/kernel/qeventdispatcher_unix.cpp qt-everywhere-opensource-src-4.8.7_new/src/corelib/kernel/qeventdispatcher_unix.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/corelib/kernel/qeventdispatcher_unix.cpp	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/corelib/kernel/qeventdispatcher_unix.cpp	2023-03-20 20:49:02.000000000 +0800
+@@ -905,7 +905,15 @@
+ 
+     // we are awake, broadcast it
+     emit awake();
+-    QCoreApplicationPrivate::sendPostedEvents(0, 0, d->threadData);
++
++    QEventLoop::ProcessEventsFlags excludeAllFlags
++        = QEventLoop::ExcludeUserInputEvents
++        | QEventLoop::ExcludeSocketNotifiers
++        | QEventLoop::X11ExcludeTimers;
++    if ((flags & excludeAllFlags) == excludeAllFlags)
++        return false;
++    if(( flags & excludeAllFlags ) != excludeAllFlags )
++        QCoreApplicationPrivate::sendPostedEvents(0, 0, d->threadData);
+ 
+     int nevents = 0;
+     const bool canWait = (d->threadData->canWaitLocked()
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/corelib/tools/qlocale_icu.cpp qt-everywhere-opensource-src-4.8.7_new/src/corelib/tools/qlocale_icu.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/corelib/tools/qlocale_icu.cpp	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/corelib/tools/qlocale_icu.cpp	2023-03-20 20:51:36.000000000 +0800
+@@ -43,6 +43,8 @@
+ #include "qlibrary.h"
+ #include "qdebug.h"
+ 
++#define UCHAR_TYPE unsigned short
++
+ #include "unicode/uversion.h"
+ #include "unicode/ucol.h"
+ 
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/dialogs/qprintdialog_unix.cpp qt-everywhere-opensource-src-4.8.7_new/src/gui/dialogs/qprintdialog_unix.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/gui/dialogs/qprintdialog_unix.cpp	2015-05-07 22:14:43.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/dialogs/qprintdialog_unix.cpp	2023-03-20 20:47:56.000000000 +0800
+@@ -579,6 +579,32 @@
+ void QPrintDialogPrivate::selectPrinter(QCUPSSupport *cups)
+ {
+     options.duplex->setEnabled(cups && cups->ppdOption("Duplex"));
++
++    if (cups) {
++        const ppd_option_t* duplex = cups->ppdOption("Duplex");
++        if (duplex) {
++            // copy default ppd duplex to qt dialog
++            if (qstrcmp(duplex->defchoice, "DuplexTumble") == 0)
++                options.duplexShort->setChecked(true);
++            else if (qstrcmp(duplex->defchoice, "DuplexNoTumble") == 0)
++                options.duplexLong->setChecked(true);
++            else
++                options.noDuplex->setChecked(true);
++        }
++
++        if (cups->currentPPD()) {
++            // set default color
++            if (cups->currentPPD()->color_device)
++                options.color->setChecked(true);
++            else
++                options.grayscale->setChecked(true);
++        }
++
++        // set collation
++        const ppd_option_t *collate = cups->ppdOption("Collate");
++        if (collate)
++            options.collate->setChecked(qstrcmp(collate->defchoice, "True")==0);
++    }
+ }
+ #endif
+ 
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/kernel/kernel.pri qt-everywhere-opensource-src-4.8.7_new/src/gui/kernel/kernel.pri
+--- qt-everywhere-opensource-src-4.8.7/src/gui/kernel/kernel.pri	2015-05-07 22:14:43.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/kernel/kernel.pri	2023-03-22 21:54:04.000000000 +0800
+@@ -262,6 +262,11 @@
+             LIBS_PRIVATE +=$$QT_LIBS_GLIB
+ 	}
+ 
++            SOURCES += \
++		kernel/qeventdispatcher_x11.cpp
++            HEADERS += \
++                kernel/qeventdispatcher_x11_p.h
++
+         blackberry {
+             SOURCES += \
+                 kernel/qeventdispatcher_blackberry_qpa.cpp
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/kernel/qclipboard_x11.cpp qt-everywhere-opensource-src-4.8.7_new/src/gui/kernel/qclipboard_x11.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/gui/kernel/qclipboard_x11.cpp	2015-05-07 22:14:43.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/kernel/qclipboard_x11.cpp	2023-03-20 20:49:10.000000000 +0800
+@@ -548,7 +548,8 @@
+                 return false;
+ 
+             XSync(X11->display, false);
+-            usleep(50000);
++            if (!XPending(X11->display))
++                usleep(5000);
+ 
+             now.start();
+ 
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/kernel/qkde.cpp qt-everywhere-opensource-src-4.8.7_new/src/gui/kernel/qkde.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/gui/kernel/qkde.cpp	2015-05-07 22:14:43.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/kernel/qkde.cpp	2023-03-20 20:48:26.000000000 +0800
+@@ -63,7 +63,7 @@
+         kdeHomePath = QString::fromLocal8Bit(qgetenv("KDEHOME"));
+         if (kdeHomePath.isEmpty()) {
+             QDir homeDir(QDir::homePath());
+-            QString kdeConfDir(QLatin1String("/.kde"));
++            QString kdeConfDir(QLatin1String("/.kde4"));
+             if (4 == X11->desktopVersion && homeDir.exists(QLatin1String(".kde4")))
+             kdeConfDir = QLatin1String("/.kde4");
+             kdeHomePath = QDir::homePath() + kdeConfDir;
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/painting/qprinter.cpp qt-everywhere-opensource-src-4.8.7_new/src/gui/painting/qprinter.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/gui/painting/qprinter.cpp	2015-05-07 22:14:43.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/painting/qprinter.cpp	2023-03-20 20:47:56.000000000 +0800
+@@ -609,6 +609,44 @@
+                && d_ptr->paintEngine->type() != QPaintEngine::MacPrinter) {
+         setOutputFormat(QPrinter::PdfFormat);
+     }
++
++#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
++    // fill in defaults from ppd file
++    QCUPSSupport cups;
++
++    int printernum = -1;
++    for (int i = 0; i < cups.availablePrintersCount(); i++) {
++        if (printerName().toLocal8Bit() == cups.availablePrinters()[i].name)
++            printernum = i;
++    }
++    if (printernum >= 0) {
++        cups.setCurrentPrinter(printernum);
++
++        const ppd_option_t* duplex = cups.ppdOption("Duplex");
++        if (duplex) {
++            // copy default ppd duplex to qt dialog
++            if (qstrcmp(duplex->defchoice, "DuplexTumble") == 0)
++                setDuplex(DuplexShortSide);
++            else if (qstrcmp(duplex->defchoice, "DuplexNoTumble") == 0)
++                setDuplex(DuplexLongSide);
++            else
++                setDuplex(DuplexNone);
++        }
++
++        if (cups.currentPPD()) {
++            // set default color
++            if (cups.currentPPD()->color_device)
++                setColorMode(Color);
++            else
++                setColorMode(GrayScale);
++        }
++
++        // set collation
++        const ppd_option_t *collate = cups.ppdOption("Collate");
++        if (collate)
++            setCollateCopies(qstrcmp(collate->defchoice, "True")==0);
++    }
++#endif
+ }
+ 
+ /*!
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/util/qabstractsystemtrayiconsys.cpp qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qabstractsystemtrayiconsys.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/gui/util/qabstractsystemtrayiconsys.cpp	1970-01-01 08:00:00.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qabstractsystemtrayiconsys.cpp	2023-03-20 20:48:15.000000000 +0800
+@@ -0,0 +1,65 @@
++/****************************************************************************
++**
++** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
++** All rights reserved.
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the QtGui module of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** GNU Lesser General Public License Usage
++** This file may be used under the terms of the GNU Lesser General Public
++** License version 2.1 as published by the Free Software Foundation and
++** appearing in the file LICENSE.LGPL included in the packaging of this
++** file. Please review the following information to ensure the GNU Lesser
++** General Public License version 2.1 requirements will be met:
++** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain additional
++** rights. These rights are described in the Nokia Qt LGPL Exception
++** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU General
++** Public License version 3.0 as published by the Free Software Foundation
++** and appearing in the file LICENSE.GPL included in the packaging of this
++** file. Please review the following information to ensure the GNU General
++** Public License version 3.0 requirements will be met:
++** http://www.gnu.org/copyleft/gpl.html.
++**
++** Other Usage
++** Alternatively, this file may be used in accordance with the terms and
++** conditions contained in a signed written agreement between you and Nokia.
++**
++**
++**
++**
++**
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++#ifndef QT_NO_SYSTEMTRAYICON
++
++#include "qabstractsystemtrayiconsys_p.h"
++
++
++QSystemTrayIconSysFactoryInterface::QSystemTrayIconSysFactoryInterface()
++{
++}
++
++/////////////////////////////////////////////////
++QAbstractSystemTrayIconSys::QAbstractSystemTrayIconSys(QSystemTrayIcon *icon)
++: trayIcon(icon)
++{
++}
++
++QAbstractSystemTrayIconSys::~QAbstractSystemTrayIconSys()
++{
++}
++
++void QAbstractSystemTrayIconSys::sendActivated(QSystemTrayIcon::ActivationReason reason)
++{
++    qtsystray_sendActivated(trayIcon, reason);
++}
++
++#endif
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/util/qabstractsystemtrayiconsys_p.h qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qabstractsystemtrayiconsys_p.h
+--- qt-everywhere-opensource-src-4.8.7/src/gui/util/qabstractsystemtrayiconsys_p.h	1970-01-01 08:00:00.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qabstractsystemtrayiconsys_p.h	2023-03-20 20:48:15.000000000 +0800
+@@ -0,0 +1,106 @@
++/****************************************************************************
++**
++** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
++** All rights reserved.
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the QtGui module of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** GNU Lesser General Public License Usage
++** This file may be used under the terms of the GNU Lesser General Public
++** License version 2.1 as published by the Free Software Foundation and
++** appearing in the file LICENSE.LGPL included in the packaging of this
++** file. Please review the following information to ensure the GNU Lesser
++** General Public License version 2.1 requirements will be met:
++** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain additional
++** rights. These rights are described in the Nokia Qt LGPL Exception
++** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU General
++** Public License version 3.0 as published by the Free Software Foundation
++** and appearing in the file LICENSE.GPL included in the packaging of this
++** file. Please review the following information to ensure the GNU General
++** Public License version 3.0 requirements will be met:
++** http://www.gnu.org/copyleft/gpl.html.
++**
++** Other Usage
++** Alternatively, this file may be used in accordance with the terms and
++** conditions contained in a signed written agreement between you and Nokia.
++**
++**
++**
++**
++**
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++#ifndef QABSTRACTSYSTEMTRAYICONSYS_P_H
++#define QABSTRACTSYSTEMTRAYICONSYS_P_H
++
++//
++//  W A R N I N G
++//  -------------
++//
++// This file is not part of the Qt API.  It exists for the convenience
++// of a number of Qt sources files.  This header file may change from
++// version to version without notice, or even be removed.
++//
++// We mean it.
++//
++
++#ifndef QT_NO_SYSTEMTRAYICON
++
++#include <qfactoryinterface.h>
++#include <qsystemtrayicon.h>
++
++class QAbstractSystemTrayIconSys;
++
++class Q_GUI_EXPORT QSystemTrayIconSysFactoryInterface : public QObject, public QFactoryInterface
++{
++    Q_OBJECT
++public:
++    QSystemTrayIconSysFactoryInterface();
++    virtual QAbstractSystemTrayIconSys * create(QSystemTrayIcon *) = 0;
++    virtual bool isAvailable() const = 0;
++
++    // \reimp
++    virtual QStringList keys() const { return QStringList() << QLatin1String("default"); }
++
++Q_SIGNALS:
++    void availableChanged(bool);
++};
++
++#define QSystemTrayIconSysFactoryInterface_iid "com.nokia.qt.QSystemTrayIconSysFactoryInterface"
++Q_DECLARE_INTERFACE(QSystemTrayIconSysFactoryInterface, QSystemTrayIconSysFactoryInterface_iid)
++
++class QRect;
++
++class Q_GUI_EXPORT QAbstractSystemTrayIconSys
++{
++public:
++    QAbstractSystemTrayIconSys(QSystemTrayIcon *icon);
++    virtual ~QAbstractSystemTrayIconSys();
++
++    virtual QRect geometry() const = 0;
++    virtual void updateVisibility() = 0;
++    virtual void updateIcon() = 0;
++    virtual void updateToolTip() = 0;
++    virtual void updateMenu() = 0;
++    virtual void showMessage(const QString &title, const QString &message,
++                     QSystemTrayIcon::MessageIcon icon, int msecs) = 0;
++
++    void sendActivated(QSystemTrayIcon::ActivationReason);
++
++protected:
++    QSystemTrayIcon *trayIcon;
++};
++
++#endif // QT_NO_SYSTEMTRAYICON
++
++#endif // QABSTRACTSYSTEMTRAYICONSYS_P_H
++
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/util/qsystemtrayicon.cpp qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qsystemtrayicon.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/gui/util/qsystemtrayicon.cpp	2015-05-07 22:14:43.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qsystemtrayicon.cpp	2023-03-20 20:48:15.000000000 +0800
+@@ -287,12 +287,6 @@
+ */
+ bool QSystemTrayIcon::event(QEvent *e)
+ {
+-#if defined(Q_WS_X11)
+-    if (e->type() == QEvent::ToolTip) {
+-        Q_D(QSystemTrayIcon);
+-        return d->sys->deliverToolTipEvent(e);
+-    }
+-#endif
+     return QObject::event(e);
+ }
+ 
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/util/qsystemtrayicon_p.h qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qsystemtrayicon_p.h
+--- qt-everywhere-opensource-src-4.8.7/src/gui/util/qsystemtrayicon_p.h	2015-05-07 22:14:43.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qsystemtrayicon_p.h	2023-03-20 20:48:15.000000000 +0800
+@@ -62,10 +62,17 @@
+ #include "QtGui/qpixmap.h"
+ #include "QtCore/qstring.h"
+ #include "QtCore/qpointer.h"
++#if defined(Q_WS_X11)
++#include "QtCore/qset.h"
++#endif
+ 
+ QT_BEGIN_NAMESPACE
+ 
++#if defined(Q_WS_X11)
++class QAbstractSystemTrayIconSys;
++#else
+ class QSystemTrayIconSys;
++#endif
+ class QToolButton;
+ class QLabel;
+ 
+@@ -75,6 +82,9 @@
+ 
+ public:
+     QSystemTrayIconPrivate() : sys(0), visible(false) { }
++    #if defined(Q_WS_X11)
++    ~QSystemTrayIconPrivate();
++    #endif
+ 
+     void install_sys();
+     void remove_sys();
+@@ -90,7 +100,11 @@
+     QPointer<QMenu> menu;
+     QIcon icon;
+     QString toolTip;
++    #if defined(Q_WS_X11)
++    QAbstractSystemTrayIconSys *sys;
++    #else
+     QSystemTrayIconSys *sys;
++    #endif
+     bool visible;
+ };
+ 
+@@ -123,60 +137,37 @@
+ };
+ 
+ #if defined(Q_WS_X11)
+-QT_BEGIN_INCLUDE_NAMESPACE
+-#include <QtCore/qcoreapplication.h>
+-#include <X11/Xlib.h>
+-#include <X11/Xatom.h>
+-#include <X11/Xutil.h>
+-QT_END_INCLUDE_NAMESPACE
++class QSystemTrayIconSysFactoryInterface;
+ 
+-class QSystemTrayIconSys : public QWidget
++/**
++ * This class acts as a composite QSystemTrayIconSysFactory: It can create
++ * instances of QAbstractSystemTrayIconSys* using either a plugin or the
++ * builtin factory and will cause QSystemTrayIconPrivate to recreate their
++ * 'sys' instances if the plugin availability changes.
++ */
++class QSystemTrayIconSysFactory : public QObject
+ {
+-    friend class QSystemTrayIconPrivate;
+-
++    Q_OBJECT
+ public:
+-    QSystemTrayIconSys(QSystemTrayIcon *q);
+-    ~QSystemTrayIconSys();
+-    enum {
+-        SYSTEM_TRAY_REQUEST_DOCK = 0,
+-        SYSTEM_TRAY_BEGIN_MESSAGE = 1,
+-        SYSTEM_TRAY_CANCEL_MESSAGE =2
+-    };
+-
+-    void addToTray();
+-    void updateIcon();
+-    XVisualInfo* getSysTrayVisualInfo();
+-
+-    // QObject::event is public but QWidget's ::event() re-implementation
+-    // is protected ;(
+-    inline bool deliverToolTipEvent(QEvent *e)
+-    { return QWidget::event(e); }
+-
+-    static Window sysTrayWindow;
+-    static QList<QSystemTrayIconSys *> trayIcons;
+-    static QCoreApplication::EventFilter oldEventFilter;
+-    static bool sysTrayTracker(void *message, long *result);
+-    static Window locateSystemTray();
+-    static Atom sysTraySelection;
+-    static XVisualInfo sysTrayVisual;
++    QSystemTrayIconSysFactory();
++    void registerSystemTrayIconPrivate(QSystemTrayIconPrivate *iconPrivate);
++    void unregisterSystemTrayIconPrivate(QSystemTrayIconPrivate *iconPrivate);
+ 
+-protected:
+-    void paintEvent(QPaintEvent *pe);
+-    void resizeEvent(QResizeEvent *re);
+-    bool x11Event(XEvent *event);
+-    void mousePressEvent(QMouseEvent *event);
+-    void mouseDoubleClickEvent(QMouseEvent *event);
+-#ifndef QT_NO_WHEELEVENT
+-    void wheelEvent(QWheelEvent *event);
+-#endif
+-    bool event(QEvent *e);
++    QAbstractSystemTrayIconSys *create(QSystemTrayIcon *) const;
++
++    bool isAvailable() const;
++
++private Q_SLOTS:
++    void refreshTrayIconPrivates();
+ 
+ private:
+-    QPixmap background;
+-    QSystemTrayIcon *q;
+-    Colormap colormap;
++    QSystemTrayIconSysFactoryInterface *factory() const;
++    void loadPluginFactory();
++
++    QSystemTrayIconSysFactoryInterface *pluginFactory;
++    QSet<QSystemTrayIconPrivate *> trayIconPrivates;
+ };
+-#endif // Q_WS_X11
++#endif
+ 
+ QT_END_NAMESPACE
+ 
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/util/qsystemtrayicon_x11.cpp qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qsystemtrayicon_x11.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/gui/util/qsystemtrayicon_x11.cpp	2015-05-07 22:14:43.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qsystemtrayicon_x11.cpp	2023-03-20 20:48:15.000000000 +0800
+@@ -38,311 +38,122 @@
+ ** $QT_END_LICENSE$
+ **
+ ****************************************************************************/
++#ifndef QT_NO_SYSTEMTRAYICON
++
++#include <private/qfactoryloader_p.h>
+ 
+-#include "private/qt_x11_p.h"
+-#include "qlabel.h"
+-#include "qx11info_x11.h"
+-#include "qpainter.h"
+-#include "qpixmap.h"
+-#include "qbitmap.h"
+-#include "qevent.h"
+-#include "qapplication.h"
+-#include "qlist.h"
+-#include "qmenu.h"
+-#include "qtimer.h"
+ #include "qsystemtrayicon_p.h"
+-#include "qpaintengine.h"
++#include "qabstractsystemtrayiconsys_p.h"
++#include "qcoreapplication.h"
++#include "qxembedsystemtrayicon_x11_p.h"
+ 
+-#ifndef QT_NO_SYSTEMTRAYICON
+ QT_BEGIN_NAMESPACE
+ 
+-Window QSystemTrayIconSys::sysTrayWindow = XNone;
+-QList<QSystemTrayIconSys *> QSystemTrayIconSys::trayIcons;
+-QCoreApplication::EventFilter QSystemTrayIconSys::oldEventFilter = 0;
+-Atom QSystemTrayIconSys::sysTraySelection = XNone;
+-XVisualInfo QSystemTrayIconSys::sysTrayVisual = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+-
+-// Locate the system tray
+-Window QSystemTrayIconSys::locateSystemTray()
+-{
+-    Display *display = QX11Info::display();
+-    if (sysTraySelection == XNone) {
+-        int screen = QX11Info::appScreen();
+-        QString net_sys_tray = QString::fromLatin1("_NET_SYSTEM_TRAY_S%1").arg(screen);
+-        sysTraySelection = XInternAtom(display, net_sys_tray.toLatin1(), False);
+-    }
+-
+-    return XGetSelectionOwner(QX11Info::display(), sysTraySelection);
+-}
++Q_GLOBAL_STATIC(QSystemTrayIconSysFactory, qt_guiSystemTrayIconSysFactory)
+ 
+-XVisualInfo* QSystemTrayIconSys::getSysTrayVisualInfo()
++QSystemTrayIconSysFactory::QSystemTrayIconSysFactory()
++: pluginFactory(0)
+ {
+-    Display *display = QX11Info::display();
+-
+-    if (!sysTrayVisual.visual) {
+-        Window win = locateSystemTray();
+-        if (win != XNone) {
+-            Atom actual_type;
+-            int actual_format;
+-            ulong nitems, bytes_remaining;
+-            uchar *data = 0;
+-            int result = XGetWindowProperty(display, win, ATOM(_NET_SYSTEM_TRAY_VISUAL), 0, 1,
+-                                            False, XA_VISUALID, &actual_type,
+-                                            &actual_format, &nitems, &bytes_remaining, &data);
+-            VisualID vid = 0;
+-            if (result == Success && data && actual_type == XA_VISUALID && actual_format == 32 &&
+-                nitems == 1 && bytes_remaining == 0)
+-                vid = *(VisualID*)data;
+-            if (data)
+-                XFree(data);
+-            if (vid == 0)
+-                return 0;
+-
+-            uint mask = VisualIDMask;
+-            XVisualInfo *vi, rvi;
+-            int count;
+-            rvi.visualid = vid;
+-            vi = XGetVisualInfo(display, mask, &rvi, &count);
+-            if (vi) {
+-                sysTrayVisual = vi[0];
+-                XFree((char*)vi);
+-            }
+-            if (sysTrayVisual.depth != 32)
+-                memset(&sysTrayVisual, 0, sizeof(sysTrayVisual));
+-        }
+-    }
+-
+-    return sysTrayVisual.visual ? &sysTrayVisual : 0;
+ }
+ 
+-bool QSystemTrayIconSys::sysTrayTracker(void *message, long *result)
++void QSystemTrayIconSysFactory::loadPluginFactory()
+ {
+-    bool retval = false;
+-    if (QSystemTrayIconSys::oldEventFilter)
+-        retval = QSystemTrayIconSys::oldEventFilter(message, result);
+-
+-    if (trayIcons.isEmpty())
+-        return retval;
+-
+-    Display *display = QX11Info::display();
+-    XEvent *ev = (XEvent *)message;
+-    if  (ev->type == DestroyNotify && ev->xany.window == sysTrayWindow) {
+-	sysTrayWindow = locateSystemTray();
+-        memset(&sysTrayVisual, 0, sizeof(sysTrayVisual));
+-        for (int i = 0; i < trayIcons.count(); i++) {
+-            if (sysTrayWindow == XNone) {
+-	        QBalloonTip::hideBalloon();
+-                trayIcons[i]->hide(); // still no luck
+-                trayIcons[i]->destroy();
+-                trayIcons[i]->create();
+-	    } else
+-                trayIcons[i]->addToTray(); // add it to the new tray
+-        }
+-        retval = true;
+-    } else if (ev->type == ClientMessage && sysTrayWindow == XNone) {
+-        static Atom manager_atom = XInternAtom(display, "MANAGER", False);
+-        XClientMessageEvent *cm = (XClientMessageEvent *)message;
+-        if ((cm->message_type == manager_atom) && ((Atom)cm->data.l[1] == sysTraySelection)) {
+-	    sysTrayWindow = cm->data.l[2];
+-            memset(&sysTrayVisual, 0, sizeof(sysTrayVisual));
+-	    XSelectInput(display, sysTrayWindow, StructureNotifyMask);
+-            for (int i = 0; i < trayIcons.count(); i++) {
+-                trayIcons[i]->addToTray();
+-            }
+-            retval = true;
+-        }
+-    } else if (ev->type == PropertyNotify && ev->xproperty.atom == ATOM(_NET_SYSTEM_TRAY_VISUAL) &&
+-               ev->xproperty.window == sysTrayWindow) {
+-        memset(&sysTrayVisual, 0, sizeof(sysTrayVisual));
+-        for (int i = 0; i < trayIcons.count(); i++) {
+-            trayIcons[i]->addToTray();
+-        }
+-    }
+-
+-    return retval;
+-}
+-
+-QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *q)
+-    : QWidget(0, Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint),
+-      q(q), colormap(0)
+-{
+-    setAttribute(Qt::WA_AlwaysShowToolTips);
+-    setAttribute(Qt::WA_QuitOnClose, false);
+-    setAttribute(Qt::WA_NoSystemBackground, true);
+-    setAttribute(Qt::WA_PaintOnScreen);
+-
+-    static bool eventFilterAdded = false;
+-    Display *display = QX11Info::display();
+-    if (!eventFilterAdded) {
+-        oldEventFilter = qApp->setEventFilter(sysTrayTracker);
+-	eventFilterAdded = true;
+-	Window root = QX11Info::appRootWindow();
+-        XWindowAttributes attr;
+-        XGetWindowAttributes(display, root, &attr);
+-        if ((attr.your_event_mask & StructureNotifyMask) != StructureNotifyMask) {
+-            (void) QApplication::desktop(); // lame trick to ensure our event mask is not overridden
+-            XSelectInput(display, root, attr.your_event_mask | StructureNotifyMask); // for MANAGER selection
+-        }
++    if (pluginFactory) {
++        return;
+     }
+-    if (trayIcons.isEmpty()) {
+-        sysTrayWindow = locateSystemTray();
+-	if (sysTrayWindow != XNone)
+-	    XSelectInput(display, sysTrayWindow, StructureNotifyMask); // track tray events
++#ifndef QT_NO_LIBRARY
++    QFactoryLoader loader(QSystemTrayIconSysFactoryInterface_iid, QLatin1String("/systemtrayicon"));
++    pluginFactory = qobject_cast<QSystemTrayIconSysFactoryInterface *>(loader.instance(QLatin1String("default")));
++    if (pluginFactory) {
++        // Set parent to ensure factory destructor is called when application
++        // is closed
++        pluginFactory->setParent(QCoreApplication::instance());
++        connect(pluginFactory, SIGNAL(availableChanged(bool)), SLOT(refreshTrayIconPrivates()));
+     }
+-    trayIcons.append(this);
+-    setMouseTracking(true);
+-#ifndef QT_NO_TOOLTIP
+-    setToolTip(q->toolTip());
+-#endif
+-    if (sysTrayWindow != XNone)
+-        addToTray();
++#endif // QT_NO_LIBRARY
+ }
+ 
+-QSystemTrayIconSys::~QSystemTrayIconSys()
++QSystemTrayIconSysFactoryInterface *QSystemTrayIconSysFactory::factory() const
+ {
+-    trayIcons.removeAt(trayIcons.indexOf(this));
+-    Display *display = QX11Info::display();
+-    if (trayIcons.isEmpty()) {
+-        if (sysTrayWindow == XNone)
+-            return;
+-        if (display)
+-            XSelectInput(display, sysTrayWindow, 0); // stop tracking the tray
+-        sysTrayWindow = XNone;
++    if (!pluginFactory) {
++        const_cast<QSystemTrayIconSysFactory*>(this)->loadPluginFactory();
+     }
+-    if (colormap)
+-        XFreeColormap(display, colormap);
++    if (pluginFactory && pluginFactory->isAvailable()) {
++        return pluginFactory;
++    }
++    static QXEmbedSystemTrayIconSysFactory def;
++    return def.isAvailable() ? &def : 0;
+ }
+ 
+-void QSystemTrayIconSys::addToTray()
++void QSystemTrayIconSysFactory::refreshTrayIconPrivates()
+ {
+-    Q_ASSERT(sysTrayWindow != XNone);
+-    Display *display = QX11Info::display();
+-
+-    XVisualInfo *vi = getSysTrayVisualInfo();
+-    if (vi && vi->visual) {
+-        Window root = RootWindow(display, vi->screen);
+-        Window p = root;
+-        if (QWidget *pw = parentWidget())
+-            p = pw->effectiveWinId();
+-        colormap = XCreateColormap(display, root, vi->visual, AllocNone);
+-        XSetWindowAttributes wsa;
+-        wsa.background_pixmap = 0;
+-        wsa.colormap = colormap;
+-        wsa.background_pixel = 0;
+-        wsa.border_pixel = 0;
+-        Window wid = XCreateWindow(display, p, -1, -1, 1, 1,
+-                                   0, vi->depth, InputOutput, vi->visual,
+-                                   CWBackPixmap|CWBackPixel|CWBorderPixel|CWColormap, &wsa);
+-        create(wid);
+-    } else {
+-        XSetWindowBackgroundPixmap(display, winId(), ParentRelative);
+-    }
+-
+-    // GNOME, NET WM Specification
+-    static Atom netwm_tray_atom = XInternAtom(display, "_NET_SYSTEM_TRAY_OPCODE", False);
+-    long l[5] = { CurrentTime, SYSTEM_TRAY_REQUEST_DOCK, static_cast<long>(winId()), 0, 0 };
+-    XEvent ev;
+-    memset(&ev, 0, sizeof(ev));
+-    ev.xclient.type = ClientMessage;
+-    ev.xclient.window = sysTrayWindow;
+-    ev.xclient.message_type = netwm_tray_atom;
+-    ev.xclient.format = 32;
+-    memcpy((char *)&ev.xclient.data, (const char *) l, sizeof(l));
+-    XSendEvent(display, sysTrayWindow, False, 0, &ev);
+-    setMinimumSize(22, 22); // required at least on GNOME
+-}
+-
+-void QSystemTrayIconSys::updateIcon()
+-{
+-    update();
+-}
+-
+-void QSystemTrayIconSys::resizeEvent(QResizeEvent *re)
+-{
+-     QWidget::resizeEvent(re);
+-     updateIcon();
+-}
+-
+-void QSystemTrayIconSys::paintEvent(QPaintEvent*)
+-{
+-    QPainter p(this);
+-    if (!getSysTrayVisualInfo()) {
+-        const QRegion oldSystemClip = p.paintEngine()->systemClip();
+-        const QRect clearedRect = oldSystemClip.boundingRect();
+-        XClearArea(QX11Info::display(), winId(), clearedRect.x(), clearedRect.y(),
+-                   clearedRect.width(), clearedRect.height(), False);
+-        QPaintEngine *pe = p.paintEngine();
+-        pe->setSystemClip(clearedRect);
+-        q->icon().paint(&p, rect());
+-        pe->setSystemClip(oldSystemClip);
+-    } else {
+-        p.setCompositionMode(QPainter::CompositionMode_Source);
+-        p.fillRect(rect(), Qt::transparent);
+-        p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+-        q->icon().paint(&p, rect());
++    Q_FOREACH(QSystemTrayIconPrivate *trayIconPrivate, trayIconPrivates) {
++        if (trayIconPrivate->sys) {
++            delete trayIconPrivate->sys;
++            trayIconPrivate->sys = 0;
++        }
++        // When visible is true, sys is usually not 0 but it can be 0 if the
++        // call to install_sys() failed.
++        if (trayIconPrivate->visible) {
++            trayIconPrivate->install_sys();
++        }
+     }
+ }
+ 
+-void QSystemTrayIconSys::mousePressEvent(QMouseEvent *ev)
++void QSystemTrayIconSysFactory::registerSystemTrayIconPrivate(QSystemTrayIconPrivate* trayIconPrivate)
+ {
+-    QPoint globalPos = ev->globalPos();
+-    if (ev->button() == Qt::RightButton && q->contextMenu())
+-        q->contextMenu()->popup(globalPos);
+-
+-    if (QBalloonTip::isBalloonVisible()) {
+-        emit q->messageClicked();
+-        QBalloonTip::hideBalloon();
+-    }
+-
+-    if (ev->button() == Qt::LeftButton)
+-        emit q->activated(QSystemTrayIcon::Trigger);
+-    else if (ev->button() == Qt::RightButton)
+-        emit q->activated(QSystemTrayIcon::Context);
+-    else if (ev->button() == Qt::MidButton)
+-        emit q->activated(QSystemTrayIcon::MiddleClick);
++    trayIconPrivates.insert(trayIconPrivate);
+ }
+ 
+-void QSystemTrayIconSys::mouseDoubleClickEvent(QMouseEvent *ev)
++void QSystemTrayIconSysFactory::unregisterSystemTrayIconPrivate(QSystemTrayIconPrivate* trayIconPrivate)
+ {
+-    if (ev->button() == Qt::LeftButton)
+-        emit q->activated(QSystemTrayIcon::DoubleClick);
++    trayIconPrivates.remove(trayIconPrivate);
+ }
+ 
+-#ifndef QT_NO_WHEELEVENT
+-void QSystemTrayIconSys::wheelEvent(QWheelEvent *e)
++QAbstractSystemTrayIconSys *QSystemTrayIconSysFactory::create(QSystemTrayIcon *trayIcon) const
+ {
+-    QApplication::sendEvent(q, e);
++    QSystemTrayIconSysFactoryInterface *f = factory();
++    if (!f) {
++        qWarning("No systemtrayicon available");
++        return 0;
++    }
++    return f->create(trayIcon);
+ }
+-#endif
+ 
+-bool QSystemTrayIconSys::event(QEvent *e)
++bool QSystemTrayIconSysFactory::isAvailable() const
+ {
+-    if (e->type() == QEvent::ToolTip) {
+-        return QApplication::sendEvent(q, e);
+-    }
+-    return QWidget::event(e);
++    return factory();
+ }
+ 
+-bool QSystemTrayIconSys::x11Event(XEvent *event)
++////////////////////////////////////////////////
++QSystemTrayIconPrivate::~QSystemTrayIconPrivate()
+ {
+-    if (event->type == ReparentNotify)
+-        show();
+-    return QWidget::x11Event(event);
++    qt_guiSystemTrayIconSysFactory()->unregisterSystemTrayIconPrivate(this);
++    delete sys;
+ }
+ 
+-////////////////////////////////////////////////////////////////////////////
+ void QSystemTrayIconPrivate::install_sys()
+ {
+     Q_Q(QSystemTrayIcon);
+-    if (!sys)
+-        sys = new QSystemTrayIconSys(q);
++    if (!sys) {
++        // Register ourself even if create() fails: our "sys" will get created
++        // later by refreshTrayIconPrivates() if a systemtray becomes
++        // available. This situation can happen for applications which are
++        // started at login time, while the desktop itself is starting up.
++        qt_guiSystemTrayIconSysFactory()->registerSystemTrayIconPrivate(this);
++        sys = qt_guiSystemTrayIconSysFactory()->create(q);
++        if (!sys) {
++            return;
++        }
++    }
++    sys->updateVisibility();
+ }
+ 
+ QRect QSystemTrayIconPrivate::geometry_sys() const
+ {
+-    if (!sys)
+-	return QRect();
+-    return QRect(sys->mapToGlobal(QPoint(0, 0)), sys->size());
++    if (!sys || !visible)
++        return QRect();
++    return sys->geometry();
+ }
+ 
+ void QSystemTrayIconPrivate::remove_sys()
+@@ -350,35 +161,35 @@
+     if (!sys)
+         return;
+     QBalloonTip::hideBalloon();
+-    sys->hide(); // this should do the trick, but...
+-    delete sys; // wm may resize system tray only for DestroyEvents
+-    sys = 0;
++    sys->updateVisibility();
+ }
+ 
+ void QSystemTrayIconPrivate::updateIcon_sys()
+ {
+-    if (!sys)
++    if (!sys || !visible)
+         return;
+     sys->updateIcon();
+ }
+ 
+ void QSystemTrayIconPrivate::updateMenu_sys()
+ {
+-
++    if (!sys || !visible)
++        return;
++    sys->updateMenu();
+ }
+ 
+ void QSystemTrayIconPrivate::updateToolTip_sys()
+ {
+-    if (!sys)
++    if (!sys || !visible)
+         return;
+ #ifndef QT_NO_TOOLTIP
+-    sys->setToolTip(toolTip);
++    sys->updateToolTip();
+ #endif
+ }
+ 
+ bool QSystemTrayIconPrivate::isSystemTrayAvailable_sys()
+ {
+-    return QSystemTrayIconSys::locateSystemTray() != XNone;
++    return qt_guiSystemTrayIconSysFactory()->isAvailable();
+ }
+ 
+ bool QSystemTrayIconPrivate::supportsMessages_sys()
+@@ -389,12 +200,9 @@
+ void QSystemTrayIconPrivate::showMessage_sys(const QString &message, const QString &title,
+                                    QSystemTrayIcon::MessageIcon icon, int msecs)
+ {
+-    if (!sys)
++    if (!sys || !visible)
+         return;
+-    QPoint g = sys->mapToGlobal(QPoint(0, 0));
+-    QBalloonTip::showBalloon(icon, message, title, sys->q,
+-                             QPoint(g.x() + sys->width()/2, g.y() + sys->height()/2),
+-                             msecs);
++    sys->showMessage(message, title, icon, msecs);
+ }
+ 
+ QT_END_NAMESPACE
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/util/qxembedsystemtrayicon_x11.cpp qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qxembedsystemtrayicon_x11.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/gui/util/qxembedsystemtrayicon_x11.cpp	1970-01-01 08:00:00.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qxembedsystemtrayicon_x11.cpp	2023-03-20 20:48:15.000000000 +0800
+@@ -0,0 +1,469 @@
++/****************************************************************************
++**
++** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
++** All rights reserved.
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the QtGui module of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** GNU Lesser General Public License Usage
++** This file may be used under the terms of the GNU Lesser General Public
++** License version 2.1 as published by the Free Software Foundation and
++** appearing in the file LICENSE.LGPL included in the packaging of this
++** file. Please review the following information to ensure the GNU Lesser
++** General Public License version 2.1 requirements will be met:
++** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain additional
++** rights. These rights are described in the Nokia Qt LGPL Exception
++** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU General
++** Public License version 3.0 as published by the Free Software Foundation
++** and appearing in the file LICENSE.GPL included in the packaging of this
++** file. Please review the following information to ensure the GNU General
++** Public License version 3.0 requirements will be met:
++** http://www.gnu.org/copyleft/gpl.html.
++**
++** Other Usage
++** Alternatively, this file may be used in accordance with the terms and
++** conditions contained in a signed written agreement between you and Nokia.
++**
++**
++**
++**
++**
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++#include "qxembedsystemtrayicon_x11_p.h"
++
++#ifndef QT_NO_SYSTEMTRAYICON
++
++#include "private/qt_x11_p.h"
++#include "qapplication.h"
++#include "qevent.h"
++#include "qlist.h"
++#include "qmenu.h"
++#include "qpainter.h"
++#include "qpaintengine.h"
++#include "qsystemtrayicon_p.h"
++#include "qx11info_x11.h"
++
++QT_BEGIN_INCLUDE_NAMESPACE
++#include <QtCore/qcoreapplication.h>
++#include <X11/Xlib.h>
++#include <X11/Xatom.h>
++#include <X11/Xutil.h>
++QT_END_INCLUDE_NAMESPACE
++
++QT_BEGIN_NAMESPACE
++
++class QSystemTrayIconWidget : public QWidget
++{
++public:
++    QSystemTrayIconWidget(QSystemTrayIcon *q, QXEmbedSystemTrayIconSys *s);
++    ~QSystemTrayIconWidget();
++
++    static Window locateSystemTray();
++
++protected:
++    void paintEvent(QPaintEvent *pe);
++    void resizeEvent(QResizeEvent *re);
++    bool x11Event(XEvent *event);
++    void mousePressEvent(QMouseEvent *event);
++    void mouseDoubleClickEvent(QMouseEvent *event);
++#ifndef QT_NO_WHEELEVENT
++    void wheelEvent(QWheelEvent *event);
++#endif
++    bool event(QEvent *e);
++
++private:
++    enum {
++        SYSTEM_TRAY_REQUEST_DOCK = 0,
++        SYSTEM_TRAY_BEGIN_MESSAGE = 1,
++        SYSTEM_TRAY_CANCEL_MESSAGE =2
++    };
++
++    void addToTray();
++    static XVisualInfo* getSysTrayVisualInfo();
++
++    static Window sysTrayWindow;
++    static QList<QSystemTrayIconWidget *> trayIcons;
++    static QCoreApplication::EventFilter oldEventFilter;
++    static bool sysTrayTracker(void *message, long *result);
++    static Atom sysTraySelection;
++    static XVisualInfo sysTrayVisual;
++
++    QSystemTrayIcon *q;
++    QXEmbedSystemTrayIconSys *sys;
++    Colormap colormap;
++};
++
++Window QSystemTrayIconWidget::sysTrayWindow = XNone;
++QList<QSystemTrayIconWidget *> QSystemTrayIconWidget::trayIcons;
++QCoreApplication::EventFilter QSystemTrayIconWidget::oldEventFilter = 0;
++Atom QSystemTrayIconWidget::sysTraySelection = XNone;
++XVisualInfo QSystemTrayIconWidget::sysTrayVisual = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
++
++QSystemTrayIconWidget::QSystemTrayIconWidget(QSystemTrayIcon* q, QXEmbedSystemTrayIconSys* sys)
++: QWidget(0, Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint)
++, q(q)
++, sys(sys)
++, colormap(0)
++{
++    setAttribute(Qt::WA_AlwaysShowToolTips);
++    setAttribute(Qt::WA_QuitOnClose, false);
++    setAttribute(Qt::WA_NoSystemBackground, true);
++    setAttribute(Qt::WA_PaintOnScreen);
++    setMouseTracking(true);
++#ifndef QT_NO_TOOLTIP
++    setToolTip(q->toolTip());
++#endif
++
++    static bool eventFilterAdded = false;
++    Display *display = QX11Info::display();
++    if (!eventFilterAdded) {
++        oldEventFilter = qApp->setEventFilter(sysTrayTracker);
++        eventFilterAdded = true;
++        Window root = QX11Info::appRootWindow();
++        XWindowAttributes attr;
++        XGetWindowAttributes(display, root, &attr);
++        if ((attr.your_event_mask & StructureNotifyMask) != StructureNotifyMask) {
++            (void) QApplication::desktop(); // lame trick to ensure our event mask is not overridden
++            XSelectInput(display, root, attr.your_event_mask | StructureNotifyMask); // for MANAGER selection
++        }
++    }
++    if (trayIcons.isEmpty()) {
++        sysTrayWindow = locateSystemTray();
++        if (sysTrayWindow != XNone)
++            XSelectInput(display, sysTrayWindow, StructureNotifyMask); // track tray events
++    }
++    trayIcons.append(this);
++    if (sysTrayWindow != XNone)
++        addToTray();
++}
++
++QSystemTrayIconWidget::~QSystemTrayIconWidget()
++{
++    trayIcons.removeAt(trayIcons.indexOf(this));
++    Display *display = QX11Info::display();
++    if (trayIcons.isEmpty()) {
++        if (sysTrayWindow == XNone)
++            return;
++        if (display)
++            XSelectInput(display, sysTrayWindow, 0); // stop tracking the tray
++        sysTrayWindow = XNone;
++    }
++    if (colormap)
++        XFreeColormap(display, colormap);
++}
++
++void QSystemTrayIconWidget::resizeEvent(QResizeEvent *re)
++{
++    QWidget::resizeEvent(re);
++    update();
++}
++
++void QSystemTrayIconWidget::paintEvent(QPaintEvent*)
++{
++    QPainter p(this);
++    if (!getSysTrayVisualInfo()) {
++        const QRegion oldSystemClip = p.paintEngine()->systemClip();
++        const QRect clearedRect = oldSystemClip.boundingRect();
++        XClearArea(QX11Info::display(), winId(), clearedRect.x(), clearedRect.y(),
++                   clearedRect.width(), clearedRect.height(), False);
++        QPaintEngine *pe = p.paintEngine();
++        pe->setSystemClip(clearedRect);
++        q->icon().paint(&p, rect());
++        pe->setSystemClip(oldSystemClip);
++    } else {
++        p.setCompositionMode(QPainter::CompositionMode_Source);
++        p.fillRect(rect(), Qt::transparent);
++        p.setCompositionMode(QPainter::CompositionMode_SourceOver);
++        q->icon().paint(&p, rect());
++    }
++}
++
++void QSystemTrayIconWidget::mousePressEvent(QMouseEvent *ev)
++{
++    QPoint globalPos = ev->globalPos();
++    if (ev->button() == Qt::RightButton && q->contextMenu())
++        q->contextMenu()->popup(globalPos);
++
++    if (QBalloonTip::isBalloonVisible()) {
++        QMetaObject::invokeMethod(q, "messageClicked");
++        QBalloonTip::hideBalloon();
++    }
++
++    if (ev->button() == Qt::LeftButton)
++        qtsystray_sendActivated(q, QSystemTrayIcon::Trigger);
++    else if (ev->button() == Qt::RightButton)
++        qtsystray_sendActivated(q, QSystemTrayIcon::Context);
++    else if (ev->button() == Qt::MidButton)
++        qtsystray_sendActivated(q, QSystemTrayIcon::MiddleClick);
++}
++
++void QSystemTrayIconWidget::mouseDoubleClickEvent(QMouseEvent *ev)
++{
++    if (ev->button() == Qt::LeftButton)
++        qtsystray_sendActivated(q, QSystemTrayIcon::DoubleClick);
++}
++
++#ifndef QT_NO_WHEELEVENT
++void QSystemTrayIconWidget::wheelEvent(QWheelEvent *e)
++{
++    sys->sendWheelEventToTrayIcon(e->delta(), e->orientation());
++}
++#endif
++
++bool QSystemTrayIconWidget::event(QEvent *e)
++{
++    if (e->type() == QEvent::ToolTip) {
++        sys->sendToolTipEventToTrayIcon();
++    }
++    return QWidget::event(e);
++}
++
++bool QSystemTrayIconWidget::x11Event(XEvent *event)
++{
++    if (event->type == ReparentNotify)
++        show();
++    return QWidget::x11Event(event);
++}
++
++// Locate the system tray
++Window QSystemTrayIconWidget::locateSystemTray()
++{
++    Display *display = QX11Info::display();
++    if (sysTraySelection == XNone) {
++        int screen = QX11Info::appScreen();
++        QString net_sys_tray = QString::fromLatin1("_NET_SYSTEM_TRAY_S%1").arg(screen);
++        sysTraySelection = XInternAtom(display, net_sys_tray.toLatin1(), False);
++    }
++
++    return XGetSelectionOwner(QX11Info::display(), sysTraySelection);
++}
++
++XVisualInfo* QSystemTrayIconWidget::getSysTrayVisualInfo()
++{
++    Display *display = QX11Info::display();
++
++    if (!sysTrayVisual.visual) {
++        Window win = locateSystemTray();
++        if (win != XNone) {
++            Atom actual_type;
++            int actual_format;
++            ulong nitems, bytes_remaining;
++            uchar *data = 0;
++            int result = XGetWindowProperty(display, win, ATOM(_NET_SYSTEM_TRAY_VISUAL), 0, 1,
++                                            False, XA_VISUALID, &actual_type,
++                                            &actual_format, &nitems, &bytes_remaining, &data);
++            VisualID vid = 0;
++            if (result == Success && data && actual_type == XA_VISUALID && actual_format == 32 &&
++                nitems == 1 && bytes_remaining == 0)
++                vid = *(VisualID*)data;
++            if (data)
++                XFree(data);
++            if (vid == 0)
++                return 0;
++
++            uint mask = VisualIDMask;
++            XVisualInfo *vi, rvi;
++            int count;
++            rvi.visualid = vid;
++            vi = XGetVisualInfo(display, mask, &rvi, &count);
++            if (vi) {
++                sysTrayVisual = vi[0];
++                XFree((char*)vi);
++            }
++            if (sysTrayVisual.depth != 32)
++                memset(&sysTrayVisual, 0, sizeof(sysTrayVisual));
++        }
++    }
++
++    return sysTrayVisual.visual ? &sysTrayVisual : 0;
++}
++
++bool QSystemTrayIconWidget::sysTrayTracker(void *message, long *result)
++{
++    bool retval = false;
++    if (QSystemTrayIconWidget::oldEventFilter)
++        retval = QSystemTrayIconWidget::oldEventFilter(message, result);
++
++    if (trayIcons.isEmpty())
++        return retval;
++
++    Display *display = QX11Info::display();
++    XEvent *ev = (XEvent *)message;
++    if  (ev->type == DestroyNotify && ev->xany.window == sysTrayWindow) {
++        sysTrayWindow = locateSystemTray();
++        memset(&sysTrayVisual, 0, sizeof(sysTrayVisual));
++        for (int i = 0; i < trayIcons.count(); i++) {
++            if (sysTrayWindow == XNone) {
++                QBalloonTip::hideBalloon();
++                trayIcons[i]->hide(); // still no luck
++                trayIcons[i]->destroy();
++                trayIcons[i]->create();
++            } else
++                trayIcons[i]->addToTray(); // add it to the new tray
++        }
++        retval = true;
++    } else if (ev->type == ClientMessage && sysTrayWindow == XNone) {
++        static Atom manager_atom = XInternAtom(display, "MANAGER", False);
++        XClientMessageEvent *cm = (XClientMessageEvent *)message;
++        if ((cm->message_type == manager_atom) && ((Atom)cm->data.l[1] == sysTraySelection)) {
++            sysTrayWindow = cm->data.l[2];
++            memset(&sysTrayVisual, 0, sizeof(sysTrayVisual));
++            XSelectInput(display, sysTrayWindow, StructureNotifyMask);
++            for (int i = 0; i < trayIcons.count(); i++) {
++                trayIcons[i]->addToTray();
++            }
++            retval = true;
++        }
++    } else if (ev->type == PropertyNotify && ev->xproperty.atom == ATOM(_NET_SYSTEM_TRAY_VISUAL) &&
++               ev->xproperty.window == sysTrayWindow) {
++        memset(&sysTrayVisual, 0, sizeof(sysTrayVisual));
++        for (int i = 0; i < trayIcons.count(); i++) {
++            trayIcons[i]->addToTray();
++        }
++    }
++
++    return retval;
++}
++
++void QSystemTrayIconWidget::addToTray()
++{
++    Q_ASSERT(sysTrayWindow != XNone);
++    Display *display = QX11Info::display();
++
++    XVisualInfo *vi = getSysTrayVisualInfo();
++    if (vi && vi->visual) {
++        Window root = RootWindow(display, vi->screen);
++        Window p = root;
++        if (QWidget *pw = parentWidget())
++            p = pw->effectiveWinId();
++        colormap = XCreateColormap(display, root, vi->visual, AllocNone);
++        XSetWindowAttributes wsa;
++        wsa.background_pixmap = 0;
++        wsa.colormap = colormap;
++        wsa.background_pixel = 0;
++        wsa.border_pixel = 0;
++        Window wid = XCreateWindow(display, p, -1, -1, 1, 1,
++                                   0, vi->depth, InputOutput, vi->visual,
++                                   CWBackPixmap|CWBackPixel|CWBorderPixel|CWColormap, &wsa);
++        create(wid);
++    } else {
++        XSetWindowBackgroundPixmap(display, winId(), ParentRelative);
++    }
++
++    // GNOME, NET WM Specification
++    static Atom netwm_tray_atom = XInternAtom(display, "_NET_SYSTEM_TRAY_OPCODE", False);
++    long l[5] = { CurrentTime, SYSTEM_TRAY_REQUEST_DOCK, static_cast<long>(winId()), 0, 0 };
++    XEvent ev;
++    memset(&ev, 0, sizeof(ev));
++    ev.xclient.type = ClientMessage;
++    ev.xclient.window = sysTrayWindow;
++    ev.xclient.message_type = netwm_tray_atom;
++    ev.xclient.format = 32;
++    memcpy((char *)&ev.xclient.data, (const char *) l, sizeof(l));
++    XSendEvent(display, sysTrayWindow, False, 0, &ev);
++    setMinimumSize(22, 22); // required at least on GNOME
++}
++
++////////////////////////////////////////////////////////////////////////////
++QXEmbedSystemTrayIconSys::QXEmbedSystemTrayIconSys(QSystemTrayIcon *q)
++: QAbstractSystemTrayIconSys(q)
++, widget(0)
++{
++}
++
++QXEmbedSystemTrayIconSys::~QXEmbedSystemTrayIconSys()
++{
++    delete widget;
++}
++
++QRect QXEmbedSystemTrayIconSys::geometry() const
++{
++    if (!widget)
++        return QRect();
++    return QRect(widget->mapToGlobal(QPoint(0, 0)), widget->size());
++}
++
++void QXEmbedSystemTrayIconSys::updateIcon()
++{
++    if (!widget)
++        return;
++    widget->update();
++}
++
++void QXEmbedSystemTrayIconSys::updateToolTip()
++{
++    if (!widget)
++        return;
++    widget->setToolTip(trayIcon->toolTip());
++}
++
++void QXEmbedSystemTrayIconSys::showMessage(const QString &message, const QString &title,
++                                   QSystemTrayIcon::MessageIcon icon, int msecs)
++{
++    if (!widget)
++        return;
++    QPoint point = geometry().center();
++    QBalloonTip::showBalloon(icon, message, title, trayIcon, point, msecs);
++}
++
++void QXEmbedSystemTrayIconSys::updateVisibility()
++{
++    bool visible = trayIcon->isVisible();
++    if (visible && !widget)
++        widget = new QSystemTrayIconWidget(trayIcon, this);
++    else if (!visible && widget) {
++        delete widget;
++        widget = 0;
++    }
++}
++
++void QXEmbedSystemTrayIconSys::sendToolTipEventToTrayIcon()
++{
++#ifndef QT_NO_TOOLTIP
++    // Pass the event through QSystemTrayIcon so that it gets a chance to
++    // update the tooltip, then asks widget to show the tooltip
++    Q_ASSERT(widget);
++    QPoint globalPos = QCursor::pos();
++    QPoint pos = widget->mapFromGlobal(globalPos);
++    QHelpEvent event(QEvent::ToolTip, pos, globalPos);
++    QApplication::sendEvent(trayIcon, &event);
++#endif
++}
++
++void QXEmbedSystemTrayIconSys::sendWheelEventToTrayIcon(int delta, Qt::Orientation orientation)
++{
++#ifndef QT_NO_WHEELEVENT
++    Q_ASSERT(widget);
++    QPoint globalPos = QCursor::pos();
++    QPoint pos = widget->mapFromGlobal(globalPos);
++    QWheelEvent event(pos, globalPos, delta, Qt::NoButton, Qt::NoModifier, orientation);
++    QApplication::sendEvent(trayIcon, &event);
++#endif
++}
++
++void QXEmbedSystemTrayIconSys::updateMenu()
++{
++}
++
++/////////////////////////////////////////////////////////////
++QAbstractSystemTrayIconSys * QXEmbedSystemTrayIconSysFactory::create(QSystemTrayIcon *icon)
++{
++    return new QXEmbedSystemTrayIconSys(icon);
++}
++
++bool QXEmbedSystemTrayIconSysFactory::isAvailable() const
++{
++    return QSystemTrayIconWidget::locateSystemTray() != XNone;
++}
++
++QT_END_NAMESPACE
++#endif //QT_NO_SYSTEMTRAYICON
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/util/qxembedsystemtrayicon_x11_p.h qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qxembedsystemtrayicon_x11_p.h
+--- qt-everywhere-opensource-src-4.8.7/src/gui/util/qxembedsystemtrayicon_x11_p.h	1970-01-01 08:00:00.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/util/qxembedsystemtrayicon_x11_p.h	2023-03-20 20:48:15.000000000 +0800
+@@ -0,0 +1,104 @@
++/****************************************************************************
++**
++** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
++** All rights reserved.
++** Contact: Nokia Corporation (qt-info@nokia.com)
++**
++** This file is part of the QtGui module of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** GNU Lesser General Public License Usage
++** This file may be used under the terms of the GNU Lesser General Public
++** License version 2.1 as published by the Free Software Foundation and
++** appearing in the file LICENSE.LGPL included in the packaging of this
++** file. Please review the following information to ensure the GNU Lesser
++** General Public License version 2.1 requirements will be met:
++** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain additional
++** rights. These rights are described in the Nokia Qt LGPL Exception
++** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU General
++** Public License version 3.0 as published by the Free Software Foundation
++** and appearing in the file LICENSE.GPL included in the packaging of this
++** file. Please review the following information to ensure the GNU General
++** Public License version 3.0 requirements will be met:
++** http://www.gnu.org/copyleft/gpl.html.
++**
++** Other Usage
++** Alternatively, this file may be used in accordance with the terms and
++** conditions contained in a signed written agreement between you and Nokia.
++**
++**
++**
++**
++**
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++#ifndef QXEMBEDSYSTEMTRAYICON_X11_P_H
++#define QXEMBEDSYSTEMTRAYICON_X11_P_H
++
++//
++//  W A R N I N G
++//  -------------
++//
++// This file is not part of the Qt API.  It exists for the convenience
++// of a number of Qt sources files.  This header file may change from
++// version to version without notice, or even be removed.
++//
++// We mean it.
++//
++
++#ifndef QT_NO_SYSTEMTRAYICON
++
++#include "qabstractsystemtrayiconsys_p.h"
++
++QT_BEGIN_NAMESPACE
++
++class QSystemTrayIconWidget;
++
++class QXEmbedSystemTrayIconSys : public QAbstractSystemTrayIconSys
++{
++public:
++    QXEmbedSystemTrayIconSys(QSystemTrayIcon *);
++    ~QXEmbedSystemTrayIconSys();
++
++    QRect geometry() const;
++
++    void updateVisibility();
++
++    void updateIcon();
++
++    void updateToolTip();
++
++    void updateMenu();
++
++    void showMessage(const QString &message, const QString &title,
++                     QSystemTrayIcon::MessageIcon icon, int msecs);
++
++private:
++    friend class QSystemTrayIconWidget;
++    QSystemTrayIconWidget *widget;
++
++    void sendToolTipEventToTrayIcon();
++
++    void sendWheelEventToTrayIcon(int delta, Qt::Orientation orientation);
++};
++
++struct QXEmbedSystemTrayIconSysFactory : public QSystemTrayIconSysFactoryInterface
++{
++    QAbstractSystemTrayIconSys * create(QSystemTrayIcon *trayIcon);
++    bool isAvailable() const;
++};
++
++
++QT_END_NAMESPACE
++
++#endif // QT_NO_SYSTEMTRAYICON
++
++#endif // QXEMBEDSYSTEMTRAYICON_X11_P_H
++
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/gui/util/util.pri qt-everywhere-opensource-src-4.8.7_new/src/gui/util/util.pri
+--- qt-everywhere-opensource-src-4.8.7/src/gui/util/util.pri	2015-05-07 22:14:43.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/gui/util/util.pri	2023-03-20 20:48:15.000000000 +0800
+@@ -29,8 +29,13 @@
+ }
+ 
+ unix:x11 {
++		HEADERS += \
++				util/qabstractsystemtrayiconsys_p.h \
++				util/qxembedsystemtrayicon_x11_p.h
+ 		SOURCES += \
+-				util/qsystemtrayicon_x11.cpp
++				util/qabstractsystemtrayiconsys.cpp \
++				util/qsystemtrayicon_x11.cpp \
++				util/qxembedsystemtrayicon_x11.cpp
+ }
+ 
+ embedded|qpa {
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/network/ssl/qsslcertificate.cpp qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/qsslcertificate.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/network/ssl/qsslcertificate.cpp	2015-05-07 22:14:44.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/qsslcertificate.cpp	2023-03-22 22:52:40.000000000 +0800
+@@ -259,10 +259,10 @@
+ QByteArray QSslCertificate::version() const
+ {
+     QMutexLocker lock(QMutexPool::globalInstanceGet(d.data()));
+-    if (d->versionString.isEmpty() && d->x509)
++    if (d->versionString.isEmpty() && d->x509) {
+         d->versionString =
+-            QByteArray::number(qlonglong(q_ASN1_INTEGER_get(d->x509->cert_info->version)) + 1);
+-
++	    QByteArray::number(qlonglong(q_X509_get_version(d->x509)) + 1);
++    }
+     return d->versionString;
+ }
+ 
+@@ -276,7 +276,7 @@
+ {
+     QMutexLocker lock(QMutexPool::globalInstanceGet(d.data()));
+     if (d->serialNumberString.isEmpty() && d->x509) {
+-        ASN1_INTEGER *serialNumber = d->x509->cert_info->serialNumber;
++        ASN1_INTEGER *serialNumber = q_X509_get_serialNumber(d->x509);
+         // if we cannot convert to a long, just output the hexadecimal number
+         if (serialNumber->length > 4) {
+             QByteArray hexString;
+@@ -489,24 +489,33 @@
+     QSslKey key;
+ 
+     key.d->type = QSsl::PublicKey;
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+     X509_PUBKEY *xkey = d->x509->cert_info->key;
++#else
++    X509_PUBKEY *xkey = q_X509_get_X509_PUBKEY(d->x509);
++#endif
+     EVP_PKEY *pkey = q_X509_PUBKEY_get(xkey);
+     Q_ASSERT(pkey);
+ 
+-    if (q_EVP_PKEY_type(pkey->type) == EVP_PKEY_RSA) {
++    int key_id;
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
++    key_id = q_EVP_PKEY_type(pkey->type);
++#else
++    key_id = q_EVP_PKEY_base_id(pkey);
++#endif
++    if (key_id == EVP_PKEY_RSA) {
+         key.d->rsa = q_EVP_PKEY_get1_RSA(pkey);
+         key.d->algorithm = QSsl::Rsa;
+         key.d->isNull = false;
+-    } else if (q_EVP_PKEY_type(pkey->type) == EVP_PKEY_DSA) {
++    } else if (key_id == EVP_PKEY_DSA) {
+         key.d->dsa = q_EVP_PKEY_get1_DSA(pkey);
+         key.d->algorithm = QSsl::Dsa;
+         key.d->isNull = false;
+-    } else if (q_EVP_PKEY_type(pkey->type) == EVP_PKEY_DH) {
++    } else if (key_id == EVP_PKEY_DH) {
+         // DH unsupported
+     } else {
+         // error?
+     }
+-
+     q_EVP_PKEY_free(pkey);
+     return key;
+ }
+@@ -687,7 +696,11 @@
+         unsigned char *data = 0;
+         int size = q_ASN1_STRING_to_UTF8(&data, q_X509_NAME_ENTRY_get_data(e));
+         info[QString::fromUtf8(obj)] = QString::fromUtf8((char*)data, size);
++#if  OPENSSL_VERSION_NUMBER < 0x10100000L
+         q_CRYPTO_free(data);
++#else
++        q_CRYPTO_free(data, __FILE__, __LINE__);
++#endif
+     }
+     return info;
+ }
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/network/ssl/qsslkey.cpp qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/qsslkey.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/network/ssl/qsslkey.cpp	2015-05-07 22:14:44.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/qsslkey.cpp	2023-03-20 20:51:42.000000000 +0800
+@@ -321,8 +321,19 @@
+ {
+     if (d->isNull)
+         return -1;
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+     return (d->algorithm == QSsl::Rsa)
+            ? q_BN_num_bits(d->rsa->n) : q_BN_num_bits(d->dsa->p);
++#else
++    if (d->algorithm == QSsl::Rsa) {
++        return q_RSA_bits(d->rsa);
++    }else{
++        const BIGNUM *p = NULL;
++        q_DSA_get0_pqg(d->dsa, &p, NULL, NULL);
++	return q_BN_num_bits(p);
++    }
++#endif
++
+ }
+ 
+ /*!
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/network/ssl/qsslsocket_openssl.cpp qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/qsslsocket_openssl.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/network/ssl/qsslsocket_openssl.cpp	2015-05-07 22:14:44.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/qsslsocket_openssl.cpp	2023-03-20 20:51:42.000000000 +0800
+@@ -93,6 +93,7 @@
+ bool QSslSocketPrivate::s_loadedCiphersAndCerts = false;
+ bool QSslSocketPrivate::s_loadRootCertsOnDemand = false;
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ /* \internal
+ 
+     From OpenSSL's thread(3) manual page:
+@@ -174,6 +175,8 @@
+ }
+ } // extern "C"
+ 
++#endif //OPENSSL_VERSION_NUMBER >= 0x10100000L
++
+ QSslSocketBackendPrivate::QSslSocketBackendPrivate()
+     : ssl(0),
+       ctx(0),
+@@ -222,9 +225,12 @@
+             ciph.d->encryptionMethod = descriptionList.at(4).mid(4);
+         ciph.d->exportable = (descriptionList.size() > 6 && descriptionList.at(6) == QLatin1String("export"));
+ 
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+         ciph.d->bits = cipher->strength_bits;
+         ciph.d->supportedBits = cipher->alg_bits;
+-
++#else
++	ciph.d->bits = q_SSL_CIPHER_get_bits(cipher, &ciph.d->supportedBits);
++#endif
+     }
+     return ciph;
+ }
+@@ -267,7 +273,11 @@
+ #endif
+         break;
+     case QSsl::SslV3:
++#ifndef OPENSSL_NO_SSL3
+         ctx = q_SSL_CTX_new(client ? q_SSLv3_client_method() : q_SSLv3_server_method());
++#else
++        ctx = 0; // SSL 3 not supported by the system, but chosen deliberately -> error
++#endif
+         break;
+     case QSsl::SecureProtocols: // SslV2 will be disabled below
+     case QSsl::TlsV1SslV3: // SslV2 will be disabled below
+@@ -363,7 +373,7 @@
+         //
+         // See also: QSslContext::fromConfiguration()
+         if (caCertificate.expiryDate() >= QDateTime::currentDateTime()) {
+-            q_X509_STORE_add_cert(ctx->cert_store, (X509 *)caCertificate.handle());
++	  q_X509_STORE_add_cert(q_SSL_CTX_get_cert_store(ctx), (X509 *)caCertificate.handle());
+         }
+     }
+ 
+@@ -500,8 +510,10 @@
+ */
+ void QSslSocketPrivate::deinitialize()
+ {
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+     q_CRYPTO_set_id_callback(0);
+     q_CRYPTO_set_locking_callback(0);
++#endif
+ }
+ 
+ /*!
+@@ -522,13 +534,17 @@
+         return false;
+ 
+     // Check if the library itself needs to be initialized.
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+     QMutexLocker locker(openssl_locks()->initLock());
++#endif
+     if (!s_libraryLoaded) {
+         s_libraryLoaded = true;
+ 
+         // Initialize OpenSSL.
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+         q_CRYPTO_set_id_callback(id_function);
+         q_CRYPTO_set_locking_callback(locking_function);
++#endif
+         if (q_SSL_library_init() != 1)
+             return false;
+         q_SSL_load_error_strings();
+@@ -567,7 +583,9 @@
+ 
+ void QSslSocketPrivate::ensureCiphersAndCertsLoaded()
+ {
+-    QMutexLocker locker(openssl_locks()->initLock());
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
++  QMutexLocker locker(openssl_locks()->initLock());
++#endif
+     if (s_loadedCiphersAndCerts)
+         return;
+     s_loadedCiphersAndCerts = true;
+@@ -659,13 +677,18 @@
+     STACK_OF(SSL_CIPHER) *supportedCiphers = q_SSL_get_ciphers(mySsl);
+     for (int i = 0; i < q_sk_SSL_CIPHER_num(supportedCiphers); ++i) {
+         if (SSL_CIPHER *cipher = q_sk_SSL_CIPHER_value(supportedCiphers, i)) {
+-            if (cipher->valid) {
++
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
++	  if (cipher->valid) {
++#endif
+                 QSslCipher ciph = QSslSocketBackendPrivate::QSslCipher_from_SSL_CIPHER(cipher);
+                 if (!ciph.isNull()) {
+                     if (!ciph.name().toLower().startsWith(QLatin1String("adh")))
+                         ciphers << ciph;
+                 }
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+             }
++#endif
+         }
+     }
+ 
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/network/ssl/qsslsocket_openssl_symbols.cpp qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/qsslsocket_openssl_symbols.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/network/ssl/qsslsocket_openssl_symbols.cpp	2015-05-07 22:14:44.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/qsslsocket_openssl_symbols.cpp	2023-03-22 22:50:20.000000000 +0800
+@@ -111,18 +111,22 @@
+ DEFINEFUNC2(int, ASN1_STRING_to_UTF8, unsigned char **a, a, ASN1_STRING *b, b, return 0, return);
+ DEFINEFUNC4(long, BIO_ctrl, BIO *a, a, int b, b, long c, c, void *d, d, return -1, return)
+ DEFINEFUNC(int, BIO_free, BIO *a, a, return 0, return)
+-DEFINEFUNC(BIO *, BIO_new, BIO_METHOD *a, a, return 0, return)
++DEFINEFUNC(BIO *, BIO_new, const BIO_METHOD *a, a, return 0, return)
+ DEFINEFUNC2(BIO *, BIO_new_mem_buf, void *a, a, int b, b, return 0, return)
+ DEFINEFUNC3(int, BIO_read, BIO *a, a, void *b, b, int c, c, return -1, return)
+-DEFINEFUNC(BIO_METHOD *, BIO_s_mem, void, DUMMYARG, return 0, return)
++DEFINEFUNC(const BIO_METHOD *, BIO_s_mem, void, DUMMYARG, return 0, return)
+ DEFINEFUNC3(int, BIO_write, BIO *a, a, const void *b, b, int c, c, return -1, return)
+ DEFINEFUNC(int, BN_num_bits, const BIGNUM *a, a, return 0, return)
+ DEFINEFUNC(int, CRYPTO_num_locks, DUMMYARG, DUMMYARG, return 0, return)
+ DEFINEFUNC(void, CRYPTO_set_locking_callback, void (*a)(int, int, const char *, int), a, return, DUMMYARG)
+ DEFINEFUNC(void, CRYPTO_set_id_callback, unsigned long (*a)(), a, return, DUMMYARG)
++#if  OPENSSL_VERSION_NUMBER < 0x00908000L
+ DEFINEFUNC(void, CRYPTO_free, void *a, a, return, DUMMYARG)
++#else
++DEFINEFUNC3(void, CRYPTO_free, void *a, a, const char *b, b, int c, c, return, DUMMYARG)
++#endif
+ DEFINEFUNC(void, DSA_free, DSA *a, a, return, DUMMYARG)
+-#if  OPENSSL_VERSION_NUMBER < 0x00908000L
++#if  OPENSSL_VERSION_NUMBER < 0x10100000L
+ DEFINEFUNC3(X509 *, d2i_X509, X509 **a, a, unsigned char **b, b, long c, c, return 0, return)
+ #else // 0.9.8 broke SC and BC by changing this signature.
+ DEFINEFUNC3(X509 *, d2i_X509, X509 **a, a, const unsigned char **b, b, long c, c, return 0, return)
+@@ -228,13 +232,17 @@
+ #ifndef OPENSSL_NO_SSL2
+ DEFINEFUNC(const SSL_METHOD *, SSLv2_client_method, DUMMYARG, DUMMYARG, return 0, return)
+ #endif
++#ifndef OPENSSL_NO_SSL3
+ DEFINEFUNC(const SSL_METHOD *, SSLv3_client_method, DUMMYARG, DUMMYARG, return 0, return)
++#endif
+ DEFINEFUNC(const SSL_METHOD *, SSLv23_client_method, DUMMYARG, DUMMYARG, return 0, return)
+ DEFINEFUNC(const SSL_METHOD *, TLSv1_client_method, DUMMYARG, DUMMYARG, return 0, return)
+ #ifndef OPENSSL_NO_SSL2
+ DEFINEFUNC(const SSL_METHOD *, SSLv2_server_method, DUMMYARG, DUMMYARG, return 0, return)
+ #endif
++#ifndef OPENSSL_NO_SSL3
+ DEFINEFUNC(const SSL_METHOD *, SSLv3_server_method, DUMMYARG, DUMMYARG, return 0, return)
++#endif
+ DEFINEFUNC(const SSL_METHOD *, SSLv23_server_method, DUMMYARG, DUMMYARG, return 0, return)
+ DEFINEFUNC(const SSL_METHOD *, TLSv1_server_method, DUMMYARG, DUMMYARG, return 0, return)
+ #else
+@@ -286,6 +294,22 @@
+ DEFINEFUNC(void, OPENSSL_add_all_algorithms_conf, void, DUMMYARG, return, DUMMYARG)
+ DEFINEFUNC3(int, SSL_CTX_load_verify_locations, SSL_CTX *ctx, ctx, const char *CAfile, CAfile, const char *CApath, CApath, return 0, return)
+ DEFINEFUNC(long, SSLeay, void, DUMMYARG, return 0, return)
++DEFINEFUNC(X509_STORE *, SSL_CTX_get_cert_store, const SSL_CTX *ctx, ctx, return 0, return)
++
++DEFINEFUNC(ASN1_INTEGER *, X509_get_serialNumber, X509 *x, x, return 0, return)
++#if OPENSSL_VERSION_NUMBER >= 0x10100000L
++DEFINEFUNC(int, EVP_PKEY_id, const EVP_PKEY *pkey, pkey, return 0, return)
++DEFINEFUNC(int, EVP_PKEY_base_id, const EVP_PKEY *pkey, pkey, return 0, return)
++DEFINEFUNC2(int, SSL_CIPHER_get_bits, const SSL_CIPHER *cipher, cipher, int *alg_bits, alg_bits, return 0, return)
++DEFINEFUNC2(long, SSL_CTX_set_options, SSL_CTX *ctx, ctx, long options, options, return 0, return)
++DEFINEFUNC(long, X509_get_version, X509 *x, x, return 0, return)
++DEFINEFUNC(X509_PUBKEY *, X509_get_X509_PUBKEY, X509 *x, x, return 0, return)
++DEFINEFUNC(int, RSA_bits,  const RSA *rsa, rsa, return 0, return)
++DEFINEFUNC(int, DSA_security_bits, const DSA *dsa, dsa, return 0, return)
++DEFINEFUNC(ASN1_TIME *, X509_get_notAfter, X509 *x, x, return 0, return)
++DEFINEFUNC(ASN1_TIME *, X509_get_notBefore, X509 *x, x, return 0, return)
++DEFINEFUNC4(void, DSA_get0_pqg, const DSA *d, d, const BIGNUM **p, p, const BIGNUM **q, q, const BIGNUM **g, g, return, return)
++#endif
+ 
+ #ifdef Q_OS_SYMBIAN
+ #define RESOLVEFUNC(func, ordinal, lib) \
+@@ -613,7 +637,11 @@
+     RESOLVEFUNC(BIO_s_mem, 251, libs.second )
+     RESOLVEFUNC(BIO_write, 269, libs.second )
+     RESOLVEFUNC(BN_num_bits, 387, libs.second )
++#if  OPENSSL_VERSION_NUMBER < 0x10100000L
+     RESOLVEFUNC(CRYPTO_free, 469, libs.second )
++#else
++    RESOLVEFUNC(CRYPTO_free, 469, libs.second )
++#endif
+     RESOLVEFUNC(CRYPTO_num_locks, 500, libs.second )
+     RESOLVEFUNC(CRYPTO_set_id_callback, 513, libs.second )
+     RESOLVEFUNC(CRYPTO_set_locking_callback, 516, libs.second )
+@@ -797,6 +825,7 @@
+     RESOLVEFUNC(SSL_CTX_use_PrivateKey)
+     RESOLVEFUNC(SSL_CTX_use_RSAPrivateKey)
+     RESOLVEFUNC(SSL_CTX_use_PrivateKey_file)
++    RESOLVEFUNC(SSL_CTX_get_cert_store)
+     RESOLVEFUNC(SSL_accept)
+     RESOLVEFUNC(SSL_clear)
+     RESOLVEFUNC(SSL_connect)
+@@ -819,16 +848,37 @@
+     RESOLVEFUNC(SSL_set_connect_state)
+     RESOLVEFUNC(SSL_shutdown)
+     RESOLVEFUNC(SSL_write)
++
++    RESOLVEFUNC(X509_get_serialNumber)
++#if OPENSSL_VERSION_NUMBER >= 0x10100000L
++    RESOLVEFUNC(SSL_CTX_ctrl)
++    RESOLVEFUNC(EVP_PKEY_id)
++    RESOLVEFUNC(EVP_PKEY_base_id)
++    RESOLVEFUNC(SSL_CIPHER_get_bits)
++    RESOLVEFUNC(SSL_CTX_set_options)
++    RESOLVEFUNC(X509_get_version)
++    RESOLVEFUNC(X509_get_X509_PUBKEY)
++    RESOLVEFUNC(RSA_bits)
++    RESOLVEFUNC(DSA_security_bits)
++    RESOLVEFUNC(DSA_get0_pqg)
++    RESOLVEFUNC(X509_get_notAfter)
++    RESOLVEFUNC(X509_get_notBefore)
++#endif
++
+ #ifndef OPENSSL_NO_SSL2
+     RESOLVEFUNC(SSLv2_client_method)
+ #endif
++#ifndef OPENSSL_NO_SSL3
+     RESOLVEFUNC(SSLv3_client_method)
++#endif
+     RESOLVEFUNC(SSLv23_client_method)
+     RESOLVEFUNC(TLSv1_client_method)
+ #ifndef OPENSSL_NO_SSL2
+     RESOLVEFUNC(SSLv2_server_method)
+ #endif
++#ifndef OPENSSL_NO_SSL3
+     RESOLVEFUNC(SSLv3_server_method)
++#endif
+     RESOLVEFUNC(SSLv23_server_method)
+     RESOLVEFUNC(TLSv1_server_method)
+     RESOLVEFUNC(X509_NAME_entry_count)
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/network/ssl/qsslsocket_openssl_symbols_p.h qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/qsslsocket_openssl_symbols_p.h
+--- qt-everywhere-opensource-src-4.8.7/src/network/ssl/qsslsocket_openssl_symbols_p.h	2015-05-07 22:14:44.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/qsslsocket_openssl_symbols_p.h	2023-03-22 22:49:59.000000000 +0800
+@@ -59,6 +59,9 @@
+ QT_BEGIN_NAMESPACE
+ 
+ #define DUMMYARG
++#ifndef OPENSSL_NO_SSL2
++#define OPENSSL_NO_SSL2 1
++#endif
+ 
+ #if !defined QT_LINKED_OPENSSL
+ // **************** Shared declarations ******************
+@@ -207,16 +210,20 @@
+ int q_ASN1_STRING_to_UTF8(unsigned char **a, ASN1_STRING *b);
+ long q_BIO_ctrl(BIO *a, int b, long c, void *d);
+ int q_BIO_free(BIO *a);
+-BIO *q_BIO_new(BIO_METHOD *a);
++BIO *q_BIO_new(const BIO_METHOD *a);
+ BIO *q_BIO_new_mem_buf(void *a, int b);
+ int q_BIO_read(BIO *a, void *b, int c);
+-BIO_METHOD *q_BIO_s_mem();
++const BIO_METHOD *q_BIO_s_mem();
+ int q_BIO_write(BIO *a, const void *b, int c);
+ int q_BN_num_bits(const BIGNUM *a);
+ int q_CRYPTO_num_locks();
+ void q_CRYPTO_set_locking_callback(void (*a)(int, int, const char *, int));
+ void q_CRYPTO_set_id_callback(unsigned long (*a)());
++#if  OPENSSL_VERSION_NUMBER < 0x10100000L
+ void q_CRYPTO_free(void *a);
++#else
++void q_CRYPTO_free(void *a, const char *b, int c);
++#endif
+ void q_DSA_free(DSA *a);
+ #if OPENSSL_VERSION_NUMBER >= 0x00908000L
+ // 0.9.8 broke SC and BC by changing this function's signature.
+@@ -326,7 +333,6 @@
+ void q_SSL_set_connect_state(SSL *a);
+ int q_SSL_shutdown(SSL *a);
+ #if OPENSSL_VERSION_NUMBER >= 0x10000000L
+-const SSL_METHOD *q_SSLv2_client_method();
+ const SSL_METHOD *q_SSLv3_client_method();
+ const SSL_METHOD *q_SSLv23_client_method();
+ const SSL_METHOD *q_TLSv1_client_method();
+@@ -335,7 +341,6 @@
+ const SSL_METHOD *q_SSLv23_server_method();
+ const SSL_METHOD *q_TLSv1_server_method();
+ #else
+-SSL_METHOD *q_SSLv2_client_method();
+ SSL_METHOD *q_SSLv3_client_method();
+ SSL_METHOD *q_SSLv23_client_method();
+ SSL_METHOD *q_TLSv1_client_method();
+@@ -399,7 +404,25 @@
+ 		PEM_ASN1_write_bio((int (*)(void*, unsigned char**))q_i2d_DSAPrivateKey,PEM_STRING_DSA,\
+ 			bp,(char *)x,enc,kstr,klen,cb,u)
+ #endif
++
++X509_STORE * q_SSL_CTX_get_cert_store(const SSL_CTX *ctx);
++ASN1_INTEGER * q_X509_get_serialNumber(X509 *x);
++
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ #define q_SSL_CTX_set_options(ctx,op) q_SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
++#define q_X509_get_version(x) X509_get_version(x)
++#else
++int q_EVP_PKEY_id(const EVP_PKEY *pkey);
++int q_EVP_PKEY_base_id(const EVP_PKEY *pkey);
++int q_SSL_CIPHER_get_bits(const SSL_CIPHER *cipher, int *alg_bits);
++long q_SSL_CTX_set_options(SSL_CTX *ctx, long options);
++long q_X509_get_version(X509 *x);
++X509_PUBKEY * q_X509_get_X509_PUBKEY(X509 *x);
++int q_RSA_bits(const RSA *rsa);
++int q_DSA_security_bits(const DSA *dsa);
++void q_DSA_get0_pqg(const DSA *d, const BIGNUM **p, const BIGNUM **q, const BIGNUM **g);
++#endif
++
+ #define q_SKM_sk_num(type, st) ((int (*)(const STACK_OF(type) *))q_sk_num)(st)
+ #define q_SKM_sk_value(type, st,i) ((type * (*)(const STACK_OF(type) *, int))q_sk_value)(st, i)
+ #define q_sk_GENERAL_NAME_num(st) q_SKM_sk_num(GENERAL_NAME, (st))
+@@ -410,8 +433,15 @@
+ #define q_sk_SSL_CIPHER_value(st, i) q_SKM_sk_value(SSL_CIPHER, (st), (i))
+ #define q_SSL_CTX_add_extra_chain_cert(ctx,x509) \
+         q_SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,(char *)x509)
++
++#if OPENSSL_VERSION_NUMBER < 0x10100000L
+ #define q_X509_get_notAfter(x) X509_get_notAfter(x)
+ #define q_X509_get_notBefore(x) X509_get_notBefore(x)
++#else
++ASN1_TIME *q_X509_get_notAfter(X509 *x);
++ASN1_TIME *q_X509_get_notBefore(X509 *x);
++#endif
++
+ #define q_EVP_PKEY_assign_RSA(pkey,rsa) q_EVP_PKEY_assign((pkey),EVP_PKEY_RSA,\
+ 					(char *)(rsa))
+ #define q_EVP_PKEY_assign_DSA(pkey,dsa) q_EVP_PKEY_assign((pkey),EVP_PKEY_DSA,\
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/network/ssl/ssl.pri qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/ssl.pri
+--- qt-everywhere-opensource-src-4.8.7/src/network/ssl/ssl.pri	2015-05-07 22:14:44.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/network/ssl/ssl.pri	2023-03-22 21:08:46.000000000 +0800
+@@ -46,4 +46,6 @@
+ 
+     LIBS_PRIVATE += $$OPENSSL_LIBS
+ 
++    QMAKE_LIBS += -lcrypto
++
+ }
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/plugins/accessible/qaccessiblebase.pri qt-everywhere-opensource-src-4.8.7_new/src/plugins/accessible/qaccessiblebase.pri
+--- qt-everywhere-opensource-src-4.8.7/src/plugins/accessible/qaccessiblebase.pri	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/plugins/accessible/qaccessiblebase.pri	2023-03-20 20:52:20.000000000 +0800
+@@ -1,2 +1,3 @@
+ target.path     += $$[QT_INSTALL_PLUGINS]/accessible
+ INSTALLS        += target
++QMAKE_CXXFLAGS += -std=gnu++98
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/platforms.pro qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/platforms.pro
+--- qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/platforms.pro	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/platforms.pro	2023-03-22 22:27:40.000000000 +0800
+@@ -2,6 +2,11 @@
+ 
+ SUBDIRS += minimal
+ 
++contains(QT_CONFIG, qpa) {
++    SUBDIRS += xcb
++    SUBDIRS += eglfs
++}
++
+ contains(QT_CONFIG, wayland) {
+     SUBDIRS += wayland
+ }
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/wayland/qwaylanddisplay.cpp qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/wayland/qwaylanddisplay.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/wayland/qwaylanddisplay.cpp	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/wayland/qwaylanddisplay.cpp	2023-03-20 23:07:15.000000000 +0800
+@@ -178,6 +178,7 @@
+     mScreens.append(waylandScreen);
+ }
+ 
++#if 0
+ void QWaylandDisplay::syncCallback(wl_display_sync_func_t func, void *data)
+ {
+     wl_display_sync_callback(mDisplay, func, data);
+@@ -187,6 +188,7 @@
+ {
+     wl_display_frame_callback(mDisplay, surface, func, data);
+ }
++#endif
+ 
+ void QWaylandDisplay::flushRequests()
+ {
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/wayland/qwaylanddisplay.h qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/wayland/qwaylanddisplay.h
+--- qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/wayland/qwaylanddisplay.h	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/wayland/qwaylanddisplay.h	2023-03-20 23:07:04.000000000 +0800
+@@ -83,8 +83,8 @@
+ 
+     void setCursor(QWaylandBuffer *buffer, int32_t x, int32_t y);
+ 
+-    void syncCallback(wl_display_sync_func_t func, void *data);
+-    void frameCallback(wl_display_frame_func_t func, struct wl_surface *surface, void *data);
++    //void syncCallback(wl_display_sync_func_t func, void *data);
++    //void frameCallback(wl_display_frame_func_t func, struct wl_surface *surface, void *data);
+ 
+     struct wl_display *wl_display() const { return mDisplay; }
+     struct wl_shell *wl_shell() const { return mShell; }
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/xcb/main.cpp qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/xcb/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/xcb/main.cpp	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/xcb/main.cpp	2023-03-21 22:18:28.000000000 +0800
+@@ -67,6 +67,12 @@
+     return 0;
+ }
+ 
+-Q_EXPORT_PLUGIN2(xcb, QXcbIntegrationPlugin)
++// static plugin, rename to qxcb
++#if defined(USE_STATIC_PLUGIN)
++  Q_EXPORT_PLUGIN2(qxcb, QXcbIntegrationPlugin)
++#else
++  Q_EXPORT_PLUGIN2(xcb, QXcbIntegrationPlugin)
++#endif
++
+ 
+ QT_END_NAMESPACE
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/xcb/xcb.pro qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/xcb/xcb.pro
+--- qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/xcb/xcb.pro	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/xcb/xcb.pro	2023-03-22 23:05:52.000000000 +0800
+@@ -1,5 +1,12 @@
+ TARGET = xcb
+ 
++# static library, rename to qxcb
++contains(CONFIG, static): {
++    DEFINES += USE_STATIC_PLUGIN
++    TARGET = qxcb
++}
++
++
+ include(../../qpluginbase.pri)
+ QTDIR_build:DESTDIR = $$QT_BUILD_TREE/plugins/platforms
+ 
+@@ -62,7 +69,7 @@
+     }
+ }
+ 
+-LIBS += -lxcb -lxcb-image -lxcb-keysyms -lxcb-icccm -lxcb-sync
++LIBS += -lxcb -lxcb-shm -lxcb-image -lxcb-keysyms -lxcb-icccm -lxcb-sync
+ 
+ include (../fontdatabases/genericunix/genericunix.pri)
+ 
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/xlib/qxlibnativeinterface.cpp qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/xlib/qxlibnativeinterface.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/xlib/qxlibnativeinterface.cpp	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/xlib/qxlibnativeinterface.cpp	2023-03-22 20:47:20.000000000 +0800
+@@ -109,6 +109,12 @@
+     return 0;
+ }
+ 
++void *QXlibNativeInterface::connectionForWidget(QWidget *widget)
++{
++    QXlibScreen *screen = qPlatformScreenForWidget(widget);
++    return screen->xcb_connection();
++}
++
+ void * QXlibNativeInterface::graphicsDeviceForWidget(QWidget *widget)
+ {
+     Q_UNUSED(widget);
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/xlib/qxlibwindow.cpp qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/xlib/qxlibwindow.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/plugins/platforms/xlib/qxlibwindow.cpp	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/plugins/platforms/xlib/qxlibwindow.cpp	2023-03-22 20:26:20.000000000 +0800
+@@ -307,7 +307,7 @@
+     GC gc;
+ 
+     gc = XCreateGC(mScreen->display()->nativeDisplay(), x_window, 0, 0);
+-    if (gc < 0) {
++    if ((int)gc < 0) {
+         qWarning("QTestLiteWindow::createGC() could not create GC");
+     }
+     return gc;
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/tools/moc/main.cpp qt-everywhere-opensource-src-4.8.7_new/src/tools/moc/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/src/tools/moc/main.cpp	2015-05-07 22:14:44.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/tools/moc/main.cpp	2023-03-20 20:51:29.000000000 +0800
+@@ -188,8 +188,12 @@
+     pp.macros["Q_MOC_RUN"];
+     pp.macros["__cplusplus"];
+ 
+-    // Workaround a bug while parsing the boost/type_traits/has_operator.hpp header. See QTBUG-22829
++    // Workaround a bugs while parsing some boost headers. See QTBUG-22829 
+     pp.macros["BOOST_TT_HAS_OPERATOR_HPP_INCLUDED"];
++    pp.macros["BOOST_LEXICAL_CAST_INCLUDED"];
++    pp.macros["BOOST_NEXT_PRIOR_HPP_INCLUDED"];
++    pp.macros["BOOST_TYPE_TRAITS_HPP"];
++    pp.macros["_SYS_SYSMACROS_H_OUTER"];
+ 
+     QByteArray filename;
+     QByteArray output;
+diff -Nur qt-everywhere-opensource-src-4.8.7/src/xmlpatterns/api/qcoloroutput_p.h qt-everywhere-opensource-src-4.8.7_new/src/xmlpatterns/api/qcoloroutput_p.h
+--- qt-everywhere-opensource-src-4.8.7/src/xmlpatterns/api/qcoloroutput_p.h	2015-05-07 22:14:48.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/src/xmlpatterns/api/qcoloroutput_p.h	2023-03-20 20:50:57.000000000 +0800
+@@ -70,8 +70,8 @@
+             ForegroundShift = 10,
+             BackgroundShift = 20,
+             SpecialShift    = 20,
+-            ForegroundMask  = ((1 << ForegroundShift) - 1) << ForegroundShift,
+-            BackgroundMask  = ((1 << BackgroundShift) - 1) << BackgroundShift
++            ForegroundMask  = 0x1f << ForegroundShift,
++            BackgroundMask  = 0x7 << BackgroundShift
+         };
+ 
+     public:
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/assistant/tools/assistant/assistant.pro qt-everywhere-opensource-src-4.8.7_new/tools/assistant/tools/assistant/assistant.pro
+--- qt-everywhere-opensource-src-4.8.7/tools/assistant/tools/assistant/assistant.pro	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/assistant/tools/assistant/assistant.pro	2023-03-22 23:22:39.000000000 +0800
+@@ -22,6 +22,7 @@
+ # ## Work around a qmake issue when statically linking to
+ # ## not-yet-installed plugins
+ QMAKE_LIBDIR += $$QT_BUILD_TREE/plugins/sqldrivers
++
+ HEADERS += aboutdialog.h \
+     bookmarkdialog.h \
+     bookmarkfiltermodel.h \
+@@ -118,5 +119,12 @@
+     contains(SQLPLUGINS, sqlite): {
+         QTPLUGIN += qsqlite
+         DEFINES += USE_STATIC_SQLITE_PLUGIN
++        QMAKE_LIBS += -L$$QT_BUILD_TREE/plugins/sqldrivers -lqsqlite
++    }
++    contains(CONFIG, qpa): {
++        DEFINES += USE_STATIC_QPA_PLUGIN
++        QMAKE_LIBDIR += $$QT_BUILD_TREE/plugins/platforms
++        QMAKE_LIBS += -L$$QT_BUILD_TREE/plugins/platforms -lqxcb # -lqxlib 
+     }
+ }
++
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/assistant/tools/assistant/main.cpp qt-everywhere-opensource-src-4.8.7_new/tools/assistant/tools/assistant/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/tools/assistant/tools/assistant/main.cpp	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/assistant/tools/assistant/main.cpp	2023-03-22 22:38:50.000000000 +0800
+@@ -73,6 +73,11 @@
+   Q_IMPORT_PLUGIN(qsqlite)
+ #endif
+ 
++#if defined(USE_STATIC_QPA_PLUGIN)
++  Q_IMPORT_PLUGIN(qxcb)
++  //Q_IMPORT_PLUGIN(xlib)
++#endif
++
+ namespace {
+ 
+ void
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/assistant/tools/qhelpconverter/main.cpp qt-everywhere-opensource-src-4.8.7_new/tools/assistant/tools/qhelpconverter/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/tools/assistant/tools/qhelpconverter/main.cpp	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/assistant/tools/qhelpconverter/main.cpp	2023-03-22 23:25:47.000000000 +0800
+@@ -47,6 +47,11 @@
+ 
+ #include "conversionwizard.h"
+ 
++#if defined(USE_STATIC_QPA_PLUGIN)
++#include <QtPlugin>
++  Q_IMPORT_PLUGIN(qxcb)
++#endif
++
+ QT_USE_NAMESPACE
+ 
+ int main(int argc, char *argv[])
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/assistant/tools/qhelpconverter/qhelpconverter.pro qt-everywhere-opensource-src-4.8.7_new/tools/assistant/tools/qhelpconverter/qhelpconverter.pro
+--- qt-everywhere-opensource-src-4.8.7/tools/assistant/tools/qhelpconverter/qhelpconverter.pro	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/assistant/tools/qhelpconverter/qhelpconverter.pro	2023-03-22 23:25:42.000000000 +0800
+@@ -49,3 +49,14 @@
+            outputpage.ui
+ 
+ RESOURCES += qhelpconverter.qrc
++
++
++contains(CONFIG, static): {
++    contains(CONFIG, qpa): {
++        DEFINES += USE_STATIC_QPA_PLUGIN
++        QMAKE_LIBDIR += $$QT_BUILD_TREE/plugins/platforms
++        QMAKE_LIBS += -L$$QT_BUILD_TREE/plugins/platforms -lqxcb # -lqxlib 
++    }
++}
++
++
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/designer/src/designer/designer.pro qt-everywhere-opensource-src-4.8.7_new/tools/designer/src/designer/designer.pro
+--- qt-everywhere-opensource-src-4.8.7/tools/designer/src/designer/designer.pro	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/designer/src/designer/designer.pro	2023-03-22 23:02:21.000000000 +0800
+@@ -88,3 +88,13 @@
+ include(../sharedcomponents.pri)
+ 
+ unix:!mac:LIBS += -lm
++
++contains(CONFIG, static): {
++    contains(CONFIG, qpa): {
++        DEFINES += USE_STATIC_QPA_PLUGIN
++        QMAKE_LIBDIR += $$QT_BUILD_TREE/plugins/platforms
++        QMAKE_LIBS += -L$$QT_BUILD_TREE/plugins/platforms -lqxcb # -lqxlib 
++    }
++}
++
++
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/designer/src/designer/main.cpp qt-everywhere-opensource-src-4.8.7_new/tools/designer/src/designer/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/tools/designer/src/designer/main.cpp	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/designer/src/designer/main.cpp	2023-03-22 23:01:58.000000000 +0800
+@@ -45,6 +45,11 @@
+ 
+ #include <stdlib.h>
+ 
++#if defined(USE_STATIC_QPA_PLUGIN)
++#include <QtPlugin>
++  Q_IMPORT_PLUGIN(qxcb)
++#endif
++
+ QT_USE_NAMESPACE
+ 
+ int main(int argc, char *argv[])
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/linguist/linguist/linguist.pro qt-everywhere-opensource-src-4.8.7_new/tools/linguist/linguist/linguist.pro
+--- qt-everywhere-opensource-src-4.8.7/tools/linguist/linguist/linguist.pro	2015-05-07 22:14:39.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/linguist/linguist/linguist.pro	2023-03-22 23:02:37.000000000 +0800
+@@ -94,3 +94,12 @@
+     translationsettings.ui \
+     finddialog.ui
+ RESOURCES += linguist.qrc
++
++contains(CONFIG, static): {
++    contains(CONFIG, qpa): {
++        DEFINES += USE_STATIC_QPA_PLUGIN
++        QMAKE_LIBDIR += $$QT_BUILD_TREE/plugins/platforms
++        QMAKE_LIBS += -L$$QT_BUILD_TREE/plugins/platforms -lqxcb # -lqxlib 
++    }
++}
++
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/linguist/linguist/main.cpp qt-everywhere-opensource-src-4.8.7_new/tools/linguist/linguist/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/tools/linguist/linguist/main.cpp	2015-05-07 22:14:39.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/linguist/linguist/main.cpp	2023-03-22 23:02:55.000000000 +0800
+@@ -59,6 +59,11 @@
+ #include <QtGui/QFileOpenEvent>
+ #endif // Q_WS_MAC
+ 
++#if defined(USE_STATIC_QPA_PLUGIN)
++#include <QtPlugin>
++  Q_IMPORT_PLUGIN(qxcb)
++#endif
++
+ QT_USE_NAMESPACE
+ 
+ #ifdef Q_WS_MAC
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/linguist/linguist/messagemodel.cpp qt-everywhere-opensource-src-4.8.7_new/tools/linguist/linguist/messagemodel.cpp
+--- qt-everywhere-opensource-src-4.8.7/tools/linguist/linguist/messagemodel.cpp	2015-05-07 22:14:39.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/linguist/linguist/messagemodel.cpp	2023-03-20 20:51:16.000000000 +0800
+@@ -183,7 +183,7 @@
+         if (ContextItem *c = one->findContext(oc->context())) {
+             for (int j = 0; j < oc->messageCount(); ++j) {
+                 MessageItem *m = oc->messageItem(j);
+-                if (c->findMessage(m->text(), m->comment()) >= 0)
++                if (c->findMessage(m->text(), m->comment()))
+                     ++inBoth;
+             }
+         }
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/pixeltool/main.cpp qt-everywhere-opensource-src-4.8.7_new/tools/pixeltool/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/tools/pixeltool/main.cpp	2015-05-07 22:14:41.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/pixeltool/main.cpp	2023-03-22 23:03:10.000000000 +0800
+@@ -44,6 +44,11 @@
+ #include <qapplication.h>
+ #include <qfileinfo.h>
+ 
++#if defined(USE_STATIC_QPA_PLUGIN)
++#include <QtPlugin>
++  Q_IMPORT_PLUGIN(qxcb)
++#endif
++
+ QT_USE_NAMESPACE
+ 
+ int main(int argc, char **argv)
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/pixeltool/pixeltool.pro qt-everywhere-opensource-src-4.8.7_new/tools/pixeltool/pixeltool.pro
+--- qt-everywhere-opensource-src-4.8.7/tools/pixeltool/pixeltool.pro	2015-05-07 22:14:41.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/pixeltool/pixeltool.pro	2023-03-22 23:03:23.000000000 +0800
+@@ -23,3 +23,12 @@
+ 
+ target.path=$$[QT_INSTALL_BINS]
+ INSTALLS += target
++
++contains(CONFIG, static): {
++    contains(CONFIG, qpa): {
++        DEFINES += USE_STATIC_QPA_PLUGIN
++        QMAKE_LIBDIR += $$QT_BUILD_TREE/plugins/platforms
++        QMAKE_LIBS += -L$$QT_BUILD_TREE/plugins/platforms -lqxcb # -lqxlib 
++    }
++}
++
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/qdbus/qdbusviewer/main.cpp qt-everywhere-opensource-src-4.8.7_new/tools/qdbus/qdbusviewer/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/tools/qdbus/qdbusviewer/main.cpp	2015-05-07 22:14:41.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/qdbus/qdbusviewer/main.cpp	2023-03-22 23:03:35.000000000 +0800
+@@ -47,6 +47,10 @@
+ 
+ #include <stdio.h>
+ 
++#if defined(USE_STATIC_QPA_PLUGIN)
++  Q_IMPORT_PLUGIN(qxcb)
++#endif
++
+ int main(int argc, char *argv[])
+ {
+     QApplication app(argc, argv);
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/qdbus/qdbusviewer/qdbusviewer.pro qt-everywhere-opensource-src-4.8.7_new/tools/qdbus/qdbusviewer/qdbusviewer.pro
+--- qt-everywhere-opensource-src-4.8.7/tools/qdbus/qdbusviewer/qdbusviewer.pro	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/qdbus/qdbusviewer/qdbusviewer.pro	2023-03-22 23:03:46.000000000 +0800
+@@ -28,3 +28,12 @@
+ win32 {
+     RC_FILE = qdbusviewer.rc
+ }
++
++contains(CONFIG, static): {
++    contains(CONFIG, qpa): {
++        DEFINES += USE_STATIC_QPA_PLUGIN
++        QMAKE_LIBDIR += $$QT_BUILD_TREE/plugins/platforms
++        QMAKE_LIBS += -L$$QT_BUILD_TREE/plugins/platforms -lqxcb # -lqxlib 
++    }
++}
++
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/qml/main.cpp qt-everywhere-opensource-src-4.8.7_new/tools/qml/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/tools/qml/main.cpp	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/qml/main.cpp	2023-03-22 23:03:59.000000000 +0800
+@@ -53,6 +53,11 @@
+ #include <QLibraryInfo>
+ #include "qdeclarativetester.h"
+ 
++#if defined(USE_STATIC_QPA_PLUGIN)
++#include <QtPlugin>
++  Q_IMPORT_PLUGIN(qxcb)
++#endif
++
+ QT_USE_NAMESPACE
+ 
+ QtMsgHandler systemMsgOutput = 0;
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/qml/qml.pro qt-everywhere-opensource-src-4.8.7_new/tools/qml/qml.pro
+--- qt-everywhere-opensource-src-4.8.7/tools/qml/qml.pro	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/qml/qml.pro	2023-03-22 23:04:10.000000000 +0800
+@@ -57,3 +57,13 @@
+ } else {
+     TARGET=qmlviewer
+ }
++
++
++contains(CONFIG, static): {
++    contains(CONFIG, qpa): {
++        DEFINES += USE_STATIC_QPA_PLUGIN
++        QMAKE_LIBDIR += $$QT_BUILD_TREE/plugins/platforms
++        QMAKE_LIBS += -L$$QT_BUILD_TREE/plugins/platforms -lqxcb # -lqxlib 
++    }
++}
++
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/qmlplugindump/main.cpp qt-everywhere-opensource-src-4.8.7_new/tools/qmlplugindump/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/tools/qmlplugindump/main.cpp	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/qmlplugindump/main.cpp	2023-03-22 23:04:22.000000000 +0800
+@@ -71,6 +71,10 @@
+ #include <qt_windows.h>
+ #endif
+ 
++#if defined(USE_STATIC_QPA_PLUGIN)
++  Q_IMPORT_PLUGIN(qxcb)
++#endif
++
+ QString pluginImportPath;
+ bool verbose = false;
+ bool creatable = true;
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/qmlplugindump/qmlplugindump.pro qt-everywhere-opensource-src-4.8.7_new/tools/qmlplugindump/qmlplugindump.pro
+--- qt-everywhere-opensource-src-4.8.7/tools/qmlplugindump/qmlplugindump.pro	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/qmlplugindump/qmlplugindump.pro	2023-03-22 23:04:32.000000000 +0800
+@@ -40,3 +40,12 @@
+ 
+ target.path = $$[QT_INSTALL_BINS]
+ INSTALLS += target
++
++contains(CONFIG, static): {
++    contains(CONFIG, qpa): {
++        DEFINES += USE_STATIC_QPA_PLUGIN
++        QMAKE_LIBDIR += $$QT_BUILD_TREE/plugins/platforms
++        QMAKE_LIBS += -L$$QT_BUILD_TREE/plugins/platforms -lqxcb # -lqxlib 
++    }
++}
++
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/qttracereplay/main.cpp qt-everywhere-opensource-src-4.8.7_new/tools/qttracereplay/main.cpp
+--- qt-everywhere-opensource-src-4.8.7/tools/qttracereplay/main.cpp	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/qttracereplay/main.cpp	2023-03-22 23:04:44.000000000 +0800
+@@ -45,6 +45,10 @@
+ #include <private/qpaintengineex_p.h>
+ #include <private/qpaintbuffer_p.h>
+ 
++#if defined(USE_STATIC_QPA_PLUGIN)
++  Q_IMPORT_PLUGIN(qxcb)
++#endif
++
+ class ReplayWidget : public QWidget
+ {
+     Q_OBJECT
+diff -Nur qt-everywhere-opensource-src-4.8.7/tools/qttracereplay/qttracereplay.pro qt-everywhere-opensource-src-4.8.7_new/tools/qttracereplay/qttracereplay.pro
+--- qt-everywhere-opensource-src-4.8.7/tools/qttracereplay/qttracereplay.pro	2015-05-07 22:14:40.000000000 +0800
++++ qt-everywhere-opensource-src-4.8.7_new/tools/qttracereplay/qttracereplay.pro	2023-03-22 23:04:54.000000000 +0800
+@@ -17,3 +17,11 @@
+     CONFIG -= build_all
+     CONFIG += release
+ }
++
++contains(CONFIG, static): {
++    contains(CONFIG, qpa): {
++        DEFINES += USE_STATIC_QPA_PLUGIN
++        QMAKE_LIBDIR += $$QT_BUILD_TREE/plugins/platforms
++        QMAKE_LIBS += -L$$QT_BUILD_TREE/plugins/platforms -lqxcb # -lqxlib 
++    }
++}

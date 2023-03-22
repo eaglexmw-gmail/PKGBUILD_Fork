@@ -1,0 +1,98 @@
+diff -Nur network-manager-applet-1.0.10_old/src/applet-device-broadband.c network-manager-applet-1.0.10/src/applet-device-broadband.c
+--- network-manager-applet-1.0.10_old/src/applet-device-broadband.c	2015-12-23 22:18:41.000000000 +0800
++++ network-manager-applet-1.0.10/src/applet-device-broadband.c	2022-12-25 21:54:12.829505554 +0800
+@@ -698,7 +698,7 @@
+ 
+ 	info = g_slice_new0 (BroadbandMenuItemInfo);
+ 	info->applet = applet;
+-	info->device = g_object_ref (G_OBJECT (device));
++	info->device = (NMDevice *)g_object_ref (G_OBJECT (device));
+ 	info->connection = connection ? g_object_ref (connection) : NULL;
+ 
+ 	g_signal_connect_data (item, "activate",
+二进制文件 network-manager-applet-1.0.10_old/src/.applet-device-broadband.c.swp 和 network-manager-applet-1.0.10/src/.applet-device-broadband.c.swp 不同
+diff -Nur network-manager-applet-1.0.10_old/src/applet-device-cdma.c network-manager-applet-1.0.10/src/applet-device-cdma.c
+--- network-manager-applet-1.0.10_old/src/applet-device-cdma.c	2015-12-23 22:18:35.000000000 +0800
++++ network-manager-applet-1.0.10/src/applet-device-cdma.c	2022-12-25 21:49:45.936182575 +0800
+@@ -184,7 +184,7 @@
+ 
+ 	info = g_slice_new0 (CdmaMenuItemInfo);
+ 	info->applet = applet;
+-	info->device = g_object_ref (G_OBJECT (device));
++	info->device = (NMDevice *)g_object_ref (G_OBJECT (device));
+ 	info->connection = connection ? g_object_ref (connection) : NULL;
+ 
+ 	g_signal_connect_data (item, "activate",
+二进制文件 network-manager-applet-1.0.10_old/src/.applet-device-cdma.c.swp 和 network-manager-applet-1.0.10/src/.applet-device-cdma.c.swp 不同
+diff -Nur network-manager-applet-1.0.10_old/src/applet-device-gsm.c network-manager-applet-1.0.10/src/applet-device-gsm.c
+--- network-manager-applet-1.0.10_old/src/applet-device-gsm.c	2015-12-23 22:18:35.000000000 +0800
++++ network-manager-applet-1.0.10/src/applet-device-gsm.c	2022-12-25 21:47:24.329521419 +0800
+@@ -218,7 +218,7 @@
+ 
+ 	info = g_slice_new0 (GSMMenuItemInfo);
+ 	info->applet = applet;
+-	info->device = g_object_ref (G_OBJECT (device));
++	info->device = (NMDevice *)g_object_ref (G_OBJECT (device));
+ 	info->connection = connection ? g_object_ref (connection) : NULL;
+ 
+ 	g_signal_connect_data (item, "activate",
+二进制文件 network-manager-applet-1.0.10_old/src/.applet-device-gsm.c.swp 和 network-manager-applet-1.0.10/src/.applet-device-gsm.c.swp 不同
+diff -Nur network-manager-applet-1.0.10_old/src/applet-device-wifi.c network-manager-applet-1.0.10/src/applet-device-wifi.c
+--- network-manager-applet-1.0.10_old/src/applet-device-wifi.c	2015-12-23 22:18:35.000000000 +0800
++++ network-manager-applet-1.0.10/src/applet-device-wifi.c	2022-12-25 21:45:21.099526214 +0800
+@@ -578,9 +578,9 @@
+ 
+ 			info = g_slice_new0 (WifiMenuItemInfo);
+ 			info->applet = applet;
+-			info->device = g_object_ref (G_OBJECT (device));
+-			info->ap = g_object_ref (G_OBJECT (ap));
+-			info->connection = g_object_ref (G_OBJECT (connection));
++			info->device = (NMDeviceWifi *)g_object_ref (G_OBJECT (device));
++			info->ap = (NMAccessPoint *)g_object_ref (G_OBJECT (ap));
++			info->connection = (NMConnection *)g_object_ref (G_OBJECT (connection));
+ 
+ 			g_signal_connect_data (subitem, "activate",
+ 			                       G_CALLBACK (wifi_menu_item_activate),
+@@ -596,12 +596,12 @@
+ 
+ 		info = g_slice_new0 (WifiMenuItemInfo);
+ 		info->applet = applet;
+-		info->device = g_object_ref (G_OBJECT (device));
+-		info->ap = g_object_ref (G_OBJECT (ap));
++		info->device = (NMDeviceWifi *)g_object_ref (G_OBJECT (device));
++		info->ap = (NMAccessPoint *)g_object_ref (G_OBJECT (ap));
+ 
+ 		if (g_slist_length (ap_connections) == 1) {
+ 			connection = NM_CONNECTION (g_slist_nth_data (ap_connections, 0));
+-			info->connection = g_object_ref (G_OBJECT (connection));
++			info->connection = (NMConnection *)g_object_ref (G_OBJECT (connection));
+ 		}
+ 
+ 		g_signal_connect_data (GTK_WIDGET (item),
+diff -Nur network-manager-applet-1.0.10_old/src/applet-device-wimax.c network-manager-applet-1.0.10/src/applet-device-wimax.c
+--- network-manager-applet-1.0.10_old/src/applet-device-wimax.c	2015-12-23 22:18:35.000000000 +0800
++++ network-manager-applet-1.0.10/src/applet-device-wimax.c	2022-12-25 21:51:46.889511219 +0800
+@@ -156,7 +156,7 @@
+ 
+ 	info = g_slice_new0 (WimaxMenuItemInfo);
+ 	info->applet = applet;
+-	info->device = g_object_ref (G_OBJECT (device));
++	info->device = (NMDevice *)g_object_ref (G_OBJECT (device));
+ 	info->connection = connection ? g_object_ref (connection) : NULL;
+ 	info->nsp = g_object_ref (nsp);
+ 
+二进制文件 network-manager-applet-1.0.10_old/src/.applet-device-wimax.c.swp 和 network-manager-applet-1.0.10/src/.applet-device-wimax.c.swp 不同
+diff -Nur network-manager-applet-1.0.10_old/src/wireless-security/eap-method-leap.c network-manager-applet-1.0.10/src/wireless-security/eap-method-leap.c
+--- network-manager-applet-1.0.10_old/src/wireless-security/eap-method-leap.c	2015-12-23 22:18:35.000000000 +0800
++++ network-manager-applet-1.0.10/src/wireless-security/eap-method-leap.c	2022-12-25 21:35:54.086214854 +0800
+@@ -65,8 +65,8 @@
+ 		return FALSE;
+ 	}
+ 
+-	text = gtk_entry_get_text (method->password_entry); {
+-	if (!text || !strlen (text))
++	text = gtk_entry_get_text (method->password_entry); 
++	if (!text || !strlen (text)) {
+ 		g_set_error_literal (error, NMA_ERROR, NMA_ERROR_GENERIC, _("missing EAP-LEAP password"));
+ 		return FALSE;
+ 	}

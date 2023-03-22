@@ -1,0 +1,7 @@
+
+686下编译前，需要先设置好环境变量，运行
+source /usr/local/python-gtk/run_py2_gtk3.sh
+
+x86_64下编译前，需要先设置好环境变量，运行
+source /usr/local/python-gtk/64.run_py2_gtk3.sh
+

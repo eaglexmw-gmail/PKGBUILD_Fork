@@ -7,7 +7,7 @@ pkgname=cinnamon-screensaver
 pkgver=3.2.13
 pkgrel=3
 pkgdesc="Screensaver designed to integrate well with the Cinnamon desktop."
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' pentium4)
 license=('GPL')
 url="https://github.com/linuxmint/cinnamon-screensaver"
 backup=(etc/pam.d/cinnamon-screensaver)
@@ -22,6 +22,8 @@ sha256sums=('7b1a0c156cc0e1983d6ed4370426eac372a5cc3d5f6b8203ddc6913a58d972e9'
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
   dstdir=cinnamon
 fi
 

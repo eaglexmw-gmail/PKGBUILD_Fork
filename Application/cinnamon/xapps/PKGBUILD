@@ -2,28 +2,31 @@
 # Maintainer: Alex Filgueira <alexfilgueira (at antergos.com)>
 # Contributor: Nate Simon <aurpkg (at natesimon.net)>
 
+pkgname_=xapp
 pkgname=xapps
 pkgver=1.0.2
 pkgrel=2
 pkgdesc="Common library for X-Apps project"
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' pentium4)
 url='https://github.com/linuxmint/xapps'
 license=('GPL')
 depends=('libgnomekbd' 'python')
 makedepends=('gnome-common' 'gobject-introspection')
 options=(!emptydirs)
-source=("${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/${pkgname}/archive/${pkgver}.tar.gz")
-sha256sums=('1443e9f319763f8b90749ea9669880005f315af060f7bbaa2b4241b4c4ca49a4')
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/linuxmint/${pkgname}/archive/refs/tags/${pkgver}.tar.gz")
+sha256sums=('804ff53a90e0c1a5e66320fcde9035105a87577f2e557b389e843966343f8941')
 
 depends=('python')
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
   dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
+  dstdir=cinnamon
 fi
 
 build() {
-    cd ${pkgname}-${pkgver}
+    cd ${pkgname_}-${pkgver}
 
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
@@ -35,7 +38,7 @@ build() {
 }
 
 package(){
-    cd ${pkgname}-${pkgver}
+    cd ${pkgname_}-${pkgver}
     make DESTDIR="$pkgdir" install
 }
 

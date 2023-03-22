@@ -13,7 +13,7 @@ pkgname=('nemo-fileroller'
 	#'nemo-rabbitvcs'
 pkgver=3.2.0
 pkgrel=1
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' pentium4)
 license=('GPL2')
 url="https://github.com/linuxmint/nemo-extensions"
 #depends=(nemo file-roller cjs clutter-gtk clutter-gst2 gst-plugins-good libmusicbrainz5
@@ -21,13 +21,18 @@ url="https://github.com/linuxmint/nemo-extensions"
 #makedepends=(gconf gnome-common gtk-doc intltool gobject-introspection) # python2-distutils-extra
 makedepends=(gnome-common gtk-doc intltool gobject-introspection) # python2-distutils-extra
 options=('!emptydirs')
-source=("${pkgbase}-${pkgver}.tar.gz::https://github.com/linuxmint/nemo-extensions/archive/${pkgver}.tar.gz")
-sha256sums=('1536fd828b2ee0a8f194155a9e13b8cce937b403b5c87d8e579d7b1ced8d6d14')
+source=("${pkgbase}-${pkgver}.tar.gz::https://github.com/linuxmint/nemo-extensions/archive/refs/tags/${pkgver}.tar.gz" extern_def.patch)
+sha256sums=('1536fd828b2ee0a8f194155a9e13b8cce937b403b5c87d8e579d7b1ced8d6d14' SKIP)
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
+  python2_bin=python2_64
 elif [ "$CARCH" = "i686" ]; then
   dstdir=cinnamon
+  python2_bin=python2
+elif [ "$CARCH" = "pentium4" ]; then
+  dstdir=cinnamon
+  python2_bin=python2
 fi
 
 prepare() {
@@ -43,6 +48,8 @@ prepare() {
   # patch -Np1 -i ../gpgversion.patch
 
   # patch -Np1 -i ../mod_path.patch
+  
+  patch -Np1 -i ../extern_def.patch
 
   # Fix path for nemo-python
   sed -i 's|libdirsuffix="/i386-linux-gnu/"|libdirsuffix=""|' nemo-python/m4/python.m4
@@ -60,7 +67,7 @@ _configure_pkgs="nemo-fileroller nemo-share"
   do
     pushd ${dir}
     autoreconf -fi
-    ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var --libexecdir=/usr/local/${dstdir}/lib/${dir} \
+    PYTHON=/usr/local/${python2_bin}/bin/python2 ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var --libexecdir=/usr/local/${dstdir}/lib/${dir} \
                 --disable-static --disable-schemas-compile
     make
     popd
@@ -72,7 +79,7 @@ _configure_pkgs="nemo-fileroller nemo-share"
   do
     pushd ${dir}
     ./autogen.sh --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --localstatedir=/var --libexecdir=/usr/local/${dstdir}/lib/${dir} \
-                 --disable-static --disable-schemas-compile PYTHON=python2
+                 --disable-static --disable-schemas-compile PYTHON=/usr/local/${python2_bin}/bin/python2
     make
     popd
   done

@@ -8,7 +8,7 @@ pkgname=cinnamon
 pkgver=3.2.8
 pkgrel=1
 pkgdesc="Linux desktop which provides advanced innovative features and a traditional user experience"
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' pentium4)
 url="https://github.com/linuxmint/Cinnamon"
 license=('GPL2')
 depends=('accountsservice' 'caribou' 'cinnamon-settings-daemon' 'cinnamon-session'
@@ -30,20 +30,21 @@ source=("$pkgname-$pkgver.tar.gz::https://github.com/linuxmint/Cinnamon/archive/
         "set_wheel.patch"
         "default-theme.patch"
         "dont-hardcode-nemo.patch")
-sha256sums=('b67ef52f239026930ba351f327e8298361dabf881a0af6c299530e83c62fac9a'
+sha256sums=('4fbc58b2fe0b4e762868bc1c799c3cab474a95069fe14f97dc8bed687fe3d16e'
             '97542a424fa83c18c8c8a6d27c089129f30b6fb4cc128c662ac0da3aebf42dcc'
             '566585873f38a79ec248b916645a2e081abec3c6d4df2c34339cde1f35375cc5'
             '26a9fb9a3855759cc7d5fa9a195ae8860d5c6b3e12adc1bfe86269e047c119b4')
-            
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
   dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
+  dstdir=cinnamon
 fi
 
 prepare() {
-  cd ${srcdir}/Cinnamon*
+  cd ${srcdir}/"$pkgname-$pkgver"
 
   # Python2 fix
   sed -i 's:/usr/bin/python :/usr/bin/env python2 :' files/usr/bin/cinnamon-menu-editor
@@ -77,38 +78,22 @@ prepare() {
 
   # Check for the cc-panel path, not for the unneeded binary
 
-if [ "$CARCH" = "x86_64" ]; then
-  sed -i 's|/usr/bin/cinnamon-control-center|/usr/local/cinnamon64/lib/cinnamon-control-center-1/panels|' \
+  sed -i "s|/usr/bin/cinnamon-control-center|/usr/local/${dstdir}/lib/cinnamon-control-center-1/panels|" \
     files/usr/bin/cinnamon-settings
-elif [ "$CARCH" = "i686" ]; then
-  sed -i 's|/usr/bin/cinnamon-control-center|/usr/local/cinnamon/lib/cinnamon-control-center-1/panels|' \
-    files/usr/bin/cinnamon-settings
-fi 
 
   # Cinnamon has no upstream backgrounds, use GNOME backgrounds instead
 
-if [ "$CARCH" = "x86_64" ]; then
-  sed -i 's|/usr/share/cinnamon-background-properties|/usr/local/cinnamon64/share/gnome-background-properties|' \
+  sed -i "s|/usr/share/cinnamon-background-properties|/usr/local/${dstdir}/share/gnome-background-properties|" \
     files/usr/share/cinnamon/cinnamon-settings/modules/cs_backgrounds.py
 
     # files/usr/lib/cinnamon-settings/modules/cs_backgrounds.py
-elif [ "$CARCH" = "i686" ]; then
-  sed -i 's|/usr/share/cinnamon-background-properties|/usr/local/cinnamon/share/gnome-background-properties|' \
-    files/usr/share/cinnamon/cinnamon-settings/modules/cs_backgrounds.py
-
-    #files/usr/lib/cinnamon-settings/modules/cs_backgrounds.py
-fi 
 
   # Fix selected background color in Cinnamon Settings for Adwaita theme
   sed -i 's/@selected_bg_color;/@theme_selected_bg_color;/' \
     files/usr/share/cinnamon/cinnamon-settings/cinnamon-settings.py
     #files/usr/lib/cinnamon-settings/cinnamon-settings.py
 
-if [ "$CARCH" = "x86_64" ]; then
-  sed -i 's|usr/share|usr/local/cinnamon/share|g' src/st/st-background-effect.c
-elif [ "$CARCH" = "i686" ]; then
-  sed -i 's|usr/share|usr/local/cinnamon64/share|g' src/st/st-background-effect.c
-fi 
+  sed -i 's|usr/share|usr/local/${dstdir}/share|g' src/st/st-background-effect.c
 
   # Fix missing icons with the Adwaita theme
   sed -i 's/"gtk-file"/"text-x-preview"/' docs/applets-examples/finder@cinnamon.org/applet.js  src/cinnamon-util.c
@@ -131,35 +116,88 @@ fi
 
   # Remove broken symlink
   rm files/etc/xdg/menus/cinnamon-applications-merged
+
+  sed -i 's|cinnamon_real_DEPENDENCIES = libcinnamon.la|& libcinnamon-js.la |g' src/Makefile.am
 }
 
 build() {
-  cd ${srcdir}/Cinnamon*
+  cd ${srcdir}/"$pkgname-$pkgver"
 
 if [ "$CARCH" = "x86_64" ]; then
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib:/usr/local/networkmanager_64/lib
+  export LD_LIBRARY_PATH=/usr/local/${dstdir}/lib:$LD_LIBRARY_PATH:/usr/local/networkmanager_64/lib
 elif [ "$CARCH" = "i686" ]; then
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib:/usr/local/networkmanager/lib
+  export LD_LIBRARY_PATH=/usr/local/${dstdir}/lib:$LD_LIBRARY_PATH:/usr/local/networkmanager/lib
+elif [ "$CARCH" = "pentium4" ]; then
+  export LD_LIBRARY_PATH=/usr/local/${dstdir}/lib:$LD_LIBRARY_PATH:/usr/local/networkmanager/lib
 fi 
 
-  export PKG_CONFIG_PATH=${srcdir}/../:${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
-  export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
+  export PKG_CONFIG_PATH=/usr/local/${dstdir}/lib/pkgconfig/:${srcdir}/../:${PKG_CONFIG_PATH}
+  export XDG_DATA_DIRS=${XDG_DATA_DIRS}:/usr/local/${dstdir}/share
 
-  ./autogen.sh --prefix=/usr/local/${dstdir} \
+  export RUN_BLOCK_SHELL=1
+
+  # CFLAGS=" -gdwarf-4 -g3 " CXXFLAGS=" -gdwarf-4 -g3 " LDFLAGS=" -gdwarf-4 -g3 " 
+if [ "$CARCH" = "x86_64" ]; then
+  PYTHON=/usr/local/python2_64/bin/python2 ./autogen.sh --prefix=/usr/local/${dstdir} \
                --sysconfdir=/usr/local/${dstdir}/etc \
                --libexecdir=/usr/local/${dstdir}/lib/cinnamon \
                --localstatedir=/var \
                --disable-static \
                --disable-schemas-compile \
                --enable-compile-warnings=yes
+else
+  PYTHON=/usr/local/python2/bin/python2 ./autogen.sh --prefix=/usr/local/${dstdir} \
+               --sysconfdir=/usr/local/${dstdir}/etc \
+               --libexecdir=/usr/local/${dstdir}/lib/cinnamon \
+               --localstatedir=/var \
+               --disable-static \
+               --disable-schemas-compile \
+               --enable-compile-warnings=yes
+fi
 
   #https://bugzilla.gnome.org/show_bug.cgi?id=656231
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 
-  make
+  # CFLAGS=" -gdwarf-4 -g3 " CXXFLAGS=" -gdwarf-4 -g3 " LDFLAGS=" -gdwarf-4 -g3 " 
+  make V=1
 }
 
 package() {
-  cd ${srcdir}/Cinnamon*
+  cd ${srcdir}/"$pkgname-$pkgver"
   make DESTDIR="${pkgdir}" install
+
+  # fix path
+  cd ${pkgdir}
+  mv ./etc ./usr/local/${dstdir}/
+  
+  # fix python path
+  grep "/usr/bin/python3" ./usr/bin/* | awk -F":" '{print $1;}' | xargs sed -i 's|#!/usr/bin/python3|#!/usr/bin/env python2|g' 
+  grep "/usr/bin/python2" ./usr/bin/* | awk -F":" '{print $1;}' | xargs sed -i 's|#!/usr/bin/python2|#!/usr/bin/env python2|g' 
+
+  # fix share path
+  grep "/usr/share/cinnamon" ./usr/bin/* | awk -F":" '{print $1;}' | xargs sed -i "s|/usr/share/cinnamon|/usr/local/${dstdir}/share/cinnamon|g" 
+
+  # fix main.js/expo.js
+  grep -R "/usr/share" ./usr/local/${dstdir}/share/cinnamon/* | awk -F":" '{print $1;}' | xargs sed -i "s|/usr/share|/usr/local/${dstdir}/share|g" 
+ 
+  grep -R "/usr/share/locale" ./usr/share/* | awk -F":" '{print $1;}' | xargs sed -i "s|/usr/share/locale|/usr/local/${dstdir}/share/locale|g" 
+
+  grep -R "/usr/share/cinnamon" ./usr/share/* | awk -F":" '{print $1;}' | xargs sed -i "s|/usr/share/cinnamon|/usr/local/${dstdir}/share/cinnamon|g" 
+
+  grep -R "/usr/bin/cinnamon" ./usr/share/* | awk -F":" '{print $1;}' | xargs sed -i "s|/usr/bin/cinnamon|/usr/local/${dstdir}/bin/cinnamon|g" 
+
+  grep -R "/usr/bin/python3" ./usr/share/* | awk -F":" '{print $1;}' | xargs sed -i 's|/usr/bin/python3|/usr/bin/env python2|g' 
+  grep -R "/usr/bin/python2" ./usr/share/* | awk -F":" '{print $1;}' | xargs sed -i 's|/usr/bin/python2|/usr/bin/env python2|g' 
+
+  mv ./usr/bin/* ./usr/local/${dstdir}/bin/
+
+  cp -R ./usr/share/* ./usr/local/${dstdir}/share/
+
+  rm -rf ./usr/bin
+  rm -rf ./usr/share
+
+  # repair add two sub folder.
+  sed -i 's|\[6\]|\[8\]|g' ./usr/local/${dstdir}/share/cinnamon/cinnamon-settings/cinnamon-settings.py
+  sed -i "s|Exec=c|Exec=/usr/local/${dstdir}/bin/c|g" ./usr/local/cinnamon64/share/xsessions/cinnamon.desktop
+  sed -i "s|Exec=c|Exec=/usr/local/${dstdir}/bin/c|g" ./usr/local/cinnamon64/share/xsessions/cinnamon2d.desktop
 }

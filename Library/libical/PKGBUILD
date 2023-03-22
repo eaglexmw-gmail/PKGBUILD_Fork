@@ -21,10 +21,11 @@ prepare() {
 options=('staticlibs')
 
 build() {
+  sed -i "188 a #define FALSE 0" libical-2.0.0/src/libical/icalrecur.c
   cd build
   export CFLAGS="-fPIC"
-  export CXXFLAGS="-fPIC"
-  export CPPFLAGS="-fPIC"
+  export CXXFLAGS="-fPIC --std=c++11"
+  export CPPFLAGS="-fPIC --std=c++11"
   cmake ../${pkgname}-${pkgver} \
     -DCMAKE_BUILD_TYPE=Release \
     -DSHARED_ONLY=false \

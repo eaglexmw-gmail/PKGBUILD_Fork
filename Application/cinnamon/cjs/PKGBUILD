@@ -6,7 +6,7 @@ pkgname=cjs
 pkgver=3.2.0
 pkgrel=2
 pkgdesc="Javascript Bindings for Cinnamon"
-arch=(i686 x86_64)
+arch=(i686 x86_64 pentium4)
 url="https://github.com/linuxmint/cjs"
 license=(GPL)
 depends=(gtk3 gobject-introspection-runtime js dbus-glib)
@@ -17,10 +17,15 @@ sha256sums=('df55c1b89cea5d40d6a9950407a5d18915d2dde4e31670faeb0f5e4ba119edde')
 
 depends=(gtk3 dbus-glib)
 makedepends=(gnome-common python2 gobject-introspection)
+makedepends=(gnome-common gobject-introspection)
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
+  dstdir=cinnamon
+else
   dstdir=cinnamon
 fi
 
@@ -32,23 +37,27 @@ prepare() {
    		verbump.py 
    # fix
    # sed -i 's|GOBJECT_INTROSPECTION_REQUIRE|# GOBJECT_INTROSPECTION_REQUIRE|g'  ./configure.ac
-   # sed -i 's|include Makefile-insttest.am||g' ./Makefile.am
-   # sed -i 's|include Makefile-test.am||g' ./Makefile.am
+   sed -i 's|include Makefile-insttest.am||g' ./Makefile.am
+   sed -i 's|include Makefile-test.am||g' ./Makefile.am
 }
 
 build() {
   cd $pkgname-$pkgver
 
-  export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
+  export PKG_CONFIG_PATH=/usr/local/${dstdir}/lib/pkgconfig/:${PKG_CONFIG_PATH}
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+  export LD_LIBRARY_PATH=/usr/local/${dstdir}/lib:$LD_LIBRARY_PATH
 
+  # CFLAGS=" -gdwarf-4 -g3 " CXXFLAGS=" -gdwarf-4 -g3 " LDFLAGS=" -gdwarf-4 -g3 " 
   ./autogen.sh --prefix=/usr/local/${dstdir} --disable-static --libexecdir=/usr/local/${dstdir}/lib
 
   #https://bugzilla.gnome.org/show_bug.cgi?id=656231
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 
-  make
+  #sed -i 's| -lffi | -L/usr/local/lib32 -lffi |g' ./Makefile
+
+  # CFLAGS=" -gdwarf-4 -g3 " CXXFLAGS=" -gdwarf-4 -g3 " LDFLAGS=" -gdwarf-4 -g3 " 
+  make V=1
 }
 
 check() {

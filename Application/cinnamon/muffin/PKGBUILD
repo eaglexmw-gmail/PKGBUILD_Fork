@@ -7,7 +7,7 @@ pkgname=muffin
 pkgver=3.2.2
 pkgrel=1
 pkgdesc="Cinnamon window manager based on Mutter"
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' pentium4)
 url="https://github.com/linuxmint/muffin"
 license=('GPL')
 #depends=('clutter' 'gobject-introspection-runtime' 'cinnamon-desktop' 'libcanberra' 'libsm'
@@ -15,7 +15,7 @@ license=('GPL')
 depends=('libsm'
          'startup-notification' 'dconf')
 #makedepends=('intltool' 'gnome-doc-utils' 'gnome-common' 'gobject-introspection' 'gtk-doc') 
-makedepends=('intltool' 'gnome-common' 'gobject-introspection') 
+makedepends=('intltool' 'gnome-common' 'zenity' 'gnome-doc-utils' 'gobject-introspection') 
 options=('!emptydirs')
 install=$pkgname.install
 source=("$pkgname-$pkgver.tar.gz::https://github.com/linuxmint/muffin/archive/$pkgver.tar.gz")
@@ -25,6 +25,8 @@ sha256sums=('0f6805f21fcc35c130d3c9c75de17f000537e73bf6b37672ed9065d28e577f04')
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
   dstdir=cinnamon
 fi
 
@@ -39,15 +41,21 @@ build() {
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
+  export GI_TYPELIB_PATH='/usr/lib/girepository-1.0:/usr/local/${dstdir}/lib/girepository-1.0/'
 
+  # CFLAGS=" -gdwarf-4 -g3 " CXXFLAGS=" -gdwarf-4 -g3 " LDFLAGS=" -gdwarf-4 -g3 " 
   PYTHON=python2 ./autogen.sh --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc --libexecdir=/usr/local/${dstdir}/lib/muffin \
   				 			 --localstatedir=/var --disable-static --disable-schemas-compile \
                  --enable-compile-warnings=minimum
 
+  # --enable-debug
+
   #https://bugzilla.gnome.org/show_bug.cgi?id=656231
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 
-  make
+  sed -i 's|--warn-error||g' src/Makefile
+
+  make V=1
 }
 
 package() {

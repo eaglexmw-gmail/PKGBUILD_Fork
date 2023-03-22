@@ -5,14 +5,15 @@ pkgname=cogl
 pkgver=1.22.2
 pkgrel=1
 pkgdesc="An object oriented GL/GLES Abstraction/Utility Layer"
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' pentium4)
 url="http://www.clutter-project.org/"
 license=('GPL2')
 depends=('mesa' 'libdrm' 'libxext' 'libxdamage' 'libxcomposite' 'gdk-pixbuf2' 'pango' 'libxrandr')
-makedepends=('gobject-introspection')
+makedepends=('gobject-introspection' 'gtk-doc')
 options=(!emptydirs)
 _commit=f38cda9046913c3627c52108467ba90e53d18c33
-source=("git://git.gnome.org/cogl#commit=$_commit")
+#source=("git://git.gnome.org/cogl#commit=$_commit")
+source=("git+https://gitlab.gnome.org/GNOME/cogl.git#commit=$_commit")
 sha256sums=('SKIP')
 
 pkgver() {
@@ -22,6 +23,7 @@ pkgver() {
 
 prepare() {
   cd $pkgname
+  sed -i 's|AUTOMAKE_VERSIONS="|&1.16 |g' ./autogen.sh
   NOCONFIGURE=1 ./autogen.sh
 }
 
@@ -29,12 +31,15 @@ if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
   dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
+  dstdir=cinnamon
 fi
 
 build() {
   cd $pkgname
+  # CFLAGS=" -gdwarf-4 -g3 " CXXFLAGS=" -gdwarf-4 -g3 " LDFLAGS=" -gdwarf-4 -g3 " 
   ./configure --prefix=/usr/local/${dstdir} \
-    --enable-gles{1,2} \
+    --enable-gles2 --enable-gl \
     --enable-{kms,wayland}-egl-platform \
     --enable-wayland-egl-server
 

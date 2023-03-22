@@ -1,7 +1,7 @@
 # $Id$
 # Maintainer: Jan de Groot <jgc@archlinux.org>
 
-pkgbase=(harfbuzz)
+pkgbase=harfbuzz
 pkgname=(harfbuzz harfbuzz-icu)
 pkgver=0.9.37
 pkgrel=1

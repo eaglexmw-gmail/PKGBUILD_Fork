@@ -7,14 +7,15 @@ pkgname=clutter
 pkgver=1.26.0+24+g79da52614
 pkgrel=1
 pkgdesc="A GObject based library for creating fast, visually rich graphical user interfaces"
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' pentium4)
 url="http://clutter-project.org/"
 license=('LGPL')
 # depends=('gtk3' 'cogl' 'libinput')
 depends=('gtk3')
 makedepends=('gobject-introspection' 'gtk-doc')
 _commit=79da526145de3033e01eb1de6d6ec712639a7ea5
-source=("git://git.gnome.org/clutter#commit=$_commit")
+#source=("git://git.gnome.org/clutter#commit=$_commit")
+source=("git+https://gitlab.gnome.org/GNOME/clutter.git#commit=$_commit")
 sha256sums=('SKIP')
 
 pkgver() {
@@ -31,6 +32,8 @@ if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
   dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
+  dstdir=cinnamon
 fi
 
 build() {
@@ -39,6 +42,8 @@ build() {
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
 
+  export LD_LIBRARY_PATH="/usr/local/${dstdir}/lib:${LD_LIBRARY_PATH}"
+  # CFLAGS=" -gdwarf-4 -g3 " CXXFLAGS=" -gdwarf-4 -g3 " LDFLAGS=" -gdwarf-4 -g3 " 
   ./configure --prefix=/usr/local/${dstdir} \
     --enable-introspection \
     --enable-egl-backend \
@@ -46,7 +51,7 @@ build() {
     --enable-wayland-backend \
     --enable-x11-backend \
     --enable-evdev-input \
-    --enable-wayland-compositor
+    --enable-wayland-compositor --enable-debug=yes
 
   # https://bugzilla.gnome.org/show_bug.cgi?id=655517
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool

@@ -8,16 +8,19 @@ pkgrel=1
 pkgdesc="GObject collection library"
 url="http://live.gnome.org/Libgee"
 license=(LGPL2.1)
-arch=(i686 x86_64)
+arch=(i686 x86_64 pentium4)
 depends=(glib2)
 makedepends=(gobject-introspection vala)
 _commit=d52a07b1851e45f3cae3384cae4aa4803a1b6f51  # tags/0.18.1^0
-source=("git://git.gnome.org/libgee#commit=$_commit")
+#source=("git://git.gnome.org/libgee#commit=$_commit")
+source=("git+https://gitlab.gnome.org/GNOME/libgee.git#commit=$_commit")
 sha256sums=('SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
   dstdir=cinnamon
 fi
 
@@ -37,7 +40,37 @@ prepare() {
 build() {
   cd $pkgname
 
-  export GI_TYPELIB_PATH="/usr/lib/girepository-1.0:/usr/local/cinnamon64/lib/girepository-1.0/"
+  export GI_TYPELIB_PATH='/usr/lib/girepository-1.0:/usr/local/${dstdir}/lib/girepository-1.0/'
+
+  sed -i 's|public AbstractMultiMap (Map|protected AbstractMultiMap (Map|g' gee/abstractmultimap.vala
+  sed -i 's|public AbstractMultiSet (Map|protected AbstractMultiSet (Map|g' gee/abstractmultiset.vala
+  sed -i 's|public NodeIterator (HashMap|protected NodeIterator (HashMap|g' gee/hashmap.vala
+  sed -i 's|public NodeIterator.from_iterator (NodeIterator|protected NodeIterator.from_iterator (NodeIterator|g' gee/hashmap.vala
+
+  sed -i 's|private Gee.Future.SourceFuncArrayElement<G>|private Gee.Future.SourceFuncArrayElement|g' gee/promise.vala
+  sed -i 's|new Gee.Future.SourceFuncArrayElement<G>|new Gee.Future.SourceFuncArrayElement|g' gee/promise.vala
+  sed -i 's|Gee.Future.SourceFuncArrayElement<G>|Gee.Future.SourceFuncArrayElement|g' gee/promise.vala
+
+  sed -i 's|private Gee.Future.SourceFuncArrayElement<G>|private Gee.Future.SourceFuncArrayElement|g' gee/lazy.vala
+  sed -i 's|new Gee.Future.SourceFuncArrayElement<G>|new Gee.Future.SourceFuncArrayElement<G>|g' gee/lazy.vala
+  sed -i 's|Gee.Future.SourceFuncArrayElement<G>|Gee.Future.SourceFuncArrayElement|g' gee/lazy.vala
+
+  sed -i 's|private static inline bool remove_level|&<G>|g' gee/concurrentset.vala
+
+  sed -i 's|public BidirListTests (string name)|protected BidirListTests (string name)|g' tests/testbidirlist.vala
+  sed -i 's|public BidirSortedSetTests(string name)|protected BidirSortedSetTests(string name)|g' tests/testbidirsortedset.vala
+  sed -i 's|public BidirSortedMapTests(string name)|protected BidirSortedMapTests(string name)|g' tests/testbidirsortedmap.vala
+  sed -i 's|public TestCase (string name)|protected TestCase (string name)|g' tests/testcase.vala
+  sed -i 's|public CollectionTests (string name)|protected CollectionTests (string name)|g' tests/testcollection.vala
+  sed -i 's|public DequeTests (string name)|protected DequeTests (string name)|g' tests/testdeque.vala
+  sed -i 's|public ListTests (string name)|protected ListTests (string name)|g' tests/testlist.vala
+  sed -i 's|public MapTests (string name)|protected MapTests (string name)|g' tests/testmap.vala
+  sed -i 's|public MultiMapTests (string name)|protected MultiMapTests (string name)|g' tests/testmultimap.vala
+  sed -i 's|public MultiSetTests (string name)|protected MultiSetTests (string name)|g' tests/testmultiset.vala
+  sed -i 's|public QueueTests (string name)|protected QueueTests (string name)|g' tests/testqueue.vala
+  sed -i 's|public SetTests (string name)|protected SetTests (string name)|g' tests/testset.vala
+  sed -i 's|public SortedSetTests (string name,|protected SortedSetTests (string name,|g' tests/testsortedset.vala
+  sed -i 's|public SortedMapTests (string name)|protected SortedMapTests (string name)|g' tests/testsortedmap.vala
 
   ./configure --prefix=/usr/local/${dstdir} --disable-static
   make

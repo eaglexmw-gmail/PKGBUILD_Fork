@@ -49,8 +49,8 @@ prepare() {
   cd $pkgname
 
   git submodule init
-  git config --local submodule.src/gvc.url "$srcdir/libgnome-volume-control"
-  git config --local submodule.data/theme/gnome-shell-sass.url "$srcdir/gnome-shell-sass"
+  #git config --local submodule.src/gvc.url "$srcdir/libgnome-volume-control"
+  #git config --local submodule.data/theme/gnome-shell-sass.url "$srcdir/gnome-shell-sass"
   git submodule update
 
   # FS#30747 FS#32730 Problems due to libexecdir different from NM

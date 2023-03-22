@@ -12,12 +12,14 @@ license=(GPL)
 depends=(cairo 'gtk3')
 makedepends=('gobject-introspection')
 _commit=caeb97adf1f3de02fe5c9d0cd3c1434999a1a6ce
-source=("git://git.gnome.org/gjs#commit=$_commit")
+source=("git+https://gitlab.gnome.org/GNOME/gjs#commit=$_commit")
 sha256sums=('SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gnome3_64
 elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+else
   dstdir=gnome3
 fi
 
@@ -34,6 +36,8 @@ build() {
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
 
   ./configure --prefix=/usr/local/${dstdir} --disable-static --libexecdir=/usr/local/${dstdir}/lib
+  # fix bug in gcc 11
+  sed -i 's|static volatile size_t|static size_t|g' libgjs-private/gjs-util.cpp
   make
 }
 

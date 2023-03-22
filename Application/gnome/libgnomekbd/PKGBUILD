@@ -6,19 +6,22 @@ pkgver=3.22.0.1
 pkgrel=1
 pkgdesc="Gnome keyboard library"
 url="http://gswitchit.sourceforge.net"
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' pentium4)
 license=('LGPL')
 depends=('libxklavier' 'gtk3' 'dconf')
 makedepends=('intltool' 'gobject-introspection')
 options=('!emptydirs')
 install=libgnomekbd.install
 _commit=b14cf08b3bdafb7d3455f3158c13b334eb26b8fb
-source=("git://git.gnome.org/libgnomekbd#commit=$_commit")
+#source=("git://git.gnome.org/libgnomekbd#commit=$_commit")
+source=("git+https://gitlab.gnome.org/GNOME/libgnomekbd.git#commit=$_commit")
 sha256sums=('SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=gnome3_64
 elif [ "$CARCH" = "i686" ]; then
+  dstdir=gnome3
+elif [ "$CARCH" = "pentium4" ]; then
   dstdir=gnome3
 fi
 
@@ -30,12 +33,17 @@ pkgver() {
 prepare() {
   cd $pkgname
   NOCONFIGURE=1 ./autogen.sh
+  sed -i "s|g_strv_equal|gkbd_strv_equal|g" libgnomekbd/gkbd-keyboard-config.c 
 }
 
 build() {
   cd "$pkgname"
   ./configure --prefix=/usr/local/${dstdir} --sysconfdir=/usr/local/${dstdir}/etc \
       --disable-schemas-compile --disable-static
+
+  sed -i "s|GETTEXT_MACRO_VERSION = 0.19|GETTEXT_MACRO_VERSION = 0.20|g" po/Makefile.in
+  sed -i "s|GETTEXT_MACRO_VERSION = 0.19|GETTEXT_MACRO_VERSION = 0.20|g" po/Makefile.in.in
+
   make
 }
 

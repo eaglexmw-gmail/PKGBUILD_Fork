@@ -1,0 +1,64 @@
+diff -Nur qt-everywhere-opensource-src-5.9.9/qtbase/src/corelib/global/qglobal.h qt-everywhere-opensource-src-5.9.9_new/qtbase/src/corelib/global/qglobal.h
+--- qt-everywhere-opensource-src-5.9.9/qtbase/src/corelib/global/qglobal.h	2019-12-03 20:50:08.000000000 +0800
++++ qt-everywhere-opensource-src-5.9.9_new/qtbase/src/corelib/global/qglobal.h	2023-03-18 18:28:49.000000000 +0800
+@@ -42,6 +42,11 @@
+ #define QGLOBAL_H
+ 
+ #ifdef __cplusplus
++#include <stdexcept>
++#include <limits>
++#endif
++
++#ifdef __cplusplus
+ #  include <type_traits>
+ #  include <cstddef>
+ #  include <utility>
+diff -Nur qt-everywhere-opensource-src-5.9.9/qtbase/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_egldevice/qeglfskmsegldevice.cpp qt-everywhere-opensource-src-5.9.9_new/qtbase/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_egldevice/qeglfskmsegldevice.cpp
+--- qt-everywhere-opensource-src-5.9.9/qtbase/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_egldevice/qeglfskmsegldevice.cpp	2019-12-03 20:50:08.000000000 +0800
++++ qt-everywhere-opensource-src-5.9.9_new/qtbase/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_egldevice/qeglfskmsegldevice.cpp	2023-03-18 18:29:06.000000000 +0800
+@@ -77,9 +77,9 @@
+     setFd(-1);
+ }
+ 
+-EGLNativeDisplayType QEglFSKmsEglDevice::nativeDisplay() const
++void *QEglFSKmsEglDevice::nativeDisplay() const
+ {
+-    return reinterpret_cast<EGLNativeDisplayType>(m_devInt->eglDevice());
++    return m_devInt->eglDevice();
+ }
+ 
+ QPlatformScreen *QEglFSKmsEglDevice::createScreen(const QKmsOutput &output)
+diff -Nur qt-everywhere-opensource-src-5.9.9/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp qt-everywhere-opensource-src-5.9.9_new/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp
+--- qt-everywhere-opensource-src-5.9.9/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp	2019-12-02 18:47:46.000000000 +0800
++++ qt-everywhere-opensource-src-5.9.9_new/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp	2023-03-18 18:29:33.000000000 +0800
+@@ -37,6 +37,7 @@
+ ** $QT_END_LICENSE$
+ **
+ ****************************************************************************/
++#include <math.h>
+ 
+ #include "qjp2handler_p.h"
+ 
+diff -Nur qt-everywhere-opensource-src-5.9.9/qtserialbus/src/plugins/canbus/socketcan/socketcanbackend.cpp qt-everywhere-opensource-src-5.9.9_new/qtserialbus/src/plugins/canbus/socketcan/socketcanbackend.cpp
+--- qt-everywhere-opensource-src-5.9.9/qtserialbus/src/plugins/canbus/socketcan/socketcanbackend.cpp	2019-12-02 18:53:49.000000000 +0800
++++ qt-everywhere-opensource-src-5.9.9_new/qtserialbus/src/plugins/canbus/socketcan/socketcanbackend.cpp	2023-03-18 18:29:46.000000000 +0800
+@@ -49,6 +49,7 @@
+ #include <net/if.h>
+ #include <sys/ioctl.h>
+ #include <sys/time.h>
++#include <linux/sockios.h>
+ 
+ #ifndef CANFD_MTU
+ // CAN FD support was added by Linux kernel 3.6
+diff -Nur qt-everywhere-opensource-src-5.9.9/qtwebengine/src/3rdparty/chromium/base/sys_info_posix.cc qt-everywhere-opensource-src-5.9.9_new/qtwebengine/src/3rdparty/chromium/base/sys_info_posix.cc
+--- qt-everywhere-opensource-src-5.9.9/qtwebengine/src/3rdparty/chromium/base/sys_info_posix.cc	2019-12-06 02:23:22.000000000 +0800
++++ qt-everywhere-opensource-src-5.9.9_new/qtwebengine/src/3rdparty/chromium/base/sys_info_posix.cc	2023-03-18 18:30:10.000000000 +0800
+@@ -85,7 +85,7 @@
+   if (HANDLE_EINTR(statfs(path.value().c_str(), &stats)) != 0)
+     return false;
+ 
+-  switch (stats.f_type) {
++  switch ((unsigned int)stats.f_type) {
+     case TMPFS_MAGIC:
+     case HUGETLBFS_MAGIC:
+     case RAMFS_MAGIC:

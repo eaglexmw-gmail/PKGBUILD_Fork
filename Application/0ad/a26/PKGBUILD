@@ -1,0 +1,55 @@
+# Maintainer: Sven-Hendrik Haase <svenstaro@archlinux.org>
+# Contributor: t3ddy  <t3ddy1988 "at" gmail {dot} com>
+# Contributor: Adrián Chaves Fernández (Gallaecio) <adriyetichaves@gmail.com>
+pkgname=0ad
+pkgver=a26
+_pkgver=0.0.26-alpha
+pkgrel=4
+pkgdesc="Cross-platform, 3D and historically-based real-time strategy game"
+arch=('pentium4' 'x86_64')
+url="http://play0ad.com/"
+license=('GPL2' 'CCPL')
+depends=('0ad-data' 'binutils' 'boost-libs' 'curl' 'enet' 'libogg' 'libpng' 'libvorbis'
+         'libxml2' 'openal' 'sdl2' 'wxwidgets-gtk3' 'zlib' 'libgl' 'glu' 'fmt'
+         'gloox' 'miniupnpc' 'libminiupnpc.so' 'icu' 'nspr' 'libsodium' 'which')
+depends=(           'binutils' 'boost-libs' 'curl' 'enet' 'libogg' 'libpng' 'libvorbis'
+         'libxml2' 'openal' 'sdl2' 'wxwidgets-gtk3' 'zlib' 'libgl' 'glu' 'fmt'
+         'gloox' 'miniupnpc' 'libminiupnpc.so' 'icu' 'nspr' 'libsodium' 'which')
+makedepends=('boost' 'cmake' 'mesa' 'zip' 'libsm' 'rust' 'python' 'clang')
+#makedepends=('boost' 'cmake' 'mesa' 'zip' 'libsm')
+options=('!lto') # breaks spidermonkey linking (https://bugs.gentoo.org/746947)
+source=("https://releases.wildfiregames.com/$pkgname-$_pkgver-unix-build.tar.xz")
+sha512sums=('aaf647d5d8454c244015d2a198beeaaebc571a5bc96446f3acff8dbd05f9843029c500bf4162651a5e1fcdb42bd5fb5b4f5c512c78372479fbd8565dd093f272')
+
+build() {
+  cd "$pkgname-$_pkgver/build/workspaces"
+
+  export WX_CONFIG=/usr/bin/wx-config
+  ./update-workspaces.sh -j$(nproc) \
+      --without-pch \
+      --bindir=/usr/local/0ad/bin \
+      --libdir=/usr/local/0ad/lib/0ad \
+      --datadir=/usr/local/0ad/share/0ad/data
+
+  cd gcc
+
+  #sed -i 's|-lgloox |-lgloox -lidn -lresolv -lgnutls |g' pyrogenesis.make
+  #sed -i 's|-lengine |-lengine -L/usr/lib/ -licuuc |g' pyrogenesis.make
+  #sed -i 's|-lboost_filesystem | -Wl,-Bstatic & -Wl,-Bdynamic |g' pyrogenesis.make
+  #sed -i 's| Collada test| Collada|g' Makefile
+
+  VERBOSE=1 make
+}
+
+package() {
+  cd "$pkgname-$_pkgver"
+  install -d "${pkgdir}"/usr/local/0ad/{bin,lib/0ad,share/"${pkgname}"/data}
+  install -Dm755 binaries/system/pyrogenesis "${pkgdir}/usr/local/0ad/bin"
+  install -Dm755 binaries/system/*.so "${pkgdir}/usr/local/0ad/lib/0ad"
+
+  cp -r binaries/data/l10n/ "${pkgdir}/usr/local/0ad/share/${pkgname}/data/"
+
+  install -Dm755 build/resources/${pkgname}.sh "${pkgdir}/usr/local/0ad/bin/${pkgname}"
+  install -Dm644 build/resources/${pkgname}.desktop "${pkgdir}/usr/local/0ad/share/applications/${pkgname}.desktop"
+  install -Dm644 build/resources/${pkgname}.png "${pkgdir}/usr/local/0ad/share/pixmaps/${pkgname}.png"
+}

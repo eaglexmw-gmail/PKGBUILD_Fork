@@ -1,0 +1,16 @@
+diff --git a/qtbase/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_egldevice/qeglfskmsegldevice.cpp b/qtbase/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_egldevice/qeglfskmsegldevice.cpp
+index 0a66a897a1..cca413ff2d 100644
+--- a/qtbase/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_egldevice/qeglfskmsegldevice.cpp
++++ b/qtbase/src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_egldevice/qeglfskmsegldevice.cpp
+@@ -77,9 +77,9 @@ void QEglFSKmsEglDevice::close()
+     setFd(-1);
+ }
+ 
+-EGLNativeDisplayType QEglFSKmsEglDevice::nativeDisplay() const
++void *QEglFSKmsEglDevice::nativeDisplay() const
+ {
+-    return reinterpret_cast<EGLNativeDisplayType>(m_devInt->eglDevice());
++    return m_devInt->eglDevice();
+ }
+ 
+ QPlatformScreen *QEglFSKmsEglDevice::createScreen(const QKmsOutput &output)

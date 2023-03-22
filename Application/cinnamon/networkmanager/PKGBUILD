@@ -11,18 +11,18 @@ pkgname=(networkmanager libnm-glib)
 pkgver=1.0.10
 pkgrel=1
 pkgdesc="Network Management daemon"
-arch=(i686 x86_64)
+arch=(i686 x86_64 pentium4)
 license=(GPL2 LGPL2.1)
 url="http://www.gnome.org/projects/NetworkManager/"
 _pppver=2.4.7
-makedepends=(intltool dhclient iptables gobject-introspection gtk-doc "ppp=$_pppver"
-             modemmanager dbus-glib iproute2 libnl nss polkit wpa_supplicant libsoup
-             systemd libgudev libmm-glib rp-pppoe libnewt libndp libteam vala perl-yaml
-             python2-gobject)
-makedepends=(intltool dhclient iptables gobject-introspection gtk-doc "ppp=$_pppver"
+#makedepends=(intltool dhclient iptables gobject-introspection gtk-doc "ppp=$_pppver"
+#             modemmanager dbus-glib iproute2 libnl nss polkit wpa_supplicant libsoup
+#             systemd libgudev libmm-glib rp-pppoe libnewt libndp libteam vala perl-yaml
+#             python2-gobject)
+makedepends=(intltool dhclient iptables gobject-introspection gtk-doc
              dbus-glib iproute2 libnl nss polkit wpa_supplicant libsoup
              systemd libgudev rp-pppoe vala perl-yaml
-             python2-gobject)
+             )
 checkdepends=(libx11 python2-dbus)
 checkdepends=(libx11)
 #_commit=ba46efd07777350be737dbdac9df9becb86e8f77
@@ -37,6 +37,8 @@ if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
   dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
+  dstdir=cinnamon
 fi
 
 prepare() {
@@ -46,6 +48,8 @@ prepare() {
   cd NetworkManager-$pkgver
   patch -Np1 -i ../disable_set_hostname.patch
   NOCONFIGURE=1 ./autogen.sh
+  sed -i '127,129d' src/dhcp-manager/systemd-dhcp/nm-sd-adapt.h
+  sed -i '127a#define gettid() ((pid_t)syscall(SYS_gettid))' src/dhcp-manager/systemd-dhcp/nm-sd-adapt.h
 }
 
 build() {
@@ -56,6 +60,11 @@ build() {
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/${dstdir}/lib
 
   cd NetworkManager-$pkgver
+if [ "$CARCH" = "x86_64" ]; then
+  export LDFLAGS="-L/usr/local/lib64"
+else
+  export LDFLAGS="-L/usr/local/lib32"
+fi 
   ./configure --prefix=/usr/local/${dstdir} \
     --sysconfdir=/usr/local/${dstdir}/etc \
     --localstatedir=/var \

@@ -1,0 +1,7 @@
+*.tar.zst
+*.tar.bz2
+*.tar.gz
+*.tar.xz
+**/src/
+**/pkg/
+*qt*everything*

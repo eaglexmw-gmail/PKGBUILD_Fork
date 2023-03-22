@@ -5,18 +5,21 @@ pkgname=clutter-gtk
 pkgver=1.8.2
 pkgrel=1
 pkgdesc="GTK clutter widget"
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' pentium4)
 url="http://clutter-project.org/"
 license=('LGPL')
 # depends=('clutter')
 makedepends=('gobject-introspection' 'gtk-doc')
 _commit=d48408a24672fa553034a0b3749bee930ad7c49d
-source=("git://git.gnome.org/clutter-gtk#commit=$_commit")
+#source=("git://git.gnome.org/clutter-gtk#commit=$_commit")
+source=("git+https://gitlab.gnome.org/GNOME/clutter-gtk#commit=$_commit")
 sha256sums=('SKIP')
 
 if [ "$CARCH" = "x86_64" ]; then
   dstdir=cinnamon64
 elif [ "$CARCH" = "i686" ]; then
+  dstdir=cinnamon
+elif [ "$CARCH" = "pentium4" ]; then
   dstdir=cinnamon
 fi
 
@@ -36,6 +39,8 @@ build() {
   export PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:/usr/local/${dstdir}/lib/pkgconfig/
   export XDG_DATA_DIRS=$XDG_DATA_DIRS:/usr/local/${dstdir}/share
 
+  export LD_LIBRARY_PATH="/usr/local/${dstdir}/lib:${LD_LIBRARY_PATH}"
+  #CFLAGS=" -gdwarf-4 -g3 " CXXFLAGS=" -gdwarf-4 -g3 " LDFLAGS=" -gdwarf-4 -g3 " 
   ./configure --prefix=/usr/local/${dstdir}
   # https://bugzilla.gnome.org/show_bug.cgi?id=655517
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
