@@ -1,0 +1,51 @@
+diff -Nur qt-everywhere-opensource-src-5.6.3/qtbase/src/corelib/global/qglobal.h qt-everywhere-opensource-src-5.6.3_new/qtbase/src/corelib/global/qglobal.h
+--- qt-everywhere-opensource-src-5.6.3/qtbase/src/corelib/global/qglobal.h	2017-09-06 20:13:54.000000000 +0800
++++ qt-everywhere-opensource-src-5.6.3_new/qtbase/src/corelib/global/qglobal.h	2023-03-19 11:34:01.000000000 +0800
+@@ -36,6 +36,11 @@
+ #define QGLOBAL_H
+ 
+ #ifdef __cplusplus
++#include <stdexcept>
++#include <limits>
++#endif
++
++#ifdef __cplusplus
+ #  include <cstddef>
+ #endif
+ 
+diff -Nur qt-everywhere-opensource-src-5.6.3/qtbase/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp qt-everywhere-opensource-src-5.6.3_new/qtbase/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp
+--- qt-everywhere-opensource-src-5.6.3/qtbase/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp	2017-09-06 20:13:54.000000000 +0800
++++ qt-everywhere-opensource-src-5.6.3_new/qtbase/src/plugins/platforms/xcb/qxcbconnection_xi2.cpp	2023-03-19 11:34:23.000000000 +0800
+@@ -698,6 +698,9 @@
+                          " Minimum libXi version required is 1.7.4."
+                          " Expect issues with touch behavior.");
+             }
++#elif (LIBXI_MAJOR == 1) && ((LIBXI_MINOR >= 8))
++            XIAllowTouchEvents(static_cast<Display *>(m_xlib_display), xiDeviceEvent->deviceid,
++                               xiDeviceEvent->detail, xiDeviceEvent->event, XIAcceptTouch);
+ #elif LIBXI_MAJOR == 1 && (LIBXI_MINOR < 7 || (LIBXI_MINOR == 7 && LIBXI_PATCH < 4))
+             static bool allowTouchWarningShown = false;
+             if (!allowTouchWarningShown) {
+diff -Nur qt-everywhere-opensource-src-5.6.3/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp qt-everywhere-opensource-src-5.6.3_new/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp
+--- qt-everywhere-opensource-src-5.6.3/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp	2017-09-06 20:15:20.000000000 +0800
++++ qt-everywhere-opensource-src-5.6.3_new/qtimageformats/src/plugins/imageformats/jp2/qjp2handler.cpp	2023-03-19 11:34:52.000000000 +0800
+@@ -31,7 +31,7 @@
+ ** $QT_END_LICENSE$
+ **
+ ****************************************************************************/
+-
++#include <math.h>
+ #include "qjp2handler_p.h"
+ 
+ #include "qimage.h"
+diff -Nur qt-everywhere-opensource-src-5.6.3/qtserialbus/src/plugins/canbus/socketcan/socketcanbackend.cpp qt-everywhere-opensource-src-5.6.3_new/qtserialbus/src/plugins/canbus/socketcan/socketcanbackend.cpp
+--- qt-everywhere-opensource-src-5.6.3/qtserialbus/src/plugins/canbus/socketcan/socketcanbackend.cpp	2017-09-06 20:16:43.000000000 +0800
++++ qt-everywhere-opensource-src-5.6.3_new/qtserialbus/src/plugins/canbus/socketcan/socketcanbackend.cpp	2023-03-19 11:35:05.000000000 +0800
+@@ -47,6 +47,7 @@
+ #include <net/if.h>
+ #include <sys/ioctl.h>
+ #include <sys/time.h>
++#include <linux/sockios.h>
+ 
+ #ifndef CANFD_MTU
+ // CAN FD support was added by Linux kernel 3.6
