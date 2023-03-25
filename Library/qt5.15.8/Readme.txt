@@ -5,6 +5,12 @@ https://codereview.qt-project.org/c/qt/qtdoc/+/300877/3/doc/src/platforms/linux.
 使用静态编译的xkbcommon-x11库
 export PKG_CONFIG_PATH="/usr/local/lib32/pkgconfig/:${PKG_CONFIG_PATH}"
 
+补丁来自于BLFS
+patch -Np1 -i ../qt-everywhere-opensource-src-5.15.8-kf5-1.patch
+打完补丁后，拷贝qtsan_impl.h至qtbase/include/QtCore/目录下
+如果有老版本的harfbuzz头文件，需要先改名。
+同时编译动态库版本时，需要有python
+
 
 编译时，如果出现numeric_limits错误，找到对应头文件插入如下两行
 #include <stdexcept>
