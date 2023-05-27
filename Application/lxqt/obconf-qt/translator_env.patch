@@ -1,0 +1,23 @@
+diff -Nur obconf-qt-0.16.2/src/obconf-qt.cpp obconf-qt-0.16.2_new/src/obconf-qt.cpp
+--- obconf-qt-0.16.2/src/obconf-qt.cpp	2022-03-12 00:26:21.000000000 +0800
++++ obconf-qt-0.16.2_new/src/obconf-qt.cpp	2023-05-21 14:17:13.129954683 +0800
+@@ -190,7 +190,18 @@
+   app.installTranslator(&qtTranslator);
+ 
+   // install our own tranlations
+-  translator.load(QStringLiteral("obconf-qt_") + QLocale::system().name(), QStringLiteral(PACKAGE_DATA_DIR) + QStringLiteral("/translations"));
++  if (!translator.load(QStringLiteral("obconf-qt_") + QLocale::system().name(), QStringLiteral(PACKAGE_DATA_DIR) + QStringLiteral("/translations")))
++  {
++    QStringList dirs;
++    dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++    for(const QString &p : qAsConst(dirs))
++    {
++        if (translator.load(QLatin1String("obconf-qt_") + QLocale::system().name(), p + QLatin1String("/obconf-qt/translations")))
++        {
++            break;
++        }
++    }
++  }
+   app.installTranslator(&translator);
+ 
+   // load configurations

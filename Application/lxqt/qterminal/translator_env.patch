@@ -1,0 +1,24 @@
+diff -Nur qterminal-1.2.0/src/main.cpp qterminal-1.2.0_new/src/main.cpp
+--- qterminal-1.2.0/src/main.cpp	2022-11-05 16:37:07.000000000 +0800
++++ qterminal-1.2.0_new/src/main.cpp	2023-05-21 12:52:42.006662447 +0800
+@@ -186,7 +186,19 @@
+     QString fname = QString::fromLatin1("qterminal_%1.qm").arg(QLocale::system().name().left(5));
+ #ifdef TRANSLATIONS_DIR
+     //qDebug() << "TRANSLATIONS_DIR: Loading translation file" << fname << "from dir" << TRANSLATIONS_DIR;
+-    /*qDebug() << "load success:" <<*/ translator.load(fname, QString::fromUtf8(TRANSLATIONS_DIR), QStringLiteral("_"));
++    /*qDebug() << "load success:" <<*/ 
++    if (!translator.load(fname, QString::fromUtf8(TRANSLATIONS_DIR), QStringLiteral("_")))
++    {
++        QStringList dirs;
++        dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++        for(const QString &p : qAsConst(dirs))
++        {
++            if (translator.load(fname, p + QLatin1String("/qterminal/translations")))
++            {
++                break;
++            }
++        }
++    }
+ #endif
+ #ifdef APPLE_BUNDLE
+     QDir translations_dir = QDir(QApplication::applicationDirPath());

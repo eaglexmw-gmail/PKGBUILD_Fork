@@ -1,0 +1,23 @@
+diff -Nur pcmanfm-qt-1.2.1/pcmanfm/application.cpp pcmanfm-qt-1.2.1_new/pcmanfm/application.cpp
+--- pcmanfm-qt-1.2.1/pcmanfm/application.cpp	2023-01-02 19:20:23.000000000 +0800
++++ pcmanfm-qt-1.2.1_new/pcmanfm/application.cpp	2023-05-21 11:21:20.909949200 +0800
+@@ -338,7 +338,18 @@
+     installTranslator(libFm_.translator());
+ 
+     // install our own tranlations
+-    translator.load(QStringLiteral("pcmanfm-qt_") + QLocale::system().name(), QStringLiteral(PCMANFM_DATA_DIR) + QStringLiteral("/translations"));
++    if (!translator.load(QStringLiteral("pcmanfm-qt_") + QLocale::system().name(), QStringLiteral(PCMANFM_DATA_DIR) + QStringLiteral("/translations")))
++    {
++        QStringList dirs;
++        dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++        for(const QString &p : qAsConst(dirs))
++        {
++            if (translator.load(QLatin1String("pcmanfm-qt_") + QLocale::system().name(), p + QLatin1String("/pcmanfm-qt/translations")))
++            {
++                break;
++            }
++        }
++    }
+     installTranslator(&translator);
+ }
+ 

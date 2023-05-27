@@ -1,0 +1,40 @@
+diff -Nur qtermwidget-1.2.0/lib/tools.cpp qtermwidget-1.2.0_new/lib/tools.cpp
+--- qtermwidget-1.2.0/lib/tools.cpp	2022-11-05 16:35:28.000000000 +0800
++++ qtermwidget-1.2.0_new/lib/tools.cpp	2023-05-21 19:50:10.479903667 +0800
+@@ -25,6 +25,17 @@
+     {
+         rval = k.append(QLatin1Char('/'));
+         return rval;
++    } else {
++        QStringList dirs;
++        dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++        for(const QString &p : qAsConst(dirs))
++        {
++            d.setPath(p + QLatin1String("/qtermwidget5/kb-layouts/"));
++            if (d.exists())
++            {
++                return p + QLatin1String("/qtermwidget5/kb-layouts/");
++            }
++        }
+     }
+ 
+ #ifdef Q_OS_MAC
+@@ -69,6 +80,18 @@
+ 
+     if (d.exists())
+         rval << k.append(QLatin1Char('/'));
++    else {
++        QStringList dirs;
++        dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++        for(const QString &p : qAsConst(dirs))
++        {
++            d.setPath(p + QLatin1String("/qtermwidget5/color-schemes/"));
++            if (d.exists())
++            {
++                rval << (p + QLatin1String("/qtermwidget5/color-schemes/"));
++            }
++        }
++    }
+ 
+ #ifdef Q_OS_MAC
+     // subdir in the app location

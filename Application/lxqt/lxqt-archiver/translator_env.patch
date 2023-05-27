@@ -1,0 +1,23 @@
+diff -Nur lxqt-archiver-0.7.0/src/main.cpp lxqt-archiver-0.7.0_new/src/main.cpp
+--- lxqt-archiver-0.7.0/src/main.cpp	2022-11-05 16:14:39.000000000 +0800
++++ lxqt-archiver-0.7.0_new/src/main.cpp	2023-05-21 11:04:24.406624088 +0800
+@@ -379,7 +379,18 @@
+ 
+     // install our own tranlations
+     QTranslator translator;
+-    translator.load(QStringLiteral("lxqt-archiver_") + QLocale::system().name(), QStringLiteral(LXQT_ARCHIVER_DATA_DIR) + QStringLiteral("/translations"));
++    if (!translator.load(QStringLiteral("lxqt-archiver_") + QLocale::system().name(), QStringLiteral(LXQT_ARCHIVER_DATA_DIR) + QStringLiteral("/translations")))
++    {
++        QStringList dirs;
++        dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++        for(const QString &p : qAsConst(dirs))
++        {
++            if (translator.load(QLatin1String("lxqt-archiver_") + QLocale::system().name(), p + QLatin1String("/lxqt-archiver/translations")))
++            {
++                break;
++            }
++        }
++    }
+     app.installTranslator(&translator);
+ 
+     // initialize libfm-qt

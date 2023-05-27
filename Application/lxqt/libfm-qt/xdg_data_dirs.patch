@@ -1,0 +1,172 @@
+diff -Nur libfm-qt-1.3.0/src/core/archiver.cpp libfm-qt-1.3.0_new/src/core/archiver.cpp
+--- libfm-qt-1.3.0/src/core/archiver.cpp	2023-01-02 17:57:18.000000000 +0800
++++ libfm-qt-1.3.0_new/src/core/archiver.cpp	2023-05-21 16:56:20.043321026 +0800
+@@ -139,30 +139,47 @@
+     // load all archivers on demand
+     if(allArchivers_.empty()) {
+         GKeyFile* kf = g_key_file_new();
+-        if(g_key_file_load_from_file(kf, LIBFM_QT_DATA_DIR "/archivers.list", G_KEY_FILE_NONE, nullptr)) {
+-            gsize n_archivers;
+-            CStrArrayPtr programs{g_key_file_get_groups(kf, &n_archivers)};
+-            if(programs) {
+-                gsize i;
+-                for(i = 0; i < n_archivers; ++i) {
+-                    auto program = programs[i];
+-                    std::unique_ptr<Archiver> archiver{new Archiver{}};
+-                    archiver->createCmd_ = CStrPtr{g_key_file_get_string(kf, program, "create", nullptr)};
+-                    archiver->extractCmd_ = CStrPtr{g_key_file_get_string(kf, program, "extract", nullptr)};
+-                    archiver->extractToCmd_ = CStrPtr{g_key_file_get_string(kf, program, "extract_to", nullptr)};
+-                    archiver->mimeTypes_ = CStrArrayPtr{g_key_file_get_string_list(kf, program, "mime_types", nullptr, nullptr)};
+-                    archiver->program_ = CStrPtr{g_strdup(program)};
++        if(!g_key_file_load_from_file(kf, LIBFM_QT_DATA_DIR "/archivers.list", G_KEY_FILE_NONE, nullptr)) {
++             // support $XDG_DATA_DIRS env
++            QStringList dirs;
++            bool has_get_kf = false;
++            dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++            for(const QString &p : qAsConst(dirs))
++            {
++                if (g_key_file_load_from_file(kf, QString(p + QLatin1String("/libfm-qt/archivers.list")).toStdString().c_str(), G_KEY_FILE_NONE, nullptr))
++                {
++                    has_get_kf = true;
++                    break;
++                }
++            }
++            // does get kf?
++            if (!has_get_kf)
++            {
++                return allArchivers_;
++            }
++        }
++        gsize n_archivers;
++        CStrArrayPtr programs{g_key_file_get_groups(kf, &n_archivers)};
++        if(programs) {
++            gsize i;
++            for(i = 0; i < n_archivers; ++i) {
++                auto program = programs[i];
++                std::unique_ptr<Archiver> archiver{new Archiver{}};
++                archiver->createCmd_ = CStrPtr{g_key_file_get_string(kf, program, "create", nullptr)};
++                archiver->extractCmd_ = CStrPtr{g_key_file_get_string(kf, program, "extract", nullptr)};
++                archiver->extractToCmd_ = CStrPtr{g_key_file_get_string(kf, program, "extract_to", nullptr)};
++                archiver->mimeTypes_ = CStrArrayPtr{g_key_file_get_string_list(kf, program, "mime_types", nullptr, nullptr)};
++                archiver->program_ = CStrPtr{g_strdup(program)};
+ 
+-                    // if default archiver is not set, find the first program existing in the current system.
+-                    if(!defaultArchiver_) {
+-                        CStrPtr fullPath{g_find_program_in_path(program)};
+-                        if(fullPath) {
+-                            defaultArchiver_ = archiver.get();
+-                        }
++                // if default archiver is not set, find the first program existing in the current system.
++                if(!defaultArchiver_) {
++                    CStrPtr fullPath{g_find_program_in_path(program)};
++                    if(fullPath) {
++                        defaultArchiver_ = archiver.get();
+                     }
+-
+-                    allArchivers_.emplace_back(std::move(archiver));
+                 }
++
++                allArchivers_.emplace_back(std::move(archiver));
+             }
+         }
+         g_key_file_free(kf);
+diff -Nur libfm-qt-1.3.0/src/core/terminal.cpp libfm-qt-1.3.0_new/src/core/terminal.cpp
+--- libfm-qt-1.3.0/src/core/terminal.cpp	2023-01-02 17:57:18.000000000 +0800
++++ libfm-qt-1.3.0_new/src/core/terminal.cpp	2023-05-21 16:56:38.826654206 +0800
+@@ -22,8 +22,23 @@
+     /* read system terminals file */
+     GKeyFile* kf = g_key_file_new();
+     if(!g_key_file_load_from_file(kf, LIBFM_QT_DATA_DIR "/terminals.list", G_KEY_FILE_NONE, &error)) {
+-        g_key_file_free(kf);
+-        return false;
++        // support $XDG_DATA_DIRS env
++        QStringList dirs;
++        bool has_get_kf = false;
++        dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++        for(const QString &p : qAsConst(dirs))
++        {
++            if (g_key_file_load_from_file(kf, QString(p + QLatin1String("/libfm-qt/terminals.list")).toStdString().c_str(), G_KEY_FILE_NONE, &error))
++            {
++                has_get_kf = true;
++                break;
++            }
++        }
++        if (!has_get_kf)
++        {
++            g_key_file_free(kf);
++            return false;
++        }
+     }
+     auto launch = g_key_file_get_string(kf, programName, "launch", nullptr);
+     auto desktop_id = g_key_file_get_string(kf, programName, "desktop_id", nullptr);
+@@ -121,6 +136,23 @@
+             terminals.emplace_back(*name);
+         }
+         g_free(programs);
++    } else { // support $XDG_DATA_DIRS env
++        QStringList dirs;
++        dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++        for(const QString &p : qAsConst(dirs))
++        {
++            if (g_key_file_load_from_file(kf, QString(p + QLatin1String("/libfm-qt/terminals.list")).toStdString().c_str(), G_KEY_FILE_NONE, nullptr))
++            {
++                gsize n;
++                auto programs = g_key_file_get_groups(kf, &n);
++                terminals.reserve(n);
++                for(auto name = programs; *name; ++name) {
++                    terminals.emplace_back(*name);
++                }
++                g_free(programs);
++                break;
++            }
++        }
+     }
+     g_key_file_free(kf);
+     return terminals;
+@@ -142,6 +174,22 @@
+             noclose_arg = CStrPtr{g_key_file_get_string(kf, program, "noclose_arg", nullptr)};
+             custom_args = CStrPtr{g_key_file_get_string(kf, program, "custom_args", nullptr)};
+         }
++    } else { // support $XDG_DATA_DIRS env
++        QStringList dirs;
++        dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++        for(const QString &p : qAsConst(dirs))
++        {
++            if (g_key_file_load_from_file(kf, QString(p + QLatin1String("/libfm-qt/terminals.list")).toStdString().c_str(), G_KEY_FILE_NONE, error))
++            {
++                if(g_key_file_has_group(kf, defaultTerminalName.c_str())) {
++                    program = defaultTerminalName.c_str();
++                    open_arg = CStrPtr{g_key_file_get_string(kf, program, "open_arg", nullptr)};
++                    noclose_arg = CStrPtr{g_key_file_get_string(kf, program, "noclose_arg", nullptr)};
++                    custom_args = CStrPtr{g_key_file_get_string(kf, program, "custom_args", nullptr)};
++                }
++                break;
++            }
++        }
+     }
+     g_key_file_free(kf);
+ 
+diff -Nur libfm-qt-1.3.0/src/libfmqt.cpp libfm-qt-1.3.0_new/src/libfmqt.cpp
+--- libfm-qt-1.3.0/src/libfmqt.cpp	2023-01-02 17:57:18.000000000 +0800
++++ libfm-qt-1.3.0_new/src/libfmqt.cpp	2023-05-20 22:30:17.619664238 +0800
+@@ -61,7 +61,19 @@
+     // turn on glib debug message
+     // g_setenv("G_MESSAGES_DEBUG", "all", true);
+     Fm::Thumbnailer::loadAll();
+-    translator.load(QLatin1String("libfm-qt_") + QLocale::system().name(), QLatin1String(LIBFM_QT_DATA_DIR) + QLatin1String("/translations"));
++    // if load translator from LIBFM_QT_DATA_DIR fail, try to test XDG_DATA_DIRS
++    if (!translator.load(QLatin1String("libfm-qt_") + QLocale::system().name(), QLatin1String(LIBFM_QT_DATA_DIR) + QLatin1String("/translations")))
++    {
++        QStringList dirs;
++        dirs << QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
++        for(const QString &p : qAsConst(dirs))
++        {
++            if (translator.load(QLatin1String("libfm-qt_") + QLocale::system().name(), p + QLatin1String("/libfm-qt/translations")))
++            {
++                break;
++            }
++        }
++    }
+ 
+     // FIXME: we keep the FmConfig data structure here to keep compatibility with legacy libfm API.
+     fm_config_init();
